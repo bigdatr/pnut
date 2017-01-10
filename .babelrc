@@ -1,0 +1,14 @@
+{
+    "presets": ["blueflag"],
+    "plugins": ["babel-plugin-transform-class-properties"],
+    "ignore": [
+        "**/*-test.js"
+    ],
+    "env": {
+      "test": {
+        "plugins": [
+          "istanbul"
+        ]
+      }
+    }
+}
