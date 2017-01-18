@@ -57,7 +57,7 @@ class ChartData extends Record({
      * Get the minimum non-null value in a column.
      *
      * @param {string} columns The name of the column
-     * @return {string|number|boolean|null} The minimum value, or null if no mininum value could be determined
+     * @return {number|null} The minimum value, or null if no mininum value could be determined
      *
      * @memberOf ChartData
      */
@@ -76,7 +76,7 @@ class ChartData extends Record({
      * Get the maximum value in a column.
      *
      * @param {string} columns The name of the column
-     * @return {string|number|boolean|null} The maximum value, or null if no maximum value could be determined
+     * @return {number|null} The maximum value, or null if no maximum value could be determined
      *
      * @memberOf ChartData
      */
@@ -95,7 +95,7 @@ class ChartData extends Record({
      * Get the sum of the values in a column.
      *
      * @param {string} columns The name of the column
-     * @return {string|number|boolean|null} The sum of the values, or null if no sum could be determined
+     * @return {number} The sum of the values
      *
      * @memberOf ChartData
      */
@@ -114,7 +114,7 @@ class ChartData extends Record({
      * Get the average of the values in a column.
      *
      * @param {string} columns The name of the column
-     * @return {string|number|boolean|null} The average of the values, or null if no average could be determined
+     * @return {number|null} The average of the values, or null if no average could be determined
      *
      * @memberOf ChartData
      */
@@ -133,7 +133,7 @@ class ChartData extends Record({
      * Get the median of the values in a column.
      *
      * @param {string} columns The name of the column
-     * @return {string|number|boolean|null} The median of the values, or null if no median could be determined
+     * @return {number|null} The median of the values, or null if no median could be determined
      *
      * @memberOf ChartData
      */
