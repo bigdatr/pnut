@@ -143,7 +143,7 @@ class ChartData extends Record({
      * @param {string} columns The name of the column.
      * @return {number|null} The median of the values, or null if no median could be determined.
      *
-     * @median
+     * @name median
      * @kind function
      * @memberof ChartData
      */
