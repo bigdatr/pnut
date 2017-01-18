@@ -22,18 +22,25 @@ type Datum = string | number | boolean | null;
  * ChartData is an Immutable Record used by pnut charts to represent chart data.
  */
 
-class ChartData {
+class ChartData extends Record({
+    columns: List(),
+    rows: List()
+}) {
 
     /**
      * Create a ChartData object
      *
-     * @param {Array<Object>} rows An array of data rows
-     * @param {Array<Object>} columns An array of columns
+     * @param {Array<Object>} rows An array of data rows.
+     * @param {Array<Object>} columns An array of columns.
      *
-     * @memberOf ChartData
+     * @memberof ChartData
      */
 
     constructor(rows: Array<Object>, columns: Array<Object>) {
+        super({
+            rows: fromJS(rows),
+            columns: fromJS(columns)
+        });
         this._memos = {};
     }
 
@@ -49,10 +56,12 @@ class ChartData {
     /**
      * Get the minimum non-null value in a column.
      *
-     * @param {string} columns The name of the column
-     * @return {number|null} The minimum value, or null if no mininum value could be determined
+     * @param {string} columns The name of the column.
+     * @return {number|null} The minimum value, or null if no mininum value could be determined.
      *
-     * @memberOf ChartData
+     * @name min
+     * @kind function
+     * @memberof ChartData
      */
 
     min(column: string): Datum {
@@ -68,10 +77,12 @@ class ChartData {
     /**
      * Get the maximum value in a column.
      *
-     * @param {string} columns The name of the column
-     * @return {number|null} The maximum value, or null if no maximum value could be determined
+     * @param {string} columns The name of the column.
+     * @return {number|null} The maximum value, or null if no maximum value could be determined.
      *
-     * @memberOf ChartData
+     * @name max
+     * @kind function
+     * @memberof ChartData
      */
 
     max(column: string): Datum {
@@ -87,10 +98,12 @@ class ChartData {
     /**
      * Get the sum of the values in a column.
      *
-     * @param {string} columns The name of the column
-     * @return {number} The sum of the values
+     * @param {string} columns The name of the column.
+     * @return {number} The sum of the values.
      *
-     * @memberOf ChartData
+     * @name sum
+     * @kind function
+     * @memberof ChartData
      */
 
     sum(column: string): Datum {
@@ -106,10 +119,12 @@ class ChartData {
     /**
      * Get the average of the values in a column.
      *
-     * @param {string} columns The name of the column
-     * @return {number|null} The average of the values, or null if no average could be determined
+     * @param {string} columns The name of the column.
+     * @return {number|null} The average of the values, or null if no average could be determined.
      *
-     * @memberOf ChartData
+     * @name average
+     * @kind function
+     * @memberof ChartData
      */
 
     average(column: string): Datum {
@@ -125,10 +140,12 @@ class ChartData {
     /**
      * Get the median of the values in a column.
      *
-     * @param {string} columns The name of the column
-     * @return {number|null} The median of the values, or null if no median could be determined
+     * @param {string} columns The name of the column.
+     * @return {number|null} The median of the values, or null if no median could be determined.
      *
-     * @memberOf ChartData
+     * @median
+     * @kind function
+     * @memberof ChartData
      */
 
     median(column: string): Datum {
