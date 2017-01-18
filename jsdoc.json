@@ -8,18 +8,24 @@
      "recurse": true,
      "template": "node_modules/jsdonk",
      "jsdonk": {
-        "title": "Stampy",
+        "title": "Pnut",
         "sections": {
           "module": {
             "typedef": false
           },
           "typedef": false
-        }
+        },
+        "output": {
+          "taffyjson": true,
+          "heirarchyjson": true
+        },
+        "debug": true
      }
   },
   "plugins": [
      "plugins/markdown",
-     "node_modules/jsdoc-babel"
+     "node_modules/jsdoc-babel",
+     "node_modules/jsdonk/lib/plugins/react-tags"
   ],
   "babel": {
     "extensions": ["js", "es6", "jsx"],
