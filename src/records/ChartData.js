@@ -22,10 +22,7 @@ type Datum = string | number | boolean | null;
  * ChartData is an Immutable Record used by pnut charts to represent chart data.
  */
 
-class ChartData extends Record({
-    columns: List(),
-    rows: List()
-}) {
+class ChartData {
 
     /**
      * Create a ChartData object
@@ -37,10 +34,6 @@ class ChartData extends Record({
      */
 
     constructor(rows: Array<Object>, columns: Array<Object>) {
-        super({
-            rows: fromJS(rows),
-            columns: fromJS(columns)
-        });
         this._memos = {};
     }
 
