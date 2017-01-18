@@ -62,6 +62,16 @@ const rowsWithNulls = [
     }
 ];
 
+const allNulls = [
+    {
+        day: 1,
+        supply: null,
+        demand: null,
+        fruit: "apple"
+    }
+];
+
+
 const columns = [
     {
         key: 'day',
@@ -105,60 +115,84 @@ test('ChartData contents can take immutable rows and columns', tt => {
 
 test('ChartData.min returns the minimum value for a column', tt => {
     const data = new ChartData(rows, columns);
-    tt.is(data.min('supply'), 12, 'minimum value of a column is returned');
+    tt.is(data.min('supply'), 12);
 });
 
 test('ChartData.min returns the minimum value for a column, even with null values', tt => {
     const data = new ChartData(rowsWithNulls, columns);
-    tt.is(data.min('supply'), 32, 'minimum value of a column is returned');
+    tt.is(data.min('supply'), 32);
+});
+
+test('ChartData.min returns null when there are no values to compare', tt => {
+    const data = new ChartData(allNulls, columns);
+    tt.is(data.min('supply'), null);
 });
 
 // max
 
 test('ChartData.max returns the maximum value for a column', tt => {
     const data = new ChartData(rows, columns);
-    tt.is(data.max('day'), 19, 'maximum value of a column is returned');
+    tt.is(data.max('day'), 19);
 });
 
 test('ChartData.max returns the maximum value for a column, even with null values', tt => {
     const data = new ChartData(rowsWithNulls, columns);
-    tt.is(data.max('supply'), 34, 'maximum value of a column is returned');
+    tt.is(data.max('supply'), 34);
+});
+
+test('ChartData.max returns null when there are no values to compare', tt => {
+    const data = new ChartData(allNulls, columns);
+    tt.is(data.max('supply'), null);
 });
 
 // sum
 
 test('ChartData.sum returns the sum of values of a column', tt => {
     const data = new ChartData(rows, columns);
-    tt.is(data.sum('demand'), 302, 'sum of values of a column is returned');
+    tt.is(data.sum('demand'), 302);
 });
 
 test('ChartData.sum returns the sum of values of a column, even with null values', tt => {
     const data = new ChartData(rowsWithNulls, columns);
-    tt.is(data.sum('demand'), 77 + 88 + 99, 'sum of values of a column is returned');
+    tt.is(data.sum('demand'), 77 + 88 + 99);
+});
+
+test('ChartData.sum returns zero when there are no values to compare', tt => {
+    const data = new ChartData(allNulls, columns);
+    tt.is(data.sum('supply'), 0);
 });
 
 // average
 
 test('ChartData.average returns the average of values of a column', tt => {
     const data = new ChartData(rows, columns);
-    tt.is(data.average('supply'), 22.6, 'average of values of a column is returned');
+    tt.is(data.average('supply'), 22.6);
 });
 
 test('ChartData.average returns the average of values of a column, even with null values', tt => {
     const data = new ChartData(rowsWithNulls, columns);
-    tt.is(data.average('supply'), 33, 'average of values of a column is returned');
+    tt.is(data.average('supply'), 33);
+});
+
+test('ChartData.average returns null when there are no values to compare', tt => {
+    const data = new ChartData(allNulls, columns);
+    tt.is(data.average('supply'), null);
 });
 
 // median
 
 test('ChartData.median returns the median of values of a column', tt => {
     const data = new ChartData(rows, columns);
-    tt.is(data.median('demand'), 56, 'median of values of a column is returned');
+    tt.is(data.median('demand'), 56);
 });
 
 test('ChartData.median returns the median of values of a column, even with null values', tt => {
     const data = new ChartData(rowsWithNulls, columns);
-    tt.is(data.median('demand'), 88, 'median of values of a column is returned');
+    tt.is(data.median('demand'), 88);
 });
 
+test('ChartData.median returns null when there are no values to compare', tt => {
+    const data = new ChartData(allNulls, columns);
+    tt.is(data.median('supply'), null);
+});
 

@@ -64,9 +64,11 @@ class ChartData extends Record({
 
     min(column: string): Datum {
         return this._memoize('min', (): Datum => {
-            return this.rows
-                .filter(ii => ii != null)
+            const result = this.rows
+                .filter(ii => ii.get(column) != null)
                 .update(minBy(ii => ii.get(column)));
+
+            return isNaN(result) ? null : result;
         });
     }
 
@@ -81,9 +83,11 @@ class ChartData extends Record({
 
     max(column: string): Datum {
         return this._memoize('max', (): Datum => {
-            return this.rows
-                .filter(ii => ii != null)
+            const result = this.rows
+                .filter(ii => ii.get(column) != null)
                 .update(maxBy(ii => ii.get(column)));
+
+            return isNaN(result) ? null : result;
         });
     }
 
@@ -98,9 +102,11 @@ class ChartData extends Record({
 
     sum(column: string): Datum {
         return this._memoize('sum', (): Datum => {
-            return this.rows
-                .filter(ii => ii != null)
+            const result = this.rows
+                .filter(ii => ii.get(column) != null)
                 .update(sumBy(ii => ii.get(column)));
+
+            return result;
         });
     }
 
@@ -115,9 +121,11 @@ class ChartData extends Record({
 
     average(column: string): Datum {
         return this._memoize('average', (): Datum => {
-            return this.rows
-                .filter(ii => ii != null)
+            const result = this.rows
+                .filter(ii => ii.get(column) != null)
                 .update(averageBy(ii => ii.get(column)));
+
+            return isNaN(result) ? null : result;
         });
     }
 
@@ -132,9 +140,11 @@ class ChartData extends Record({
 
     median(column: string): Datum {
         return this._memoize('median', (): Datum => {
-            return this.rows
-                .filter(ii => ii != null)
+            const result = this.rows
+                .filter(ii => ii.get(column) != null)
                 .update(medianBy(ii => ii.get(column)));
+
+            return isNaN(result) ? null : result;
         });
     }
 }
