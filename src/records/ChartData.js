@@ -28,7 +28,7 @@ class ChartData extends Record({
 }) {
 
     /**
-     * Create a ChartData object
+     * Create a ChartData object.
      *
      * @param {Array<Object>} rows An array of data rows.
      * @param {Array<Object>} columns An array of columns.
