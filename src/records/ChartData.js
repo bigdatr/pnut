@@ -10,11 +10,17 @@ import {
 
 import {
     fromJS,
+    Map,
     List,
+    OrderedMap,
     Record
 } from 'immutable';
 
-type Datum = string | number | boolean | null;
+import Column from './Column';
+
+type ChartDatum = string|number|null;
+type ChartDataRows = List<Map<string,*>>;
+type ChartDataColumns = OrderedMap<string,Map<string,*>>;
 
 /**
  * @class
@@ -37,21 +43,106 @@ class ChartData extends Record({
      */
 
     constructor(rows: Array<Object>, columns: Array<Object>) {
+        const chartDataRows: ChartDataRows = ChartData._createRows(rows);
+        const chartDataColumns: ChartDataColumns = ChartData._createColumns(columns, chartDataRows);
+
         super({
-            rows: fromJS(rows),
-            columns: fromJS(columns)
+            rows: chartDataRows,
+            columns: chartDataColumns
         });
+
         this._memos = {};
     }
 
-    _memoize(key: string, fn: Function): Datum {
+    /*
+     * "private" static methods
+     */
+
+    static _createRows(rows: Array<Object>): ChartDataRows {
+        // only immutablize rows two layers in (quicker than fromJS)
+        return List(rows)
+            .map(row => Map(row)
+                .map(cell => ChartData.isValueValid(cell) ? cell : null)
+            );
+    }
+
+    static _createColumns(columns: Array<Object>, chartDataRows: ChartDataRows): ChartDataColumns {
+        return fromJS(columns)
+            .reduce((map, col) => {
+                return map.set(
+                    col.get('key'),
+                    new Column(ChartData._addContinuous(col, chartDataRows))
+                );
+            }, OrderedMap());
+    }
+
+    static _addContinuous(col: Map<string,ChartDatum>, rows: ChartDataRows): Map<string,ChartDatum> {
+        if(col.get('isContinuous')) {
+            return col;
+        }
+        const key = col.get('key');
+        const isContinuous: boolean = rows
+            .find(row => row.get(key) != null, null, Map())
+            .update(row => ChartData.isValueContinuous(row.get(key)));
+
+        return col.set('isContinuous', isContinuous);
+    }
+
+    /*
+     * public static methods
+     */
+
+    /**
+     * Check if the value is a valid value that ChartData can hold.
+     * ChartData can only hold numbers, strings and null.
+     *
+     * @param {*} value The value to check.
+     * @return {boolean} A boolean indicating of the value is valid.
+     *
+     * @name isValueValid
+     * @kind function
+     * @memberof ChartData
+     * @static
+     */
+
+    static isValueValid(value: *): boolean {
+        return typeof value === "string"
+            || typeof value === "number"
+            || value === null;
+    }
+
+    /**
+     * Check if the value is continuous, which means that the data type has intrinsic order.
+     *
+     * @param {*} value The value to check.
+     * @return {boolean} A boolean indicating of the value is continuous.
+     *
+     * @name isValueContinuous
+     * @kind function
+     * @memberof ChartData
+     * @static
+     */
+
+    static isValueContinuous(value: *): boolean {
+        return typeof value === "number";
+    }
+
+    /*
+     * private methods
+     */
+
+    _memoize(key: string, fn: Function): ChartDatum {
         if(this._memos.hasOwnProperty(key)) {
             return this._memos[key];
         }
-        const value: Datum = fn();
+        const value: ChartDatum = fn();
         this._memos[key] = value;
         return value;
     }
+
+    /*
+     * public methods
+     */
 
     /**
      * Get the minimum non-null value in a column.
@@ -61,11 +152,12 @@ class ChartData extends Record({
      *
      * @name min
      * @kind function
+     * @inner
      * @memberof ChartData
      */
 
-    min(column: string): Datum {
-        return this._memoize('min', (): Datum => {
+    min(column: string): ChartDatum {
+        return this._memoize('min', (): ChartDatum => {
             const result = this.rows
                 .filter(ii => ii.get(column) != null)
                 .update(minBy(ii => ii.get(column)));
@@ -82,11 +174,12 @@ class ChartData extends Record({
      *
      * @name max
      * @kind function
+     * @inner
      * @memberof ChartData
      */
 
-    max(column: string): Datum {
-        return this._memoize('max', (): Datum => {
+    max(column: string): ChartDatum {
+        return this._memoize('max', (): ChartDatum => {
             const result = this.rows
                 .filter(ii => ii.get(column) != null)
                 .update(maxBy(ii => ii.get(column)));
@@ -103,11 +196,12 @@ class ChartData extends Record({
      *
      * @name sum
      * @kind function
+     * @inner
      * @memberof ChartData
      */
 
-    sum(column: string): Datum {
-        return this._memoize('sum', (): Datum => {
+    sum(column: string): ChartDatum {
+        return this._memoize('sum', (): ChartDatum => {
             const result = this.rows
                 .filter(ii => ii.get(column) != null)
                 .update(sumBy(ii => ii.get(column)));
@@ -124,11 +218,12 @@ class ChartData extends Record({
      *
      * @name average
      * @kind function
+     * @inner
      * @memberof ChartData
      */
 
-    average(column: string): Datum {
-        return this._memoize('average', (): Datum => {
+    average(column: string): ChartDatum {
+        return this._memoize('average', (): ChartDatum => {
             const result = this.rows
                 .filter(ii => ii.get(column) != null)
                 .update(averageBy(ii => ii.get(column)));
@@ -145,11 +240,12 @@ class ChartData extends Record({
      *
      * @name median
      * @kind function
+     * @inner
      * @memberof ChartData
      */
 
-    median(column: string): Datum {
-        return this._memoize('median', (): Datum => {
+    median(column: string): ChartDatum {
+        return this._memoize('median', (): ChartDatum => {
             const result = this.rows
                 .filter(ii => ii.get(column) != null)
                 .update(medianBy(ii => ii.get(column)));

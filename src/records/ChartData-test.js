@@ -1,5 +1,5 @@
 import test from 'ava';
-import {fromJS, is} from 'immutable';
+import {fromJS} from 'immutable';
 import ChartData from './ChartData';
 
 const rows = [
@@ -38,7 +38,7 @@ const rows = [
 const rowsWithNulls = [
     {
         day: 1,
-        supply: 34,
+        supply: null,
         demand: 99,
         fruit: "apple"
     },
@@ -50,7 +50,7 @@ const rowsWithNulls = [
     },
     {
         day: 3,
-        supply: null,
+        supply: 34,
         demand: null,
         fruit: "orange"
     },
@@ -71,41 +71,152 @@ const allNulls = [
     }
 ];
 
-
 const columns = [
     {
         key: 'day',
-        label: 'Day'
+        label: 'Day',
+        isContinuous: true
     },
     {
         key: 'supply',
-        label: 'Supply (houses)'
+        label: 'Supply (houses)',
+        isContinuous: true
     },
     {
         key: 'demand',
-        label: 'Demand (houses)'
+        label: 'Demand (houses)',
+        isContinuous: true
     },
     {
         key: 'fruit',
-        label: 'Random fruit'
+        label: 'Random fruit',
+        isContinuous: false
     }
 ];
 
 //
-// constructor
+// static
 //
 
-test('ChartData Record can be created', tt => {
-    const data = new ChartData(rows, columns);
-    tt.true(is(data.rows, fromJS(rows)), 'rows are set correctly');
-    tt.true(is(data.columns, fromJS(columns)), 'columns are set correctly');
+test('ChartData correctly identifies valid values', tt => {
+    tt.true(ChartData.isValueValid(23), 'number is valid');
+    tt.true(ChartData.isValueValid(-123.234), 'negative number is valid');
+    tt.true(ChartData.isValueValid(0), 'zero number is valid');
+    tt.true(ChartData.isValueValid("23"), 'string is valid');
+    tt.true(ChartData.isValueValid(""), 'empty string is valid');
+    tt.true(ChartData.isValueValid(null), 'null is valid');
+    tt.false(ChartData.isValueValid(false), 'boolean (true) is not valid');
+    tt.false(ChartData.isValueValid(true), 'boolean (false) is not valid');
+    tt.false(ChartData.isValueValid(undefined), 'undefined is not valid');
+    tt.false(ChartData.isValueValid({}), 'object is not valid');
+    tt.false(ChartData.isValueValid(() => {}), 'function is not valid');
 });
 
-test('ChartData contents can take immutable rows and columns', tt => {
-    const data = new ChartData(fromJS(rows), fromJS(columns));
-    tt.true(is(data.rows, fromJS(rows)), 'rows are set correctly');
-    tt.true(is(data.columns, fromJS(columns)), 'columns are set correctly');
+test('ChartData correctly identifies continuous values', tt => {
+    tt.true(ChartData.isValueContinuous(23), 'number is continuous');
+    tt.true(ChartData.isValueContinuous(-123.234), 'negative number is continuous');
+    tt.true(ChartData.isValueContinuous(0), 'zero number is continuous');
+    tt.false(ChartData.isValueContinuous("23"), 'string is not continuous');
+    tt.false(ChartData.isValueContinuous(""), 'empty string is not continuous');
+    tt.false(ChartData.isValueContinuous(null), 'null is not continuous');
+    tt.false(ChartData.isValueContinuous(false), 'boolean (true) is not continuous');
+    tt.false(ChartData.isValueContinuous(true), 'boolean (false) is not continuous');
+    tt.false(ChartData.isValueContinuous(undefined), 'undefined is not continuous');
+    tt.false(ChartData.isValueContinuous({}), 'object is not continuous');
+    tt.false(ChartData.isValueContinuous(() => {}), 'function is not continuous');
 });
+
+//
+// rows
+//
+
+test('ChartData Record can be created with rows', tt => {
+    const data = new ChartData(rows, columns);
+    tt.deepEqual(data.rows, fromJS(rows));
+});
+
+test('ChartData contents can take immutable rows', tt => {
+    const data = new ChartData(fromJS(rows), columns);
+    tt.deepEqual(data.rows, fromJS(rows));
+});
+
+test('ChartData converts all invalid values to null', tt => {
+    const rowsWithBadData = [
+        {
+            supply: null,
+            demand: undefined,
+            fruit: "apple"
+        },
+        {
+            supply: 32,
+            demand: 88,
+            fruit: false
+        },
+        {
+            supply: {foo: "bar"},
+            demand: () => {},
+            fruit: "orange"
+        }
+    ];
+
+    const rowsWithBadDataExpectedOutput = [
+        {
+            supply: null,
+            demand: null,
+            fruit: "apple"
+        },
+        {
+            supply: 32,
+            demand: 88,
+            fruit: null
+        },
+        {
+            supply: null,
+            demand: null,
+            fruit: "orange"
+        }
+    ];
+
+    const data = new ChartData(rowsWithBadData, columns);
+    tt.deepEqual(data.rows, fromJS(rowsWithBadDataExpectedOutput));
+});
+
+
+
+
+//
+// columns
+//
+
+test('ChartData Record can be created with columns', tt => {
+    const data = new ChartData(rows, columns);
+    tt.deepEqual(data.columns.toList().map(ii => ii.key), fromJS(columns).map(ii => ii.get('key')));
+    tt.deepEqual(data.columns.toList().map(ii => ii.label), fromJS(columns).map(ii => ii.get('label')));
+    tt.deepEqual(data.columns.toList().map(ii => ii.isContinuous), fromJS(columns).map(ii => ii.get('isContinuous')));
+});
+
+test('ChartData contents can take immutable columns', tt => {
+    const data = new ChartData(rows, fromJS(columns));
+    tt.deepEqual(data.columns.toList().map(ii => ii.key), fromJS(columns).map(ii => ii.get('key')));
+    tt.deepEqual(data.columns.toList().map(ii => ii.label), fromJS(columns).map(ii => ii.get('label')));
+    tt.deepEqual(data.columns.toList().map(ii => ii.isContinuous), fromJS(columns).map(ii => ii.get('isContinuous')));
+});
+
+test('ChartData can automatically determine if a column is continuous', tt => {
+    const columnsWithoutContinuous = fromJS(columns).map(col => col.delete('isContinuous'));
+    const data = new ChartData(rowsWithNulls, columnsWithoutContinuous);
+
+    tt.true(data.columns.get('day').isContinuous, 'column data is continuous if first item is a number');
+    tt.true(data.columns.get('supply').isContinuous, 'column data is continuous if first non-null item is a number');
+});
+
+test('ChartData can automatically determine if a column is not continuous', tt => {
+    const columnsWithoutContinuous = fromJS(columns).map(col => col.delete('isContinuous'));
+    const data = new ChartData(rowsWithNulls, columnsWithoutContinuous);
+
+    tt.false(data.columns.get('fruit').isContinuous, 'column data is not continuous if first non-null item is not a number');
+});
+
 
 //
 // methods
@@ -195,4 +306,3 @@ test('ChartData.median returns null when there are no values to compare', tt => 
     const data = new ChartData(allNulls, columns);
     tt.is(data.median('supply'), null);
 });
-
