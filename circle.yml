@@ -30,6 +30,6 @@ deployment:
         branch: master
         owner: bigdatr
         commands:
-            - git config --global user.email pnut@bigdatr.com
+            - git config --global user.email stampy@bigdatr.com
             - git config --global user.name bigdatrbots
             - yarn run deploy-to-gh-pages
