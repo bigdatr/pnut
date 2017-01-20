@@ -11,7 +11,7 @@
     "ava": "NODE_ENV=test ava",
     "build": "rm -rf lib && babel src --out-dir lib && yarn run css",
     "build-examples": "cd example && yarn install && yarn run build && cd -",
-    "check-coverage": "NODE_ENV=test nyc check-coverage --branches 0.0  --functions 0.0 --lines 0",
+    "check-coverage": "NODE_ENV=test nyc check-coverage --branches 100.0  --functions 100.0 --lines 100.0",
     "css": "yarn run css-base-combined && yarn run css-default-combined && yarn run css-base && yarn run css-default && yarn run postcss",
     "css-base": "sh scripts/css-base.sh",
     "css-base-combined": "sh scripts/css-base-combined.sh",
@@ -19,7 +19,7 @@
     "css-default-combined": "sh scripts/css-default-combined.sh",
     "deploy-to-gh-pages": "yarn run build && yarn run build-examples && yarn run docs && node scripts/publish.js",
     "dev": "babel src -d lib --watch",
-    "docs": "jsdoc -c jsdoc-config.json",
+    "docs": "jsdoc -c jsdoc.json",
     "flow": "flow check",
     "lint": "eslint src/**/*.jsx src/**/*.js",
     "lint-fix": "eslint src/**/*.jsx src/**/*.js --fix",
@@ -51,7 +51,7 @@
     "jsdoc": "^3.4.2",
     "jsdoc-babel": "^0.2.1",
     "jsdom": "^9.8.3",
-    "jsdonk": "0.2.2",
+    "jsdonk": "0.4.6",
     "node-sass": "^3.11.2",
     "nyc": "^10.0.0",
     "postcss-cli": "^2.6.0",
@@ -65,7 +65,8 @@
   },
   "dependencies": {
     "classnames": "^2.2.5",
-    "immutable": "^3.8.1"
+    "immutable": "^3.8.1",
+    "immutable-math": "^0.1.3"
   },
   "main": "lib/index.js",
   "engines": {
