@@ -16,11 +16,45 @@ import {
     Record
 } from 'immutable';
 
-import Column from './Column';
+import Column from './ChartColumn';
 
-type ChartDatum = string|number|null;
-type ChartDataRows = List<Map<string,*>>;
-type ChartDataColumns = OrderedMap<string,Map<string,*>>;
+type ChartScalar = string|number|null;
+type ChartRow = Map<string,ChartScalar>;
+type ChartColumn = *; // todo: should be a Column Record
+
+/**
+ * An object to define a column for a chart. Once passed into a `ChartData` constructor these are replaced with equivalent `ChartColumn`s. Also note that you'll rarely need to set `isContinuous` explicitly as it will be inferred from data automatically when not provided.
+ *
+ * @typedef ChartColumnDefinition
+ * @type {Object|Map}
+ * @property {string} key A unique string name to refer to this column in code.
+ * @property {string} label A human readable label for this column that can be rendered by charts
+ * @property {boolean} [isContinuous] A boolean indicating if the data in this column is continuous i.e. the data has intrinsic order (like numbers). This property is optional and will be inferred from the data when not provided.
+ */
+
+/**
+ * A `ChartColumn` Immutable Record containing column-specific metadata.
+ *
+ * @typedef ChartColumn
+ * @type {Record}
+ * @property {string} key A unique string name to refer to this column in code.
+ * @property {string} label A human readable label for this column that can be rendered by charts
+ * @property {boolean} isContinuous A boolean indicating if the data in this column is continuous i.e. the data has intrinsic order (like numbers).
+ */
+
+/**
+ * A valid chart value, which can only accept data of type `string`, `number` and `null`.
+ *
+ * @typedef ChartScalar
+ * @type {string|number|null}
+ */
+
+/**
+ * An Immutable `Map` representing a row of keyed data. Each value is a `ChartScalar` (data of type `string`, `number` or `null`).
+ *
+ * @typedef ChartRow
+ * @type {Map<string,ChartScalar>}
+ */
 
 /**
  * @class
@@ -29,28 +63,76 @@ type ChartDataColumns = OrderedMap<string,Map<string,*>>;
  */
 
 class ChartData extends Record({
-    columns: List(),
+    columns: OrderedMap(),
     rows: List()
 }) {
 
     /**
-     * Create a ChartData object.
+     * Creates a ChartData Record. Data passed in `rows` will be sanitized and any invalid value types will be replaced with `null`.
      *
-     * @param {Array<Object>} rows An array of data rows.
-     * @param {Array<Object>} columns An array of columns.
+     * @param {Array<Object<ChartScalar>>|List<Map<string,ChartScalar>>} rows An array of data rows.
+     * @param {Array<ChartColumnDefinition>|List<ChartColumnDefinition>} columns An array of columns.
+     *
+     * @example
+     * const rows = [
+     *     {
+     *         day: 1,
+     *         supply: 34,
+     *         demand: 99,
+     *         fruit: "apple"
+     *     },
+     *     {
+     *         day: 2,
+     *         supply: 32,
+     *         demand: 88,
+     *         fruit: "apple"
+     *     },
+     *     {
+     *         day: 3,
+     *         supply: 13,
+     *         demand: 55,
+     *         fruit: "orange"
+     *     }
+     * ];
+     *
+     * const columns = [
+     *     {
+     *         key: 'day',
+     *         label: 'Day',
+     *         isContinuous: true
+     *     },
+     *     {
+     *         key: 'supply',
+     *         label: 'Supply (houses)',
+     *         isContinuous: true
+     *     },
+     *     {
+     *         key: 'demand',
+     *         label: 'Demand (houses)',
+     *         isContinuous: true
+     *     },
+     *     {
+     *         key: 'fruit',
+     *         label: 'Random fruit',
+     *         isContinuous: false
+     *     }
+     * ];
+     *
+     * const chartData = new ChartData(rows, columns);
      *
      * @memberof ChartData
      */
 
     constructor(rows: Array<Object>, columns: Array<Object>) {
-        const chartDataRows: ChartDataRows = ChartData._createRows(rows);
-        const chartDataColumns: ChartDataColumns = ChartData._createColumns(columns, chartDataRows);
+        const chartDataRows: List<ChartRow> = ChartData._createRows(rows);
+        const chartDataColumns: OrderedMap<string,ChartColumn> = ChartData._createColumns(columns, chartDataRows);
 
         super({
             rows: chartDataRows,
             columns: chartDataColumns
         });
 
+        // object for storing memoized return data
         this._memos = {};
     }
 
@@ -58,7 +140,7 @@ class ChartData extends Record({
      * "private" static methods
      */
 
-    static _createRows(rows: Array<Object>): ChartDataRows {
+    static _createRows(rows: Array<Object>): List<ChartRow> {
         // only immutablize rows two layers in (quicker than fromJS)
         return List(rows)
             .map(row => Map(row)
@@ -66,7 +148,7 @@ class ChartData extends Record({
             );
     }
 
-    static _createColumns(columns: Array<Object>, chartDataRows: ChartDataRows): ChartDataColumns {
+    static _createColumns(columns: Array<Object>, chartDataRows: List<ChartRow>): OrderedMap<string,ChartColumn> {
         return fromJS(columns)
             .reduce((map, col) => {
                 return map.set(
@@ -76,7 +158,7 @@ class ChartData extends Record({
             }, OrderedMap());
     }
 
-    static _addContinuous(col: Map<string,ChartDatum>, rows: ChartDataRows): Map<string,ChartDatum> {
+    static _addContinuous(col: Map<string,ChartScalar>, rows: List<ChartRow>): Map<string,ChartScalar> {
         if(col.get('isContinuous')) {
             return col;
         }
@@ -128,14 +210,36 @@ class ChartData extends Record({
     }
 
     /*
+     * public data members
+     */
+
+    /**
+     * A `List` containing all the rows of data.
+     *
+     * @name rows
+     * @member {List<ChartRow>}
+     * @memberof ChartData
+     * @inner
+     */
+
+    /**
+     * An `OrderedMap` containing this ChartData's column definitions, which are each Immutable Records of type `ChartColumn`.
+     *
+     * @name columns
+     * @member {OrderedMap<string, ChartColumn>}
+     * @memberof ChartData
+     * @inner
+     */
+
+    /*
      * private methods
      */
 
-    _memoize(key: string, fn: Function): ChartDatum {
+    _memoize(key: string, fn: Function): ChartScalar {
         if(this._memos.hasOwnProperty(key)) {
             return this._memos[key];
         }
-        const value: ChartDatum = fn();
+        const value: ChartScalar = fn();
         this._memos[key] = value;
         return value;
     }
@@ -143,6 +247,32 @@ class ChartData extends Record({
     /*
      * public methods
      */
+
+    /**
+     * Returns all the data in a single column.
+     *
+     * @param {string} columns The name of the column.
+     * @return {List<ChartScalar>|null} A list of the data, or null if the column could not be found.
+     *
+     * @example
+     * const chartData = new ChartData(rows, columns);
+     * return data.getColumnData('fruit');
+     * // returns List("apple", "apple", "orange", "peach", "pear")
+     *
+     * @name getColumnData
+     * @kind function
+     * @inner
+     * @memberof ChartData
+     */
+
+    getColumnData(column: string): List<ChartScalar> {
+        return this._memoize(`getColumnData.${column}`, (): List<ChartScalar> => {
+            if(!this.columns.get(column)) {
+                return null;
+            }
+            return this.rows.map(row => row.get(column));
+        });
+    }
 
     /**
      * Get the minimum non-null value in a column.
@@ -156,8 +286,8 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    min(column: string): ChartDatum {
-        return this._memoize('min', (): ChartDatum => {
+    min(column: string): ChartScalar {
+        return this._memoize('min', (): ChartScalar => {
             const result = this.rows
                 .filter(ii => ii.get(column) != null)
                 .update(minBy(ii => ii.get(column)));
@@ -178,8 +308,8 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    max(column: string): ChartDatum {
-        return this._memoize('max', (): ChartDatum => {
+    max(column: string): ChartScalar {
+        return this._memoize('max', (): ChartScalar => {
             const result = this.rows
                 .filter(ii => ii.get(column) != null)
                 .update(maxBy(ii => ii.get(column)));
@@ -200,8 +330,8 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    sum(column: string): ChartDatum {
-        return this._memoize('sum', (): ChartDatum => {
+    sum(column: string): ChartScalar {
+        return this._memoize('sum', (): ChartScalar => {
             const result = this.rows
                 .filter(ii => ii.get(column) != null)
                 .update(sumBy(ii => ii.get(column)));
@@ -222,8 +352,8 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    average(column: string): ChartDatum {
-        return this._memoize('average', (): ChartDatum => {
+    average(column: string): ChartScalar {
+        return this._memoize('average', (): ChartScalar => {
             const result = this.rows
                 .filter(ii => ii.get(column) != null)
                 .update(averageBy(ii => ii.get(column)));
@@ -244,8 +374,8 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    median(column: string): ChartDatum {
-        return this._memoize('median', (): ChartDatum => {
+    median(column: string): ChartScalar {
+        return this._memoize('median', (): ChartScalar => {
             const result = this.rows
                 .filter(ii => ii.get(column) != null)
                 .update(medianBy(ii => ii.get(column)));

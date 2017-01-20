@@ -1,5 +1,5 @@
 import test from 'ava';
-import {fromJS} from 'immutable';
+import {fromJS, List} from 'immutable';
 import ChartData from './ChartData';
 
 const rows = [
@@ -188,21 +188,21 @@ test('ChartData converts all invalid values to null', tt => {
 // columns
 //
 
-test('ChartData Record can be created with columns', tt => {
+test('ChartData Record should be able to be created with columns', tt => {
     const data = new ChartData(rows, columns);
     tt.deepEqual(data.columns.toList().map(ii => ii.key), fromJS(columns).map(ii => ii.get('key')));
     tt.deepEqual(data.columns.toList().map(ii => ii.label), fromJS(columns).map(ii => ii.get('label')));
     tt.deepEqual(data.columns.toList().map(ii => ii.isContinuous), fromJS(columns).map(ii => ii.get('isContinuous')));
 });
 
-test('ChartData contents can take immutable columns', tt => {
+test('ChartData contents should be able to take immutable columns', tt => {
     const data = new ChartData(rows, fromJS(columns));
     tt.deepEqual(data.columns.toList().map(ii => ii.key), fromJS(columns).map(ii => ii.get('key')));
     tt.deepEqual(data.columns.toList().map(ii => ii.label), fromJS(columns).map(ii => ii.get('label')));
     tt.deepEqual(data.columns.toList().map(ii => ii.isContinuous), fromJS(columns).map(ii => ii.get('isContinuous')));
 });
 
-test('ChartData can automatically determine if a column is continuous', tt => {
+test('ChartData should automatically determine if a column is continuous', tt => {
     const columnsWithoutContinuous = fromJS(columns).map(col => col.delete('isContinuous'));
     const data = new ChartData(rowsWithNulls, columnsWithoutContinuous);
 
@@ -210,7 +210,7 @@ test('ChartData can automatically determine if a column is continuous', tt => {
     tt.true(data.columns.get('supply').isContinuous, 'column data is continuous if first non-null item is a number');
 });
 
-test('ChartData can automatically determine if a column is not continuous', tt => {
+test('ChartData should automatically determine if a column is not continuous', tt => {
     const columnsWithoutContinuous = fromJS(columns).map(col => col.delete('isContinuous'));
     const data = new ChartData(rowsWithNulls, columnsWithoutContinuous);
 
@@ -222,87 +222,106 @@ test('ChartData can automatically determine if a column is not continuous', tt =
 // methods
 //
 
+// getColumnData
+
+test('ChartData.getColumnData should return a List of data in a column', tt => {
+    const data = new ChartData(rows, columns);
+    tt.deepEqual(data.getColumnData('fruit'), List(["apple", "apple", "orange", "peach", "pear"]));
+});
+
+test('ChartData.getColumnData should return null if given a column name that doesnt exist', tt => {
+    const data = new ChartData(rows, columns);
+    tt.is(data.getColumnData('not here'), null);
+});
+
+// memoization
+
+test('Calling a memoized method should return the same object if called a second time', tt => {
+    const data = new ChartData(rows, columns);
+    tt.is(data.getColumnData('fruit'), data.getColumnData('fruit'));
+});
+
 // min
 
-test('ChartData.min returns the minimum value for a column', tt => {
+test('ChartData.min should return the minimum value for a column', tt => {
     const data = new ChartData(rows, columns);
     tt.is(data.min('supply'), 12);
 });
 
-test('ChartData.min returns the minimum value for a column, even with null values', tt => {
+test('ChartData.min should return the minimum value for a column, even with null values', tt => {
     const data = new ChartData(rowsWithNulls, columns);
     tt.is(data.min('supply'), 32);
 });
 
-test('ChartData.min returns null when there are no values to compare', tt => {
+test('ChartData.min should return null when there are no values to compare', tt => {
     const data = new ChartData(allNulls, columns);
     tt.is(data.min('supply'), null);
 });
 
 // max
 
-test('ChartData.max returns the maximum value for a column', tt => {
+test('ChartData.max should return the maximum value for a column', tt => {
     const data = new ChartData(rows, columns);
     tt.is(data.max('day'), 19);
 });
 
-test('ChartData.max returns the maximum value for a column, even with null values', tt => {
+test('ChartData.max should return the maximum value for a column, even with null values', tt => {
     const data = new ChartData(rowsWithNulls, columns);
     tt.is(data.max('supply'), 34);
 });
 
-test('ChartData.max returns null when there are no values to compare', tt => {
+test('ChartData.max should return null when there are no values to compare', tt => {
     const data = new ChartData(allNulls, columns);
     tt.is(data.max('supply'), null);
 });
 
 // sum
 
-test('ChartData.sum returns the sum of values of a column', tt => {
+test('ChartData.sum should return the sum of values of a column', tt => {
     const data = new ChartData(rows, columns);
     tt.is(data.sum('demand'), 302);
 });
 
-test('ChartData.sum returns the sum of values of a column, even with null values', tt => {
+test('ChartData.sum should return the sum of values of a column, even with null values', tt => {
     const data = new ChartData(rowsWithNulls, columns);
     tt.is(data.sum('demand'), 77 + 88 + 99);
 });
 
-test('ChartData.sum returns zero when there are no values to compare', tt => {
+test('ChartData.sum should return zero when there are no values to compare', tt => {
     const data = new ChartData(allNulls, columns);
     tt.is(data.sum('supply'), 0);
 });
 
 // average
 
-test('ChartData.average returns the average of values of a column', tt => {
+test('ChartData.average should return the average of values of a column', tt => {
     const data = new ChartData(rows, columns);
     tt.is(data.average('supply'), 22.6);
 });
 
-test('ChartData.average returns the average of values of a column, even with null values', tt => {
+test('ChartData.average should return the average of values of a column, even with null values', tt => {
     const data = new ChartData(rowsWithNulls, columns);
     tt.is(data.average('supply'), 33);
 });
 
-test('ChartData.average returns null when there are no values to compare', tt => {
+test('ChartData.average should return null when there are no values to compare', tt => {
     const data = new ChartData(allNulls, columns);
     tt.is(data.average('supply'), null);
 });
 
 // median
 
-test('ChartData.median returns the median of values of a column', tt => {
+test('ChartData.median should return the median of values of a column', tt => {
     const data = new ChartData(rows, columns);
     tt.is(data.median('demand'), 56);
 });
 
-test('ChartData.median returns the median of values of a column, even with null values', tt => {
+test('ChartData.median should return the median of values of a column, even with null values', tt => {
     const data = new ChartData(rowsWithNulls, columns);
     tt.is(data.median('demand'), 88);
 });
 
-test('ChartData.median returns null when there are no values to compare', tt => {
+test('ChartData.median should return null when there are no values to compare', tt => {
     const data = new ChartData(allNulls, columns);
     tt.is(data.median('supply'), null);
 });

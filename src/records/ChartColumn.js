@@ -2,10 +2,10 @@
 
 import {Record} from 'immutable';
 
-class Column extends Record({
+class ChartColumn extends Record({
     key: "",
     label: "",
     isContinuous: false
 }) {}
 
-export default Column;
+export default ChartColumn;
