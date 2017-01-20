@@ -21,7 +21,8 @@ dependencies:
         - ~/.yarn
         - ~/.yarn-cache
     override:
-        - yarn install
+        - yarn install --no-progress
+        - node node_modules/node-sass/scripts/install.js # Force node sass to build vendor file to avoid this issue: https://github.com/sass/node-sass/issues/1579
 test:
     override:
         - yarn run test-all
