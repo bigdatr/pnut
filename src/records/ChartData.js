@@ -18,6 +18,7 @@ import {
 
 import Column from './ChartColumn';
 
+type ChartColumnDefinition = Object|Map<string,*>;
 type ChartScalar = string|number|null;
 type ChartRow = Map<string,ChartScalar>;
 type ChartColumn = *; // todo: should be a Column Record
@@ -123,7 +124,7 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    constructor(rows: Array<Object>, columns: Array<Object>) {
+    constructor(rows: Array<Object>|List<Map<string,ChartScalar>>, columns: Array<ChartColumnDefinition>|List<ChartColumnDefinition>) {
         const chartDataRows: List<ChartRow> = ChartData._createRows(rows);
         const chartDataColumns: OrderedMap<string,ChartColumn> = ChartData._createColumns(columns, chartDataRows);
 
@@ -140,7 +141,7 @@ class ChartData extends Record({
      * "private" static methods
      */
 
-    static _createRows(rows: Array<Object>): List<ChartRow> {
+    static _createRows(rows: Array<Object>|List<Map<string,ChartScalar>>): List<ChartRow> {
         // only immutablize rows two layers in (quicker than fromJS)
         return List(rows)
             .map(row => Map(row)
@@ -148,9 +149,9 @@ class ChartData extends Record({
             );
     }
 
-    static _createColumns(columns: Array<Object>, chartDataRows: List<ChartRow>): OrderedMap<string,ChartColumn> {
+    static _createColumns(columns: Array<ChartColumnDefinition>|List<ChartColumnDefinition>, chartDataRows: List<ChartRow>): OrderedMap<string,ChartColumn> {
         return fromJS(columns)
-            .reduce((map, col) => {
+            .reduce((map: OrderedMap<string,ChartColumn>, col: Map<string,*>) => {
                 return map.set(
                     col.get('key'),
                     new Column(ChartData._addContinuous(col, chartDataRows))
@@ -158,8 +159,8 @@ class ChartData extends Record({
             }, OrderedMap());
     }
 
-    static _addContinuous(col: Map<string,ChartScalar>, rows: List<ChartRow>): Map<string,ChartScalar> {
-        if(col.get('isContinuous')) {
+    static _addContinuous(col: Map<string,*>, rows: List<ChartRow>): Map<string,*> {
+        if(col.get('isContinuous') || !rows) {
             return col;
         }
         const key = col.get('key');
@@ -235,7 +236,7 @@ class ChartData extends Record({
      * private methods
      */
 
-    _memoize(key: string, fn: Function): ChartScalar {
+    _memoize(key: string, fn: Function): * {
         if(this._memos.hasOwnProperty(key)) {
             return this._memos[key];
         }
@@ -266,7 +267,7 @@ class ChartData extends Record({
      */
 
     getColumnData(column: string): List<ChartScalar> {
-        return this._memoize(`getColumnData.${column}`, (): List<ChartScalar> => {
+        return this._memoize(`getColumnData.${column}`, (): ?List<ChartScalar> => {
             if(!this.columns.get(column)) {
                 return null;
             }
