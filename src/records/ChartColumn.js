@@ -11,7 +11,9 @@ class ChartColumnRecord extends Record({
 export default ChartColumnRecord;
 
 /**
- * An object to define a column for a chart. Once passed into a `ChartData` constructor these are replaced with equivalent `ChartColumn`s. Also note that you'll rarely need to set `isContinuous` explicitly as it will be inferred from data automatically when not provided.
+ * An `Object` or `Map` that defines column information for a chart. These enable you to nominate labels for your columns, and provide a default column order.
+ * Once passed into a `ChartData` constructor these are replaced with equivalent `ChartColumn` Records.
+ * Also note that you'll rarely need to set `isContinuous` explicitly as it will be inferred from data automatically when not provided.
  *
  * @typedef ChartColumnDefinition
  * @type {Object|Map}
@@ -30,5 +32,5 @@ export default ChartColumnRecord;
  * @property {boolean} isContinuous A boolean indicating if the data in this column is continuous i.e. the data has intrinsic order (like numbers).
  */
 
-export type ChartColumnDefinition = Object|Map<string,*>;
+export type ChartColumnDefinition = {key: string, label: string, isContinuous: ?boolean}|Map<string,*>;
 export type ChartColumn = *; // todo: should be a Column Record

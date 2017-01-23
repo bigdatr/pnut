@@ -1,5 +1,5 @@
 import test from 'ava';
-import {fromJS, List} from 'immutable';
+import {fromJS, is, List, OrderedSet} from 'immutable';
 import ChartData from './ChartData';
 
 const rows = [
@@ -181,9 +181,6 @@ test('ChartData converts all invalid values to null', tt => {
     tt.deepEqual(data.rows, fromJS(rowsWithBadDataExpectedOutput));
 });
 
-
-
-
 //
 // columns
 //
@@ -217,7 +214,6 @@ test('ChartData should automatically determine if a column is not continuous', t
     tt.false(data.columns.get('fruit').isContinuous, 'column data is not continuous if first non-null item is not a number');
 });
 
-
 //
 // methods
 //
@@ -233,6 +229,22 @@ test('ChartData.getColumnData should return null if given a column name that doe
     const data = new ChartData(rows, columns);
     tt.is(data.getColumnData('not here'), null);
 });
+
+// getUniqueValues
+
+test('ChartData.getUniqueValues should return null when provided a column that doesnt exist', tt => {
+    const data = new ChartData(rows, columns);
+    tt.true(is(
+        data.getUniqueValues('fruit'),
+        OrderedSet(["apple", "orange", "peach", "pear"])
+    ));
+});
+
+test('ChartData.getUniqueValues should return null when provided a column that doesnt exist', tt => {
+    const data = new ChartData(rows, columns);
+    tt.is(data.getUniqueValues('not here'), null);
+});
+
 
 // memoization
 
@@ -264,6 +276,11 @@ test('ChartData.min should memoize per column', tt => {
     tt.is(data.min('supply'), 12);
 });
 
+test('ChartData.min should return null when provided a column that doesnt exist', tt => {
+    const data = new ChartData(rows, columns);
+    tt.is(data.min('not here'), null);
+});
+
 // max
 
 test('ChartData.max should return the maximum value for a column', tt => {
@@ -285,6 +302,11 @@ test('ChartData.max should memoize per column', tt => {
     const data = new ChartData(rows, columns);
     data.max('demand');
     tt.is(data.max('day'), 19);
+});
+
+test('ChartData.max should return null when provided a column that doesnt exist', tt => {
+    const data = new ChartData(rows, columns);
+    tt.is(data.max('not here'), null);
 });
 
 // sum
@@ -310,6 +332,11 @@ test('ChartData.sum should memoize per column', tt => {
     tt.is(data.sum('demand'), 302);
 });
 
+test('ChartData.sum should return null when provided a column that doesnt exist', tt => {
+    const data = new ChartData(rows, columns);
+    tt.is(data.sum('not here'), null);
+});
+
 // average
 
 test('ChartData.average should return the average of values of a column', tt => {
@@ -331,6 +358,11 @@ test('ChartData.average should memoize per column', tt => {
     const data = new ChartData(rows, columns);
     data.average('demand');
     tt.is(data.average('supply'), 22.6);
+});
+
+test('ChartData.average should return null when provided a column that doesnt exist', tt => {
+    const data = new ChartData(rows, columns);
+    tt.is(data.average('not here'), null);
 });
 
 // median
@@ -355,4 +387,63 @@ test('ChartData.median should memoize per column', tt => {
     data.median('supply');
     tt.is(data.median('demand'), 56);
 });
+
+test('ChartData.median should return null when provided a column that doesnt exist', tt => {
+    const data = new ChartData(rows, columns);
+    tt.is(data.median('not here'), null);
+});
+
+//
+//  frames
+//
+
+const sliceyRows = [
+    {
+        day: 1,
+        fruit: "apple",
+        amount: 3
+    },
+    {
+        day: 1,
+        fruit: "banana",
+        amount: 4
+    },
+    {
+        day: 1,
+        fruit: "fudge",
+        amount: 5
+    },
+    {
+        day: 2,
+        fruit: "apple",
+        amount: 2
+    },
+    {
+        day: 2,
+        fruit: "banana",
+        amount: 5
+    },
+    {
+        day: 2,
+        fruit: "fudge",
+        amount: 5
+    },
+    {
+        day: 3,
+        fruit: "apple",
+        amount: 0
+    },
+    {
+        day: 3,
+        fruit: "banana",
+        amount: 4
+    },
+    {
+        day: 3,
+        fruit: "fudge",
+        amount: 100
+    }
+];
+
+
 
