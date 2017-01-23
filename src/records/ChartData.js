@@ -61,6 +61,7 @@ type ChartColumn = *; // todo: should be a Column Record
  * @class
  *
  * ChartData is an Immutable Record used by pnut charts to represent chart data.
+ * It stores rows of data objects whose members correspond to columns, and metadata about the columns.
  */
 
 class ChartData extends Record({
@@ -288,7 +289,7 @@ class ChartData extends Record({
      */
 
     min(column: string): ChartScalar {
-        return this._memoize('min', (): ChartScalar => {
+        return this._memoize(`min.${column}`, (): ChartScalar => {
             const result = this.rows
                 .filter(ii => ii.get(column) != null)
                 .update(minBy(ii => ii.get(column)));
@@ -310,7 +311,7 @@ class ChartData extends Record({
      */
 
     max(column: string): ChartScalar {
-        return this._memoize('max', (): ChartScalar => {
+        return this._memoize(`max.${column}`, (): ChartScalar => {
             const result = this.rows
                 .filter(ii => ii.get(column) != null)
                 .update(maxBy(ii => ii.get(column)));
@@ -332,7 +333,7 @@ class ChartData extends Record({
      */
 
     sum(column: string): ChartScalar {
-        return this._memoize('sum', (): ChartScalar => {
+        return this._memoize(`sum.${column}`, (): ChartScalar => {
             const result = this.rows
                 .filter(ii => ii.get(column) != null)
                 .update(sumBy(ii => ii.get(column)));
@@ -354,7 +355,7 @@ class ChartData extends Record({
      */
 
     average(column: string): ChartScalar {
-        return this._memoize('average', (): ChartScalar => {
+        return this._memoize(`average.${column}`, (): ChartScalar => {
             const result = this.rows
                 .filter(ii => ii.get(column) != null)
                 .update(averageBy(ii => ii.get(column)));
@@ -376,7 +377,7 @@ class ChartData extends Record({
      */
 
     median(column: string): ChartScalar {
-        return this._memoize('median', (): ChartScalar => {
+        return this._memoize(`median.${column}`, (): ChartScalar => {
             const result = this.rows
                 .filter(ii => ii.get(column) != null)
                 .update(medianBy(ii => ii.get(column)));

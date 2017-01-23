@@ -238,7 +238,7 @@ test('ChartData.getColumnData should return null if given a column name that doe
 
 test('Calling a memoized method should return the same object if called a second time', tt => {
     const data = new ChartData(rows, columns);
-    tt.is(data.getColumnData('fruit'), data.getColumnData('fruit'));
+    tt.true(data.getColumnData('fruit') === data.getColumnData('fruit'));
 });
 
 // min
@@ -258,6 +258,12 @@ test('ChartData.min should return null when there are no values to compare', tt 
     tt.is(data.min('supply'), null);
 });
 
+test('ChartData.min should memoize per column', tt => {
+    const data = new ChartData(rows, columns);
+    data.min('demand');
+    tt.is(data.min('supply'), 12);
+});
+
 // max
 
 test('ChartData.max should return the maximum value for a column', tt => {
@@ -273,6 +279,12 @@ test('ChartData.max should return the maximum value for a column, even with null
 test('ChartData.max should return null when there are no values to compare', tt => {
     const data = new ChartData(allNulls, columns);
     tt.is(data.max('supply'), null);
+});
+
+test('ChartData.max should memoize per column', tt => {
+    const data = new ChartData(rows, columns);
+    data.max('demand');
+    tt.is(data.max('day'), 19);
 });
 
 // sum
@@ -292,6 +304,12 @@ test('ChartData.sum should return zero when there are no values to compare', tt 
     tt.is(data.sum('supply'), 0);
 });
 
+test('ChartData.sum should memoize per column', tt => {
+    const data = new ChartData(rows, columns);
+    data.sum('supply');
+    tt.is(data.sum('demand'), 302);
+});
+
 // average
 
 test('ChartData.average should return the average of values of a column', tt => {
@@ -307,6 +325,12 @@ test('ChartData.average should return the average of values of a column, even wi
 test('ChartData.average should return null when there are no values to compare', tt => {
     const data = new ChartData(allNulls, columns);
     tt.is(data.average('supply'), null);
+});
+
+test('ChartData.average should memoize per column', tt => {
+    const data = new ChartData(rows, columns);
+    data.average('demand');
+    tt.is(data.average('supply'), 22.6);
 });
 
 // median
@@ -325,3 +349,10 @@ test('ChartData.median should return null when there are no values to compare', 
     const data = new ChartData(allNulls, columns);
     tt.is(data.median('supply'), null);
 });
+
+test('ChartData.median should memoize per column', tt => {
+    const data = new ChartData(rows, columns);
+    data.median('supply');
+    tt.is(data.median('demand'), 56);
+});
+
