@@ -255,10 +255,10 @@ class ChartData extends Record({
      */
 
     getColumnData(column: string): List<ChartScalar> {
+        if(!this.columns.get(column)) {
+            return null;
+        }
         return this._memoize(`getColumnData.${column}`, (): ?List<ChartScalar> => {
-            if(!this.columns.get(column)) {
-                return null;
-            }
             return this.rows.map(row => row.get(column));
         });
     }
@@ -280,9 +280,11 @@ class ChartData extends Record({
         if(!this.columns.get(column)) {
             return null;
         }
-        return this.rows
-            .map(ii => ii.get(column))
-            .toOrderedSet();
+        return this._memoize(`getUniqueValues.${column}`, (): ?OrderedSet<ChartScalar> => {
+            return this.rows
+                .map(ii => ii.get(column))
+                .toOrderedSet();
+        });
     }
 
     /**

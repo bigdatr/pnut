@@ -230,6 +230,17 @@ test('ChartData.getColumnData should return null if given a column name that doe
     tt.is(data.getColumnData('not here'), null);
 });
 
+test('ChartData.getColumnData should use memoization', tt => {
+    const data = new ChartData(rows, columns);
+    tt.true(data.getColumnData('fruit') === data.getColumnData('fruit'));
+});
+
+test('ChartData.getColumnData should memoize per column', tt => {
+    const data = new ChartData(rows, columns);
+    data.getColumnData('demand');
+    tt.deepEqual(data.getColumnData('fruit'), List(["apple", "apple", "orange", "peach", "pear"]));
+});
+
 // getUniqueValues
 
 test('ChartData.getUniqueValues should return null when provided a column that doesnt exist', tt => {
@@ -245,6 +256,16 @@ test('ChartData.getUniqueValues should return null when provided a column that d
     tt.is(data.getUniqueValues('not here'), null);
 });
 
+test('ChartData.getUniqueValues should use memoization', tt => {
+    const data = new ChartData(rows, columns);
+    tt.true(data.getUniqueValues('fruit') === data.getUniqueValues('fruit'));
+});
+
+test('ChartData.getUniqueValues should memoize per column', tt => {
+    const data = new ChartData(rows, columns);
+    data.getUniqueValues('demand');
+    tt.deepEqual(data.getUniqueValues('fruit'), OrderedSet(["apple", "orange", "peach", "pear"]));
+});
 
 // memoization
 
