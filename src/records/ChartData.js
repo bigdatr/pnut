@@ -224,6 +224,30 @@ class ChartData extends Record({
      * private methods
      */
 
+    _columnError(column: string): boolean {
+        if(!this.columns.get(column)) {
+            console.error(`ChartData: column "${column}" not found.`);
+            return true;
+        }
+        return false;
+    }
+
+    _indexError(index: number, max: ?number, integer: ?boolean = true): boolean {
+        if(index < 0) {
+            console.error(`ChartData: index "${index}" must not be smaller than 0.`);
+            return true;
+        }
+        if(max && index > max) {
+            console.error(`ChartData: index "${index}" must not be larger than ${max}.`);
+            return true;
+        }
+        if(integer && Math.round(index) != index) {
+            console.error(`ChartData: index "${index}" must not be decimal.`);
+            return true;
+        }
+        return false;
+    }
+
     _memoize(key: string, fn: Function): * {
         if(this._memos.hasOwnProperty(key)) {
             return this._memos[key];
@@ -255,7 +279,7 @@ class ChartData extends Record({
      */
 
     getColumnData(column: string): List<ChartScalar> {
-        if(!this.columns.get(column)) {
+        if(this._columnError(column)) {
             return null;
         }
         return this._memoize(`getColumnData.${column}`, (): ?List<ChartScalar> => {
@@ -264,11 +288,11 @@ class ChartData extends Record({
     }
 
     /**
-     * For a given column, this returns an `OrderedSet` of unique values in that column, in the order they appear in `rows`.
-     * When data is treated as a set of frames
+     * For a given column, this returns a `List` of unique values in that column, in the order that each unique value first appears in `rows`.
+     * You can also return the number of unique values by calling `getUniqueValues().size`.
      *
-     * @param {string} columns The name of the column.
-     * @return {OrderedSet<ChartScalar>|null} An `OrderedSet` of unique values in the order they appear in `rows`, or null if columns have been set but the column could not be found.
+     * @param {string} column The name of the column.
+     * @return {List<ChartScalar>|null} A `List` of unique values in the order they appear in `rows`, or null if columns have been set but the column could not be found.
      *
      * @name getUniqueValues
      * @kind function
@@ -276,15 +300,188 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    getUniqueValues(column: string): ?OrderedSet<ChartScalar> {
-        if(!this.columns.get(column)) {
+    getUniqueValues(column: string): ?List<ChartScalar> {
+        if(this._columnError(column)) {
             return null;
         }
-        return this._memoize(`getUniqueValues.${column}`, (): ?OrderedSet<ChartScalar> => {
+        return this._memoize(`getUniqueValues.${column}`, (): ?List<ChartScalar> => {
             return this.rows
                 .map(ii => ii.get(column))
-                .toOrderedSet();
+                .toOrderedSet()
+                .toList();
         });
+    }
+
+    /**
+     * This breaks `rows` data into frames, which are rows grouped by unique values of a specifed `frameColumn`.
+     *
+     * This method assumes that rows in the `frameColumn` are already sorted in the correct order.
+     *
+     * @param {string} column The name of the column.
+     * @return {List<List<ChartRow>>|null} A `List` of frames, where each frame is a `List`s of chart rows, or null if columns have been set but the column could not be found.
+     *
+     * @name makeFrames
+     * @kind function
+     * @inner
+     * @memberof ChartData
+     */
+
+    makeFrames(column: string): List<List<ChartRow>> {
+        if(this._columnError(column)) {
+            return null;
+        }
+        return this._memoize(`makeFrames.${column}`, (): ?ChartData => {
+            return this.rows
+                .groupBy(ii => ii.get(column))
+                .toList();
+        });
+    }
+
+    /**
+     * This make `rows` data into frames returns a new `ChartData` containing only data at the given frame index.
+     * The frames will be sorted in the order that each frame's unique value first appears in `rows`.
+     *
+     * This method assumes that rows in the `frameColumn` are already sorted in the correct order.
+     *
+     * @example
+     * const rows = [
+     *     {
+     *         day: 1,
+     *         fruit: "apple",
+     *         amount: 3
+     *     },
+     *     {
+     *         day: 1,
+     *         fruit: "banana",
+     *         amount: 4
+     *     },
+     *     {
+     *         day: 2,
+     *         fruit: "apple",
+     *         amount: 2
+     *     },
+     *     {
+     *         day: 2,
+     *         fruit: "banana",
+     *         amount: 5
+     *     },
+     *     {
+     *         day: 5,
+     *         fruit: "apple",
+     *         amount: 0
+     *     },
+     *     {
+     *         day: 5,
+     *         fruit: "banana",
+     *         amount: 4
+     *     },
+     * ];
+     *
+     * // ^ this will have three frame indexes for "day"
+     * // as there are three unique values for "day"
+     *
+     * const chartData = new ChartData(rows, columns);
+     * chartData.frameAtIndex("day", 0);
+     * // ^ returns a ChartData with only rows from frame index 0,
+     * // which includes only points where day = 1
+     * chartData.frameAtIndex("day", 2);
+     * // ^ returns a ChartData with only rows from frame index 2,
+     * // which includes only points where day = 5
+     *
+     * @param {string} frameColumn The name of the column to group by and break into frames. Often this column contains time-based data.
+     * @param {number} index The index to retrieve. Like an array, this can be an integer from 0 to the total number of frames minus one.
+     * @return {ChartData|null} A new `ChartData` containing rows from the specified frame index, or `null` if any arguments are invalid.
+     *
+     * @name frameAtIndex
+     * @kind function
+     * @inner
+     * @memberof ChartData
+     */
+
+    frameAtIndex(frameColumn: string, index: number): ?ChartData {
+        if(this._columnError(frameColumn) || this._indexError(index)) {
+            return null;
+        }
+        return this._memoize(`frameAtIndex.${frameColumn}[${index}]`, (): ?ChartData => {
+            const groupedRows: List<List<ChartRow>> = this.makeFrames(frameColumn);
+            if(this._indexError(index, groupedRows.size - 1)) {
+                return null;
+            }
+            return new ChartData(groupedRows.get(index), this.columns);
+        });
+    }
+
+    /**
+     * Like `frameAtIndex`, this breaks `rows` data into frames, but this can also work with non-integer `index`es and will interpolate continuous non-primary values.
+     *
+     * This method assumes that rows in the `frameColumn` are already sorted in the correct order.
+     * Also unlike most other `ChartData` methods, this method is not memoized.
+     * This decision will be reassessed once animation performance and memory footprint are analyzed.
+     *
+     * @example
+     * const rows = [
+     *     {
+     *         day: 1,
+     *         price: 10,
+     *         amount: 2
+     *     },
+     *     {
+     *         day: 1,
+     *         price: 20,
+     *         amount: 40
+     *     },
+     *     {
+     *         day: 2,
+     *         price: 10,
+     *         amount: 4
+     *     },
+     *     {
+     *         day: 2,
+     *         price: 20,
+     *         amount: 30
+     *     }
+     * ];
+
+     * const chartData = new ChartData(rows, columns);
+     * chartData.frameAtIndexInterpolated("day", "price", 0.5);
+     * // ^ returns a ChartData with two data points:
+     * // {day: 1.5, price: 10, amount: 3}
+     * // {day: 1.5, price: 20, amount: 35}
+     *
+     * @param {string} frameColumn The name of the column to group by and break into frames. Often this column contains time-based data.
+     * @param {string} primaryColumn The column that will be charted on the primary axis.
+     * This is required because data points must be uniquely identifiable for this function to know which data points to interpolate between.
+     * Data in the primary column is not interpolated; its values are treated as ordered but discrete.
+     * @param {number} index The index to retrieve. This can be an integer from 0 to the total number of frames minus one, and allows non-integer values.
+     * @return {ChartData|null} A new `ChartData` containing rows from the specified frame index, or `null` if any arguments are invalid.
+     *
+     * @name frameAtIndexInterpolated
+     * @kind function
+     * @inner
+     * @memberof ChartData
+     */
+
+    frameAtIndexInterpolated(frameColumn: string, primaryColumn: string, index: number): ?ChartData {
+        if(this._columnError(frameColumn) || this._columnError(primaryColumn) || this._indexError(index, null, false)) {
+            return null;
+        }
+
+        if(frameColumn == primaryColumn) {
+            console.error(`ChartData: frameColumn and primaryColumn cannot be the same.`);
+            return null;
+        }
+
+        if(index == Math.round(index)) {
+            return this.frameAtIndex(frameColumn, index);
+        }
+
+        const groupedRows: List<List<ChartRow>> = this.makeFrames(frameColumn);
+        if(this._indexError(index, groupedRows.size - 1, false)) {
+            return null;
+        }
+
+        console.log('index', index);
+        console.log('groupedRows', groupedRows);
     }
 
     /**
@@ -300,7 +497,7 @@ class ChartData extends Record({
      */
 
     min(column: string): ?ChartScalar {
-        if(!this.columns.get(column)) {
+        if(this._columnError(column)) {
             return null;
         }
         return this._memoize(`min.${column}`, (): ?ChartScalar => {
@@ -326,7 +523,7 @@ class ChartData extends Record({
      */
 
     max(column: string): ?ChartScalar {
-        if(!this.columns.get(column)) {
+        if(this._columnError(column)) {
             return null;
         }
         return this._memoize(`max.${column}`, (): ?ChartScalar => {
@@ -351,7 +548,7 @@ class ChartData extends Record({
      */
 
     sum(column: string): ChartScalar {
-        if(!this.columns.get(column)) {
+        if(this._columnError(column)) {
             return null;
         }
         return this._memoize(`sum.${column}`, (): ChartScalar => {
@@ -376,7 +573,7 @@ class ChartData extends Record({
      */
 
     average(column: string): ?ChartScalar {
-        if(!this.columns.get(column)) {
+        if(this._columnError(column)) {
             return null;
         }
         return this._memoize(`average.${column}`, (): ?ChartScalar => {
@@ -401,7 +598,7 @@ class ChartData extends Record({
      */
 
     median(column: string): ?ChartScalar {
-        if(!this.columns.get(column)) {
+        if(this._columnError(column)) {
             return null;
         }
         return this._memoize(`median.${column}`, (): ?ChartScalar => {
