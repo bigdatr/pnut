@@ -198,6 +198,50 @@ class ChartData extends Record({
         return typeof value === "number";
     }
 
+    /**
+     * Lerp (short for linear interpolation) takes two `ChartScalar` values
+     * and attempts to interpolate them.
+     *
+     * - If `blend` is 0 or 1 it will return `valueA` or `valueB` respectively.
+     * - If either value is `null` it will return `null`.
+     * - If either value is not a number, `valueA` will be returned.
+     * - If both values are numbers, the interpolated number will be returned.
+     *
+     * @example
+     * return ChartData.lerp(10, 20, 0.5); // returns 15
+     *
+     * @param {ChartScalar} valueA The first value.
+     * @param {ChartScalar} valueB The second value.
+     * @param {number} blend A number from 0 to 1 indicating how much influence
+     * each value has on the result. A `blend` of 0.5 will return a number halfway between each value. A `blend` of 0 will equal `valueA`.
+     * @return {ChartScalar} The interpolated value.
+     *
+     * @name lerp
+     * @kind function
+     * @memberof ChartData
+     * @static
+     */
+
+    static lerp(valueA: ChartScalar, valueB: ChartScalar, blend: number): ChartScalar {
+        if(blend == 0) {
+            return valueA;
+        }
+        if(blend == 1) {
+            return valueB;
+        }
+        if(blend < 0 || blend > 1) {
+            console.error(`ChartData: blend must be from 0 to 1 inclusive`);
+            return null;
+        }
+        if(valueA == null || valueB == null) {
+            return null;
+        }
+        if(typeof valueA != "number" || typeof valueB != "number") {
+            return valueA;
+        }
+        return (valueB - valueA) * blend + valueA;
+    }
+
     /*
      * public data members
      */
@@ -403,19 +447,20 @@ class ChartData extends Record({
             return null;
         }
         return this._memoize(`frameAtIndex.${frameColumn}[${index}]`, (): ?ChartData => {
-            const groupedRows: List<List<ChartRow>> = this.makeFrames(frameColumn);
-            if(this._indexError(index, groupedRows.size - 1)) {
+            const frames: List<List<ChartRow>> = this.makeFrames(frameColumn);
+            if(this._indexError(index, frames.size - 1)) {
                 return null;
             }
-            return new ChartData(groupedRows.get(index), this.columns);
+            return new ChartData(frames.get(index), this.columns);
         });
     }
 
     /**
      * Like `frameAtIndex`, this breaks `rows` data into frames, but this can also work with non-integer `index`es and will interpolate continuous non-primary values.
      *
-     * This method assumes that rows in the `frameColumn` are already sorted in the correct order.
-     * Also unlike most other `ChartData` methods, this method is not memoized.
+     * This method assumes that rows in the `frameColumn` and in `primaryColumn` are already sorted in the correct order. This is because both of these may contain non-continuous data,
+     * and it's best to leave the sorting of non-continuous data up to the user.
+     * Also unlike most other `ChartData` methods, this method's results are not memoized, however it does rely on some memoized data in its calculation.
      * This decision will be reassessed once animation performance and memory footprint are analyzed.
      *
      * @example
@@ -449,7 +494,7 @@ class ChartData extends Record({
      * // {day: 1.5, price: 20, amount: 35}
      *
      * @param {string} frameColumn The name of the column to group by and break into frames. Often this column contains time-based data.
-     * @param {string} primaryColumn The column that will be charted on the primary axis.
+     * @param {string} primaryColumn The column that will be charted on the primary dimension.
      * This is required because data points must be uniquely identifiable for this function to know which data points to interpolate between.
      * Data in the primary column is not interpolated; its values are treated as ordered but discrete.
      * @param {number} index The index to retrieve. This can be an integer from 0 to the total number of frames minus one, and allows non-integer values.
@@ -475,13 +520,68 @@ class ChartData extends Record({
             return this.frameAtIndex(frameColumn, index);
         }
 
-        const groupedRows: List<List<ChartRow>> = this.makeFrames(frameColumn);
-        if(this._indexError(index, groupedRows.size - 1, false)) {
+        const frames: List<List<ChartRow>> = this.makeFrames(frameColumn);
+        if(this._indexError(index, frames.size - 1, false)) {
             return null;
         }
 
-        console.log('index', index);
-        console.log('groupedRows', groupedRows);
+        // get all values of primary in entire data set, so we can leave gaps where data points may not exist at these data frames
+        const allPrimaryValues: List<ChartScalar> = this.getUniqueValues(primaryColumn);
+        // get frames on either side of index
+        const indexA: number = Math.floor(index);
+        const indexB: number = Math.ceil(index);
+        // determine how far between the two frames we are
+        const blend: number = index - indexA;
+
+        // for each frame, get its data and use its primaryColumn to uniquely identify points that are in both frames
+        const frameA: List<ChartRow> = frames
+            .get(indexA)
+            .groupBy(ii => ii.get(primaryColumn));
+
+        const frameB: List<ChartRow> = frames
+            .get(indexB)
+            .groupBy(ii => ii.get(primaryColumn));
+
+        const getRowFromFrame = (frame: List<ChartRow>, primaryValue: ChartScalar): ?ChartRow => {
+            const rowList: ?List<ChartRow> = frame.get(primaryValue);
+            if(!rowList || rowList.size == 0) {
+                return null;
+            }
+            const first: ChartRow = rowList.first();
+            // when uniquely identifying points, the data may accidentally contain multiple matches, so warn if this happens
+            if(rowList.size > 1) {
+                console.warn(`ChartData: Two data points found where ${frameColumn}=${first.get(frameColumn)} and ${primaryColumn}=${String(primaryValue)}, using first data point.`);
+            }
+            return first;
+        };
+
+        // for all primaryValues, find matching data points in both frames
+        const interpolatedFrame: List<ChartRow> = allPrimaryValues
+            .map((primaryValue: ChartScalar): ?ChartRow => {
+                const rowA: ?ChartRow = getRowFromFrame(frameA, primaryValue);
+                const rowB: ?ChartRow = getRowFromFrame(frameB, primaryValue);
+
+                // one of the data points doesn't exist, we can't continue
+                // although in future we could interpolate to missing continuous
+                // values if we can work out what to do with all non-continuous ones,
+                // and if it's reasonable that frameAtIndexInterpolated make up new data points
+                if(!rowA || !rowB) {
+                    return null;
+                }
+
+                // for each column, try to interpolate values
+                return this.columns.reduce((map: ChartRow, {key, isContinuous}): ChartRow => {
+                    // only try to interpolate continuous non-primary columns
+                    const value: ChartScalar = isContinuous && key != primaryColumn
+                        ? ChartData.lerp(rowA.get(key), rowB.get(key), blend)
+                        : rowA.get(key);
+
+                    return map.set(key, value);
+                }, Map());
+            })
+            .filter(ii => ii != null);
+
+        return new ChartData(interpolatedFrame, this.columns);
     }
 
     /**

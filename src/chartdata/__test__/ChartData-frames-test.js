@@ -8,23 +8,19 @@ console.error = () => {};
 const columns = [
     {
         key: 'day',
-        label: 'Day',
-        isContinuous: true
-    },
-    {
-        key: 'supply',
-        label: 'Supply (houses)',
-        isContinuous: true
-    },
-    {
-        key: 'demand',
-        label: 'Demand (houses)',
-        isContinuous: true
+        label: 'Day'
     },
     {
         key: 'fruit',
-        label: 'Random fruit',
-        isContinuous: false
+        label: 'Fruit'
+    },
+    {
+        key: 'amount',
+        label: 'Amount'
+    },
+    {
+        key: 'color',
+        label: 'Color'
     }
 ];
 
@@ -36,47 +32,56 @@ const frameableRows = [
     {
         day: 1,
         fruit: "apple",
-        amount: 3
+        amount: 3,
+        color: "blue"
     },
     {
         day: 1,
         fruit: "banana",
-        amount: 4
+        amount: 4,
+        color: "blue"
     },
     {
         day: 1,
         fruit: "fudge",
-        amount: 5
+        amount: 5,
+        color: "blue"
     },
     {
         day: 2,
         fruit: "apple",
-        amount: 2
+        amount: 2,
+        color: "green"
     },
     {
         day: 2,
         fruit: "banana",
-        amount: 5
+        amount: 5,
+        color: "green"
     },
     {
         day: 2,
         fruit: "fudge",
-        amount: 5
+        amount: 5,
+        color: "green"
     },
     {
         day: 3,
         fruit: "apple",
-        amount: 0
+        amount: 0,
+        color: "yellow"
     },
-    {
+    /*{ intentially missing data point
         day: 3,
         fruit: "banana",
-        amount: 4
-    },
+        amount: 4,
+        color: "yellow"
+    },*/
     {
         day: 3,
         fruit: "fudge",
-        amount: 100
+        amount: 100,
+        color: "yellow"
     }
 ];
 
@@ -85,51 +90,54 @@ const framesAnswer = fromJS([
         {
             day: 1,
             fruit: "apple",
-            amount: 3
+            amount: 3,
+            color: "blue"
         },
         {
             day: 1,
             fruit: "banana",
-            amount: 4
+            amount: 4,
+            color: "blue"
         },
         {
             day: 1,
             fruit: "fudge",
-            amount: 5
+            amount: 5,
+            color: "blue"
         }
     ],
     [
         {
             day: 2,
             fruit: "apple",
-            amount: 2
+            amount: 2,
+            color: "green"
         },
         {
             day: 2,
             fruit: "banana",
-            amount: 5
+            amount: 5,
+            color: "green"
         },
         {
             day: 2,
             fruit: "fudge",
-            amount: 5
+            amount: 5,
+            color: "green"
         }
     ],
     [
         {
             day: 3,
             fruit: "apple",
-            amount: 0
-        },
-        {
-            day: 3,
-            fruit: "banana",
-            amount: 4
+            amount: 0,
+            color: "yellow"
         },
         {
             day: 3,
             fruit: "fudge",
-            amount: 100
+            amount: 100,
+            color: "yellow"
         }
     ]
 ]);
@@ -164,7 +172,6 @@ test('ChartData.makeFrames should memoize per column', tt => {
 
 // frameAtIndex
 
-
 test('ChartData.frameAtIndex should return a ChartData containing data at an existing frame when passed an integer', tt => {
     const data = new ChartData(frameableRows, columns);
     tt.true(is(
@@ -196,17 +203,20 @@ test('ChartData.frameAtIndex should memoize per column', tt => {
         {
             day: 1,
             fruit: "apple",
-            amount: 3
+            amount: 3,
+            color: "blue"
         },
         {
             day: 1,
             fruit: "banana",
-            amount: 4
+            amount: 4,
+            color: "blue"
         },
         {
             day: 1,
             fruit: "fudge",
-            amount: 5
+            amount: 5,
+            color: "blue"
         }
     ]);
     data.frameAtIndex('amount', 0);
@@ -219,17 +229,20 @@ test('ChartData.frameAtIndex should memoize per index', tt => {
         {
             day: 1,
             fruit: "apple",
-            amount: 3
+            amount: 3,
+            color: "blue"
         },
         {
             day: 1,
             fruit: "banana",
-            amount: 4
+            amount: 4,
+            color: "blue"
         },
         {
             day: 1,
             fruit: "fudge",
-            amount: 5
+            amount: 5,
+            color: "blue"
         }
     ]);
     data.frameAtIndex('day', 1);
@@ -249,47 +262,87 @@ test('ChartData.frameAtIndexInterpolated should return a ChartData containing da
     ));
 });
 
-test('ChartData.frameAtIndexInterpolated should return a ChartData containing interpolated data when passed an non-integer', tt => {
+test('ChartData.frameAtIndexInterpolated should return a ChartData containing interpolated data when passed an non-integer (lerping numbers and strings)', tt => {
     const data = new ChartData(frameableRows, columns);
     const answer = fromJS([
         {
-            day: 2,
+            day: 1.5,
             fruit: "apple",
-            amount: 2
+            amount: 2.5,
+            color: "blue"
         },
         {
-            day: 2,
+            day: 1.5,
             fruit: "banana",
-            amount: 5
+            amount: 4.5,
+            color: "blue"
         },
         {
-            day: 2,
+            day: 1.5,
             fruit: "fudge",
-            amount: 5
-        },
-        {
-            day: 3,
-            fruit: "apple",
-            amount: 0
-        },
-        {
-            day: 3,
-            fruit: "banana",
-            amount: 4
-        },
-        {
-            day: 3,
-            fruit: "fudge",
-            amount: 100
+            amount: 5,
+            color: "blue"
         }
     ]);
 
     tt.true(is(
-        data.frameAtIndexInterpolated('day', 'fruit', 1.5)/*.rows*/,
+        data.frameAtIndexInterpolated('day', 'fruit', 0.5).rows,
         answer
     ));
 });
 
+test('ChartData.frameAtIndexInterpolated should cope with missing data points', tt => {
+    const data = new ChartData(frameableRows, columns);
+    const answer = fromJS([
+        {
+            day: 2.5,
+            fruit: "apple",
+            amount: 1,
+            color: "green"
+        },
+        {
+            day: 2.5,
+            fruit: "fudge",
+            amount: 52.5,
+            color: "green"
+        }
+    ]);
+
+    tt.true(is(
+        data.frameAtIndexInterpolated('day', 'fruit', 1.5).rows,
+        answer
+    ));
+});
+
+test('ChartData.frameAtIndexInterpolated should still work when data points are not unique (frameColumn and primaryColumn are the same)', tt => {
+    const rows = fromJS(frameableRows).push(fromJS({
+        day: 3,
+        fruit: "fudge",
+        amount: -999,
+        color: "crimson"
+    }));
+
+    const data = new ChartData(rows, columns);
+    const answer = fromJS([
+        {
+            day: 2.5,
+            fruit: "apple",
+            amount: 1,
+            color: "green"
+        },
+        {
+            day: 2.5,
+            fruit: "fudge",
+            amount: 52.5,
+            color: "green"
+        }
+    ]);
+
+    tt.true(is(
+        data.frameAtIndexInterpolated('day', 'fruit', 1.5).rows,
+        answer
+    ));
+});
 
 test('ChartData.frameAtIndexInterpolated should return null if passed an incorrect index', tt => {
     const data = new ChartData(frameableRows, columns);
