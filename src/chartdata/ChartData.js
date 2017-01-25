@@ -1,11 +1,11 @@
 // @flow
 
 import {
-    minBy,
-    maxBy,
-    sumBy,
-    averageBy,
-    medianBy
+    min,
+    max,
+    sum,
+    average,
+    median
 } from 'immutable-math';
 
 import {
@@ -22,6 +22,7 @@ import type {ChartColumnDefinition, ChartColumn} from './ChartColumn';
 export type ChartScalar = string|number|null;
 export type ChartRowDefinition = {[key: string]: ChartScalar}|Map<string,ChartScalar>;
 export type ChartRow = Map<string,ChartScalar>;
+export type ChartColumnArg = string|Array<string>|List<string>;
 
 /**
  * A valid chart value, which can only accept data of type `string`, `number` and `null`.
@@ -276,6 +277,10 @@ class ChartData extends Record({
         return false;
     }
 
+    _columnListError(columnList: List<string>): boolean {
+        return columnList.some(ii => this._columnError(ii));
+    }
+
     _indexError(index: number, max: ?number, integer: ?boolean = true): boolean {
         if(index < 0) {
             console.error(`ChartData: index "${index}" must not be smaller than 0.`);
@@ -290,6 +295,23 @@ class ChartData extends Record({
             return true;
         }
         return false;
+    }
+
+    _columnArgList(columns: ChartColumnArg): List<string> {
+        if(typeof columns == "string") {
+            return List([columns]);
+        }
+        return fromJS(columns);
+    }
+
+    _allValuesForColumns(columnList: List<string>): List<ChartScalar> {
+        return this.rows
+            .reduce((values: List<ChartScalar>, row: ChartRow): List<ChartScalar> => {
+                return values.concat(row
+                    .filter((val, key) => columnList.contains(key))
+                    .toList()
+                );
+            }, List());
     }
 
     _memoize(key: string, fn: Function): * {
@@ -587,7 +609,7 @@ class ChartData extends Record({
     /**
      * Get the minimum non-null value in a column.
      *
-     * @param {string} columns The name of the column.
+     * @param {string|Array<string>|List<string>} columns The names of one or more columns to perform the operation on.
      * @return {number|null} The minimum value, or null if no mininum value could be determined.
      *
      * @name min
@@ -596,14 +618,15 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    min(column: string): ?ChartScalar {
-        if(this._columnError(column)) {
+    min(columns: ChartColumnArg): ?ChartScalar {
+        const columnList: List<string> = this._columnArgList(columns);
+        if(this._columnListError(columnList)) {
             return null;
         }
-        return this._memoize(`min.${column}`, (): ?ChartScalar => {
-            const result = this.rows
-                .filter(ii => ii.get(column) != null)
-                .update(minBy(ii => ii.get(column)));
+        return this._memoize(`min.${columnList.join(',')}`, (): ?ChartScalar => {
+            const result: number = this._allValuesForColumns(columnList)
+                .filter(val => val != null)
+                .update(min());
 
             return isNaN(result) ? null : result;
         });
@@ -613,7 +636,7 @@ class ChartData extends Record({
     /**
      * Get the maximum value in a column.
      *
-     * @param {string} columns The name of the column.
+     * @param {string|Array<string>|List<string>} columns The names of one or more columns to perform the operation on.
      * @return {number|null} The maximum value, or null if no maximum value could be determined.
      *
      * @name max
@@ -622,14 +645,15 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    max(column: string): ?ChartScalar {
-        if(this._columnError(column)) {
+    max(columns: ChartColumnArg): ?ChartScalar {
+        const columnList: List<string> = this._columnArgList(columns);
+        if(this._columnListError(columnList)) {
             return null;
         }
-        return this._memoize(`max.${column}`, (): ?ChartScalar => {
-            const result = this.rows
-                .filter(ii => ii.get(column) != null)
-                .update(maxBy(ii => ii.get(column)));
+        return this._memoize(`max.${columns}`, (): ?ChartScalar => {
+            const result: number = this._allValuesForColumns(columnList)
+                .filter(val => val != null)
+                .update(max());
 
             return isNaN(result) ? null : result;
         });
@@ -638,7 +662,7 @@ class ChartData extends Record({
     /**
      * Get the sum of the values in a column.
      *
-     * @param {string} columns The name of the column.
+     * @param {string|Array<string>|List<string>} columns The names of one or more columns to perform the operation on.
      * @return {number} The sum of the values.
      *
      * @name sum
@@ -647,14 +671,15 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    sum(column: string): ChartScalar {
-        if(this._columnError(column)) {
+    sum(columns: string): ChartScalar {
+        const columnList: List<string> = this._columnArgList(columns);
+        if(this._columnListError(columnList)) {
             return null;
         }
-        return this._memoize(`sum.${column}`, (): ChartScalar => {
-            const result = this.rows
-                .filter(ii => ii.get(column) != null)
-                .update(sumBy(ii => ii.get(column)));
+        return this._memoize(`sum.${columns}`, (): ChartScalar => {
+            const result: number = this._allValuesForColumns(columnList)
+                .filter(val => val != null)
+                .update(sum());
 
             return result;
         });
@@ -663,7 +688,7 @@ class ChartData extends Record({
     /**
      * Get the average of the values in a column.
      *
-     * @param {string} columns The name of the column.
+     * @param {string|Array<string>|List<string>} columns The names of one or more columns to perform the operation on.
      * @return {number|null} The average of the values, or null if no average could be determined.
      *
      * @name average
@@ -672,14 +697,15 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    average(column: string): ?ChartScalar {
-        if(this._columnError(column)) {
+    average(columns: ChartColumnArg): ?ChartScalar {
+        const columnList: List<string> = this._columnArgList(columns);
+        if(this._columnListError(columnList)) {
             return null;
         }
-        return this._memoize(`average.${column}`, (): ?ChartScalar => {
-            const result = this.rows
-                .filter(ii => ii.get(column) != null)
-                .update(averageBy(ii => ii.get(column)));
+        return this._memoize(`average.${columns}`, (): ?ChartScalar => {
+            const result: number = this._allValuesForColumns(columnList)
+                .filter(val => val != null)
+                .update(average());
 
             return isNaN(result) ? null : result;
         });
@@ -688,7 +714,7 @@ class ChartData extends Record({
     /**
      * Get the median of the values in a column.
      *
-     * @param {string} columns The name of the column.
+     * @param {string|Array<string>|List<string>} columns The names of one or more columns to perform the operation on.
      * @return {number|null} The median of the values, or null if no median could be determined.
      *
      * @name median
@@ -697,14 +723,15 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    median(column: string): ?ChartScalar {
-        if(this._columnError(column)) {
+    median(columns: ChartColumnArg): ?ChartScalar {
+        const columnList: List<string> = this._columnArgList(columns);
+        if(this._columnListError(columnList)) {
             return null;
         }
-        return this._memoize(`median.${column}`, (): ?ChartScalar => {
-            const result = this.rows
-                .filter(ii => ii.get(column) != null)
-                .update(medianBy(ii => ii.get(column)));
+        return this._memoize(`median.${columns}`, (): ?ChartScalar => {
+            const result: number = this._allValuesForColumns(columnList)
+                .filter(val => val != null)
+                .update(median());
 
             return isNaN(result) ? null : result;
         });

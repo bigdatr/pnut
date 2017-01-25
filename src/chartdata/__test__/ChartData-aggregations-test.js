@@ -103,6 +103,11 @@ test('ChartData.min should return the minimum value for a column', tt => {
     tt.is(data.min('supply'), 12);
 });
 
+test('ChartData.min should return the minimum value for multiple columns', tt => {
+    const data = new ChartData(rows, columns);
+    tt.is(data.min(['supply', 'demand']), 4);
+});
+
 test('ChartData.min should return the minimum value for a column, even with null values', tt => {
     const data = new ChartData(rowsWithNulls, columns);
     tt.is(data.min('supply'), 32);
@@ -131,6 +136,12 @@ test('ChartData.max should return the maximum value for a column', tt => {
     tt.is(data.max('day'), 19);
 });
 
+test('ChartData.max should return the maximum value for multiple columns', tt => {
+    const data = new ChartData(rows, columns);
+    tt.is(data.max(['supply', 'demand']), 99);
+});
+
+
 test('ChartData.max should return the maximum value for a column, even with null values', tt => {
     const data = new ChartData(rowsWithNulls, columns);
     tt.is(data.max('supply'), 34);
@@ -157,6 +168,11 @@ test('ChartData.max should return null when provided a column that doesnt exist'
 test('ChartData.sum should return the sum of values of a column', tt => {
     const data = new ChartData(rows, columns);
     tt.is(data.sum('demand'), 302);
+});
+
+test('ChartData.sum should return the sum of values for multiple columns', tt => {
+    const data = new ChartData(rows, columns);
+    tt.is(data.sum(['supply', 'demand']), 415);
 });
 
 test('ChartData.sum should return the sum of values of a column, even with null values', tt => {
@@ -187,6 +203,11 @@ test('ChartData.average should return the average of values of a column', tt => 
     tt.is(data.average('supply'), 22.6);
 });
 
+test('ChartData.average should return the average of values for multiple columns', tt => {
+    const data = new ChartData(rows, columns);
+    tt.is(data.average(['supply', 'demand']), 41.5);
+});
+
 test('ChartData.average should return the average of values of a column, even with null values', tt => {
     const data = new ChartData(rowsWithNulls, columns);
     tt.is(data.average('supply'), 33);
@@ -213,6 +234,11 @@ test('ChartData.average should return null when provided a column that doesnt ex
 test('ChartData.median should return the median of values of a column', tt => {
     const data = new ChartData(rows, columns);
     tt.is(data.median('demand'), 56);
+});
+
+test('ChartData.median should return the median of values for multiple columns', tt => {
+    const data = new ChartData(rows, columns);
+    tt.is(data.median(['supply', 'demand']), 33);
 });
 
 test('ChartData.median should return the median of values of a column, even with null values', tt => {

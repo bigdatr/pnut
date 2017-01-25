@@ -2,8 +2,9 @@ import test from 'ava';
 import {fromJS, is} from 'immutable';
 import ChartData from '../ChartData';
 
-// dont show console errors
+// dont show console errors or warns
 console.error = () => {};
+console.warn = () => {};
 
 const columns = [
     {
