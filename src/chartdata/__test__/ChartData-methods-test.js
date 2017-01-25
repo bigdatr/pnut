@@ -1,5 +1,5 @@
 import test from 'ava';
-import {is, List} from 'immutable';
+import {is, List, fromJS} from 'immutable';
 import ChartData from '../ChartData';
 
 // dont show console errors
@@ -101,6 +101,107 @@ const columns = [
 // methods
 //
 
+// updateRows
+
+test('ChartData.updateRows should return an updated ChartData', tt => {
+    const data = new ChartData(rows, columns);
+    const answer = fromJS([
+        {
+            day: 1,
+            supply: 34,
+            demand: 99,
+            fruit: "no fruit"
+        },
+        {
+            day: 2,
+            supply: 32,
+            demand: 88,
+            fruit: "no fruit"
+        },
+        {
+            day: 3,
+            supply: 13,
+            demand: 55,
+            fruit: "no fruit"
+        },
+        {
+            day: 8,
+            supply: 22,
+            demand: 56,
+            fruit: "no fruit"
+        },
+        {
+            day: 19,
+            supply:  12,
+            demand:  4,
+            fruit: "no fruit"
+        }
+    ]);
+
+    const newData = data.updateRows(rows => {
+        return rows.map(row => row.set('fruit', 'no fruit'))
+    });
+    tt.deepEqual(newData.rows, answer);
+});
+
+test('ChartData.updateRows should retain columns', tt => {
+    const data = new ChartData(rows, columns);
+    const newData = data.updateRows(rows => {
+        return rows.map(row => row.set('fruit', 'no fruit'))
+    });
+    tt.deepEqual(newData.columns, data.columns);
+});
+
+// mapRows
+
+test('ChartData.mapRows should return an updated ChartData', tt => {
+    const data = new ChartData(rows, columns);
+    const answer = fromJS([
+        {
+            day: 1,
+            supply: 134,
+            demand: 199,
+            fruit: "apple"
+        },
+        {
+            day: 2,
+            supply: 132,
+            demand: 188,
+            fruit: "apple"
+        },
+        {
+            day: 3,
+            supply: 113,
+            demand: 155,
+            fruit: "orange"
+        },
+        {
+            day: 8,
+            supply: 122,
+            demand: 156,
+            fruit: "peach"
+        },
+        {
+            day: 19,
+            supply:  112,
+            demand:  104,
+            fruit: "pear"
+        }
+    ]);
+
+    const newData = data.mapRows(row => row
+        .update('supply', n => n + 100)
+        .update('demand', n => n + 100)
+    );
+    tt.deepEqual(newData.rows, answer);
+});
+
+test('ChartData.mapRows should retain columns', tt => {
+    const data = new ChartData(rows, columns);
+    const newData = data.mapRows(row => row.set('fruit', 'no fruit'));
+    tt.deepEqual(newData.columns, data.columns);
+});
+
 // getColumnData
 
 test('ChartData.getColumnData should return a List of data in a column', tt => {
@@ -148,151 +249,4 @@ test('ChartData.getUniqueValues should memoize per column', tt => {
     const data = new ChartData(rows, columns);
     data.getUniqueValues('demand');
     tt.deepEqual(data.getUniqueValues('fruit'), List(["apple", "orange", "peach", "pear"]));
-});
-
-// memoization
-
-test('Calling a memoized method should return the same object if called a second time', tt => {
-    const data = new ChartData(rows, columns);
-    tt.true(data.getColumnData('fruit') === data.getColumnData('fruit'));
-});
-
-// min
-
-test('ChartData.min should return the minimum value for a column', tt => {
-    const data = new ChartData(rows, columns);
-    tt.is(data.min('supply'), 12);
-});
-
-test('ChartData.min should return the minimum value for a column, even with null values', tt => {
-    const data = new ChartData(rowsWithNulls, columns);
-    tt.is(data.min('supply'), 32);
-});
-
-test('ChartData.min should return null when there are no values to compare', tt => {
-    const data = new ChartData(allNulls, columns);
-    tt.is(data.min('supply'), null);
-});
-
-test('ChartData.min should memoize per column', tt => {
-    const data = new ChartData(rows, columns);
-    data.min('demand');
-    tt.is(data.min('supply'), 12);
-});
-
-test('ChartData.min should return null when provided a column that doesnt exist', tt => {
-    const data = new ChartData(rows, columns);
-    tt.is(data.min('not here'), null);
-});
-
-// max
-
-test('ChartData.max should return the maximum value for a column', tt => {
-    const data = new ChartData(rows, columns);
-    tt.is(data.max('day'), 19);
-});
-
-test('ChartData.max should return the maximum value for a column, even with null values', tt => {
-    const data = new ChartData(rowsWithNulls, columns);
-    tt.is(data.max('supply'), 34);
-});
-
-test('ChartData.max should return null when there are no values to compare', tt => {
-    const data = new ChartData(allNulls, columns);
-    tt.is(data.max('supply'), null);
-});
-
-test('ChartData.max should memoize per column', tt => {
-    const data = new ChartData(rows, columns);
-    data.max('demand');
-    tt.is(data.max('day'), 19);
-});
-
-test('ChartData.max should return null when provided a column that doesnt exist', tt => {
-    const data = new ChartData(rows, columns);
-    tt.is(data.max('not here'), null);
-});
-
-// sum
-
-test('ChartData.sum should return the sum of values of a column', tt => {
-    const data = new ChartData(rows, columns);
-    tt.is(data.sum('demand'), 302);
-});
-
-test('ChartData.sum should return the sum of values of a column, even with null values', tt => {
-    const data = new ChartData(rowsWithNulls, columns);
-    tt.is(data.sum('demand'), 77 + 88 + 99);
-});
-
-test('ChartData.sum should return zero when there are no values to compare', tt => {
-    const data = new ChartData(allNulls, columns);
-    tt.is(data.sum('supply'), 0);
-});
-
-test('ChartData.sum should memoize per column', tt => {
-    const data = new ChartData(rows, columns);
-    data.sum('supply');
-    tt.is(data.sum('demand'), 302);
-});
-
-test('ChartData.sum should return null when provided a column that doesnt exist', tt => {
-    const data = new ChartData(rows, columns);
-    tt.is(data.sum('not here'), null);
-});
-
-// average
-
-test('ChartData.average should return the average of values of a column', tt => {
-    const data = new ChartData(rows, columns);
-    tt.is(data.average('supply'), 22.6);
-});
-
-test('ChartData.average should return the average of values of a column, even with null values', tt => {
-    const data = new ChartData(rowsWithNulls, columns);
-    tt.is(data.average('supply'), 33);
-});
-
-test('ChartData.average should return null when there are no values to compare', tt => {
-    const data = new ChartData(allNulls, columns);
-    tt.is(data.average('supply'), null);
-});
-
-test('ChartData.average should memoize per column', tt => {
-    const data = new ChartData(rows, columns);
-    data.average('demand');
-    tt.is(data.average('supply'), 22.6);
-});
-
-test('ChartData.average should return null when provided a column that doesnt exist', tt => {
-    const data = new ChartData(rows, columns);
-    tt.is(data.average('not here'), null);
-});
-
-// median
-
-test('ChartData.median should return the median of values of a column', tt => {
-    const data = new ChartData(rows, columns);
-    tt.is(data.median('demand'), 56);
-});
-
-test('ChartData.median should return the median of values of a column, even with null values', tt => {
-    const data = new ChartData(rowsWithNulls, columns);
-    tt.is(data.median('demand'), 88);
-});
-
-test('ChartData.median should return null when there are no values to compare', tt => {
-    const data = new ChartData(allNulls, columns);
-    tt.is(data.median('supply'), null);
-});
-
-test('ChartData.median should memoize per column', tt => {
-    const data = new ChartData(rows, columns);
-    data.median('supply');
-    tt.is(data.median('demand'), 56);
-});
-
-test('ChartData.median should return null when provided a column that doesnt exist', tt => {
-    const data = new ChartData(rows, columns);
-    tt.is(data.median('not here'), null);
 });

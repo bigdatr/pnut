@@ -24,6 +24,9 @@ export type ChartRowDefinition = {[key: string]: ChartScalar}|Map<string,ChartSc
 export type ChartRow = Map<string,ChartScalar>;
 export type ChartColumnArg = string|Array<string>|List<string>;
 
+type RowUpdater = (rows: List<ChartRow>) => List<ChartRow>;
+type RowMapper = (row: ChartRow) => ChartRow;
+
 /**
  * A valid chart value, which can only accept data of type `string`, `number` and `null`.
  *
@@ -43,6 +46,23 @@ export type ChartColumnArg = string|Array<string>|List<string>;
  *
  * @typedef ChartRow
  * @type {Map<string,ChartScalar>}
+ */
+
+/**
+ * This function is passed the `rows` of the current `ChartData`, and should return the new `List` of rows to use in the new `ChartData` object.
+ *
+ * @callback RowUpdater
+ * @param {List<ChartRow>} row The `rows` of the current `ChartData`.
+ * @return {List<ChartRow>} The replacement `rows`.
+ */
+
+/**
+ * A function called for every row in a `ChartData` object, whose results are used to construct a new `ChartData`.
+ *
+ * @callback RowMapper
+ * @param {ChartRow} row The current row.
+ * @param {number} key The key of the current row.
+ * @return {ChartRow} The replacement row.
  */
 
 /**
@@ -326,6 +346,48 @@ class ChartData extends Record({
     /*
      * public methods
      */
+
+    /**
+     * Returns a new `ChartData` with updated `rows`.
+     *
+     * @param {RowUpdater} updater
+     * @return {ChartData} A new `ChartData` containing the updated rows.
+     *
+     * @example
+     * const chartData = new ChartData(rows, columns);
+     * return chartData.update(rows => rows.filter(row => row.get('filterMe')));
+     *
+     * @name updateRows
+     * @kind function
+     * @inner
+     * @memberof ChartData
+     */
+
+    updateRows(updater: RowUpdater): ChartData {
+        return new ChartData(updater(this.rows), this.columns);
+    }
+
+    /**
+     * Maps over each row, calling `mapper` for each row, and constructs a new `ChartData` from the results.
+     *
+     * If you want to return something other than a `ChartData`, use `chartData.rows.map()`.
+     *
+     * @param {RowMapper} mapper
+     * @return {ChartData} A new `ChartData` containing the mapped rows.
+     *
+     * @example
+     * const chartData = new ChartData(rows, columns);
+     * return chartData.mapRows(ii => ii * 2);
+     *
+     * @name mapRows
+     * @kind function
+     * @inner
+     * @memberof ChartData
+     */
+
+    mapRows(mapper: RowMapper): ChartData {
+        return new ChartData(this.rows.map(mapper), this.columns);
+    }
 
     /**
      * Returns all the data in a single column.
@@ -650,7 +712,7 @@ class ChartData extends Record({
         if(this._columnListError(columnList)) {
             return null;
         }
-        return this._memoize(`max.${columns}`, (): ?ChartScalar => {
+        return this._memoize(`max.${columnList.join(',')}`, (): ?ChartScalar => {
             const result: number = this._allValuesForColumns(columnList)
                 .filter(val => val != null)
                 .update(max());
@@ -676,7 +738,7 @@ class ChartData extends Record({
         if(this._columnListError(columnList)) {
             return null;
         }
-        return this._memoize(`sum.${columns}`, (): ChartScalar => {
+        return this._memoize(`sum.${columnList.join(',')}`, (): ChartScalar => {
             const result: number = this._allValuesForColumns(columnList)
                 .filter(val => val != null)
                 .update(sum());
@@ -702,7 +764,7 @@ class ChartData extends Record({
         if(this._columnListError(columnList)) {
             return null;
         }
-        return this._memoize(`average.${columns}`, (): ?ChartScalar => {
+        return this._memoize(`average.${columnList.join(',')}`, (): ?ChartScalar => {
             const result: number = this._allValuesForColumns(columnList)
                 .filter(val => val != null)
                 .update(average());
@@ -728,7 +790,7 @@ class ChartData extends Record({
         if(this._columnListError(columnList)) {
             return null;
         }
-        return this._memoize(`median.${columns}`, (): ?ChartScalar => {
+        return this._memoize(`median.${columnList.join(',')}`, (): ?ChartScalar => {
             const result: number = this._allValuesForColumns(columnList)
                 .filter(val => val != null)
                 .update(median());
