@@ -35,21 +35,24 @@ type RowMapper = (row: ChartRow) => ChartRow;
  */
 
 /**
- * An `Object` or `Map` that defines data for a row. Once passed into a `ChartData` constructor these are replaced with equivalent Immutable `Map`s.
+ * An `Object` or `Map` that defines data for a row. Once passed into a `ChartData` constructor
+ * these are replaced with equivalent Immutable `Map`s.
  *
  * @typedef ChartRowDefinition
  * @type {Object<string, ChartScalar>|Map<string, ChartScalar>}
  */
 
 /**
- * An Immutable `Map` representing a row of keyed data. Each value is a `ChartScalar` (data of type `string`, `number` or `null`).
+ * An Immutable `Map` representing a row of keyed data. Each value is a `ChartScalar`
+ * (data of type `string`, `number` or `null`).
  *
  * @typedef ChartRow
  * @type {Map<string,ChartScalar>}
  */
 
 /**
- * This function is passed the `rows` of the current `ChartData`, and should return the new `List` of rows to use in the new `ChartData` object.
+ * This function is passed the `rows` of the current `ChartData`, and should return the new `List`
+ * of rows to use in the new `ChartData` object.
  *
  * @callback RowUpdater
  * @param {List<ChartRow>} row The `rows` of the current `ChartData`.
@@ -57,7 +60,8 @@ type RowMapper = (row: ChartRow) => ChartRow;
  */
 
 /**
- * A function called for every row in a `ChartData` object, whose results are used to construct a new `ChartData`.
+ * A function called for every row in a `ChartData` object, whose results are used to
+ * construct a new `ChartData`.
  *
  * @callback RowMapper
  * @param {ChartRow} row The current row.
@@ -69,7 +73,8 @@ type RowMapper = (row: ChartRow) => ChartRow;
  * @class
  *
  * ChartData is an Immutable Record used by pnut charts to represent chart data.
- * It stores rows of data objects whose members correspond to columns, and metadata about the columns.
+ * It stores rows of data objects whose members correspond to columns, and metadata about
+ * the columns.
  */
 
 class ChartData extends Record({
@@ -78,10 +83,17 @@ class ChartData extends Record({
 }) {
 
     /**
-     * Creates a ChartData Record. Data passed in `rows` will be sanitized and any invalid value types will be replaced with `null`.
+     * Creates a ChartData Record. Data passed in `rows` will be sanitized and any invalid value
+     * types will be replaced with `null`.
      *
-     * @param {Array<Object<string, ChartScalar>>|List<Map<string, ChartScalar>>} rows An `Array` or `List` of data rows, where each row is an `Object` or `Map` that contains data for a row. Once passed into a `ChartData` constructor these rows are replaced with equivalent Immutable `Map`s.
-     * @param {Array<ChartColumnDefinition>|List<ChartColumnDefinition>} columns An `Array` or `List` of columns. These enable you to nominate labels for your columns, and provide a default column order.
+     * @param {Array<Object<string, ChartScalar>>|List<Map<string, ChartScalar>>} rows
+     * An `Array` or `List` of data rows, where each row is an `Object` or `Map` that contains data
+     * for a row. Once passed into a `ChartData` constructor these rows are replaced with equivalent
+     * Immutable `Map`s.
+     *
+     * @param {Array<ChartColumnDefinition>|List<ChartColumnDefinition>} columns
+     * An `Array` or `List` of columns. These enable you to nominate labels for your columns,
+     * and provide a default column order.
      *
      * @example
      * const rows = [
@@ -133,9 +145,15 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    constructor(rows: Array<ChartRowDefinition>|List<ChartRowDefinition>, columns: Array<ChartColumnDefinition>|List<ChartColumnDefinition>) {
+    constructor(
+        rows: Array<ChartRowDefinition>|List<ChartRowDefinition>,
+        columns: Array<ChartColumnDefinition>|List<ChartColumnDefinition>
+    ) {
         const chartDataRows: List<ChartRow> = ChartData._createRows(rows);
-        const chartDataColumns: OrderedMap<string,ChartColumn> = ChartData._createColumns(columns, chartDataRows);
+        const chartDataColumns: OrderedMap<string,ChartColumn> = ChartData._createColumns(
+            columns,
+            chartDataRows
+        );
 
         super({
             rows: chartDataRows,
@@ -158,7 +176,10 @@ class ChartData extends Record({
             );
     }
 
-    static _createColumns(columns: Array<ChartColumnDefinition>|List<ChartColumnDefinition>, chartDataRows: List<ChartRow>): OrderedMap<string,ChartColumn> {
+    static _createColumns(
+        columns: Array<ChartColumnDefinition>|List<ChartColumnDefinition>,
+        chartDataRows: List<ChartRow>
+    ): OrderedMap<string,ChartColumn> {
         return fromJS(columns)
             .reduce((map: OrderedMap<string,ChartColumn>, col: Map<string,*>) => {
                 return map.set(
@@ -233,8 +254,10 @@ class ChartData extends Record({
      *
      * @param {ChartScalar} valueA The first value.
      * @param {ChartScalar} valueB The second value.
-     * @param {number} blend A number from 0 to 1 indicating how much influence
-     * each value has on the result. A `blend` of 0.5 will return a number halfway between each value. A `blend` of 0 will equal `valueA`.
+     * @param {number} blend
+     * A number from 0 to 1 indicating how much influence each value has on the result. A `blend`
+     * of 0.5 will return a number halfway between each value. A `blend` of 0 will equal `valueA`.
+     *
      * @return {ChartScalar} The interpolated value.
      *
      * @name lerp
@@ -277,7 +300,8 @@ class ChartData extends Record({
      */
 
     /**
-     * An `OrderedMap` containing this `ChartData`'s column definitions, which are each Immutable Records of type `ChartColumn`.
+     * An `OrderedMap` containing this `ChartData`'s column definitions, which are each Immutable
+     * Records of type `ChartColumn`.
      *
      * @name columns
      * @member {OrderedMap<string, ChartColumn>}
@@ -368,7 +392,8 @@ class ChartData extends Record({
     }
 
     /**
-     * Maps over each row, calling `mapper` for each row, and constructs a new `ChartData` from the results.
+     * Maps over each row, calling `mapper` for each row, and constructs a new `ChartData`
+     * from the results.
      *
      * If you want to return something other than a `ChartData`, use `chartData.rows.map()`.
      *
@@ -393,7 +418,8 @@ class ChartData extends Record({
      * Returns all the data in a single column.
      *
      * @param {string} columns The name of the column.
-     * @return {?List<ChartScalar>} A list of the data, or null if columns have been set but the column could not be found.
+     * @return {?List<ChartScalar>} A list of the data, or null if columns have been set but the
+     * column could not be found.
      *
      * @example
      * const chartData = new ChartData(rows, columns);
@@ -416,11 +442,16 @@ class ChartData extends Record({
     }
 
     /**
-     * For a given column, this returns a `List` of unique values in that column, in the order that each unique value first appears in `rows`.
+     * For a given column, this returns a `List` of unique values in that column, in the order that
+     * each unique value first appears in `rows`.
+     *
      * You can also return the number of unique values by calling `getUniqueValues().size`.
      *
      * @param {string} column The name of the column.
-     * @return {List<ChartScalar>|null} A `List` of unique values in the order they appear in `rows`, or null if columns have been set but the column could not be found.
+     *
+     * @return {List<ChartScalar>|null}
+     * A `List` of unique values in the order they appear in `rows`, or null if columns have been
+     * set but the column could not be found.
      *
      * @name getUniqueValues
      * @kind function
@@ -441,12 +472,16 @@ class ChartData extends Record({
     }
 
     /**
-     * This breaks `rows` data into frames, which are rows grouped by unique values of a specifed `frameColumn`.
+     * This breaks `rows` data into frames, which are rows grouped by unique values of a
+     * specifed `frameColumn`.
      *
      * This method assumes that rows in the `frameColumn` are already sorted in the correct order.
      *
      * @param {string} column The name of the column.
-     * @return {List<List<ChartRow>>|null} A `List` of frames, where each frame is a `List`s of chart rows, or null if columns have been set but the column could not be found.
+     *
+     * @return {List<List<ChartRow>>|null}
+     * A `List` of frames, where each frame is a `List`s of chart rows, or null if columns have been
+     * set but the column could not be found.
      *
      * @name makeFrames
      * @kind function
@@ -466,7 +501,9 @@ class ChartData extends Record({
     }
 
     /**
-     * This make `rows` data into frames returns a new `ChartData` containing only data at the given frame index.
+     * This make `rows` data into frames returns a new `ChartData` containing only data at the given
+     * frame index.
+     *
      * The frames will be sorted in the order that each frame's unique value first appears in `rows`.
      *
      * This method assumes that rows in the `frameColumn` are already sorted in the correct order.
@@ -516,9 +553,16 @@ class ChartData extends Record({
      * // ^ returns a ChartData with only rows from frame index 2,
      * // which includes only points where day = 5
      *
-     * @param {string} frameColumn The name of the column to group by and break into frames. Often this column contains time-based data.
-     * @param {number} index The index to retrieve. Like an array, this can be an integer from 0 to the total number of frames minus one.
-     * @return {ChartData|null} A new `ChartData` containing rows from the specified frame index, or `null` if any arguments are invalid.
+     * @param {string} frameColumn
+     * The name of the column to group by and break into frames. Often this column contains
+     * time-based data.
+     *
+     * @param {number} index
+     * The index to retrieve. Like an array, this can be an integer from 0 to the total number of
+     * frames minus one.
+     *
+     * @return {ChartData|null} A new `ChartData` containing rows from the specified frame index,
+     * or `null` if any arguments are invalid.
      *
      * @name frameAtIndex
      * @kind function
@@ -540,11 +584,15 @@ class ChartData extends Record({
     }
 
     /**
-     * Like `frameAtIndex`, this breaks `rows` data into frames, but this can also work with non-integer `index`es and will interpolate continuous non-primary values.
+     * Like `frameAtIndex`, this breaks `rows` data into frames, but this can also work with
+     * non-integer `index`es and will interpolate continuous non-primary values.
      *
-     * This method assumes that rows in the `frameColumn` and in `primaryColumn` are already sorted in the correct order. This is because both of these may contain non-continuous data,
+     * This method assumes that rows in the `frameColumn` and in `primaryColumn` are already sorted
+     * in the correct order. This is because both of these may contain non-continuous data,
      * and it's best to leave the sorting of non-continuous data up to the user.
-     * Also unlike most other `ChartData` methods, this method's results are not memoized, however it does rely on some memoized data in its calculation.
+     *
+     * Also unlike most other `ChartData` methods, this method's results are not memoized, however
+     * it does rely on some memoized data in its calculation.
      * This decision will be reassessed once animation performance and memory footprint are analyzed.
      *
      * @example
@@ -577,12 +625,23 @@ class ChartData extends Record({
      * // {day: 1.5, price: 10, amount: 3}
      * // {day: 1.5, price: 20, amount: 35}
      *
-     * @param {string} frameColumn The name of the column to group by and break into frames. Often this column contains time-based data.
-     * @param {string} primaryColumn The column that will be charted on the primary dimension.
-     * This is required because data points must be uniquely identifiable for this function to know which data points to interpolate between.
+     * @param {string} frameColumn
+     * The name of the column to group by and break into frames. Often this column contains
+     * time-based data.
+     *
+     * @param {string} primaryColumn
+     * The column that will be charted on the primary dimension.
+     * This is required because data points must be uniquely identifiable for this function to know
+     * which data points to interpolate between.
      * Data in the primary column is not interpolated; its values are treated as ordered but discrete.
-     * @param {number} index The index to retrieve. This can be an integer from 0 to the total number of frames minus one, and allows non-integer values.
-     * @return {ChartData|null} A new `ChartData` containing rows from the specified frame index, or `null` if any arguments are invalid.
+     *
+     * @param {number} index
+     * The index to retrieve. This can be an integer from 0 to the total number of frames minus one,
+     * and allows non-integer values.
+     *
+     * @return {ChartData|null}
+     * A new `ChartData` containing rows from the specified frame index, or `null` if any arguments
+     * are invalid.
      *
      * @name frameAtIndexInterpolated
      * @kind function
@@ -591,7 +650,11 @@ class ChartData extends Record({
      */
 
     frameAtIndexInterpolated(frameColumn: string, primaryColumn: string, index: number): ?ChartData {
-        if(this._columnError(frameColumn) || this._columnError(primaryColumn) || this._indexError(index, null, false)) {
+        if(
+            this._columnError(frameColumn) ||
+            this._columnError(primaryColumn) ||
+            this._indexError(index, null, false)
+        ) {
             return null;
         }
 
@@ -609,7 +672,8 @@ class ChartData extends Record({
             return null;
         }
 
-        // get all values of primary in entire data set, so we can leave gaps where data points may not exist at these data frames
+        // get all values of primary in entire data set, so we can leave gaps where data points may
+        // not exist at these data frames
         const allPrimaryValues: List<ChartScalar> = this.getUniqueValues(primaryColumn);
         // get frames on either side of index
         const indexA: number = Math.floor(index);
@@ -617,7 +681,8 @@ class ChartData extends Record({
         // determine how far between the two frames we are
         const blend: number = index - indexA;
 
-        // for each frame, get its data and use its primaryColumn to uniquely identify points that are in both frames
+        // for each frame, get its data and use its primaryColumn to uniquely identify points that
+        // are in both frames
         const frameA: List<ChartRow> = frames
             .get(indexA)
             .groupBy(ii => ii.get(primaryColumn));
@@ -632,7 +697,8 @@ class ChartData extends Record({
                 return null;
             }
             const first: ChartRow = rowList.first();
-            // when uniquely identifying points, the data may accidentally contain multiple matches, so warn if this happens
+            // when uniquely identifying points, the data may accidentally contain multiple matches,
+            // so warn if this happens
             if(rowList.size > 1) {
                 console.warn(`ChartData: Two data points found where ${frameColumn}=${first.get(frameColumn)} and ${primaryColumn}=${String(primaryValue)}, using first data point.`);
             }
@@ -671,7 +737,9 @@ class ChartData extends Record({
     /**
      * Get the minimum non-null value in a column.
      *
-     * @param {string|Array<string>|List<string>} columns The names of one or more columns to perform the operation on.
+     * @param {string|Array<string>|List<string>} columns
+     * The names of one or more columns to perform the operation on.
+     *
      * @return {number|null} The minimum value, or null if no mininum value could be determined.
      *
      * @name min
@@ -698,7 +766,9 @@ class ChartData extends Record({
     /**
      * Get the maximum value in a column.
      *
-     * @param {string|Array<string>|List<string>} columns The names of one or more columns to perform the operation on.
+     * @param {string|Array<string>|List<string>} columns
+     * The names of one or more columns to perform the operation on.
+     *
      * @return {number|null} The maximum value, or null if no maximum value could be determined.
      *
      * @name max
@@ -724,7 +794,9 @@ class ChartData extends Record({
     /**
      * Get the sum of the values in a column.
      *
-     * @param {string|Array<string>|List<string>} columns The names of one or more columns to perform the operation on.
+     * @param {string|Array<string>|List<string>} columns
+     * The names of one or more columns to perform the operation on.
+     *
      * @return {number} The sum of the values.
      *
      * @name sum
@@ -750,7 +822,9 @@ class ChartData extends Record({
     /**
      * Get the average of the values in a column.
      *
-     * @param {string|Array<string>|List<string>} columns The names of one or more columns to perform the operation on.
+     * @param {string|Array<string>|List<string>} columns
+     * The names of one or more columns to perform the operation on.
+     *
      * @return {number|null} The average of the values, or null if no average could be determined.
      *
      * @name average
@@ -776,7 +850,9 @@ class ChartData extends Record({
     /**
      * Get the median of the values in a column.
      *
-     * @param {string|Array<string>|List<string>} columns The names of one or more columns to perform the operation on.
+     * @param {string|Array<string>|List<string>} columns
+     * The names of one or more columns to perform the operation on.
+     *
      * @return {number|null} The median of the values, or null if no median could be determined.
      *
      * @name median
