@@ -33,4 +33,4 @@ export default ChartColumnRecord;
  */
 
 export type ChartColumnDefinition = {key: string, label: string, isContinuous: ?boolean}|Map<string,*>;
-export type ChartColumn = *; // todo: should be a Column Record
+export type ChartColumn = ChartColumnRecord;

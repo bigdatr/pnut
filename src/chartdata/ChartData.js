@@ -1,12 +1,6 @@
 // @flow
 
-import {
-    min,
-    max,
-    sum,
-    average,
-    median
-} from 'immutable-math';
+import * as ImmutableMath from 'immutable-math';
 
 import {
     fromJS,
@@ -332,6 +326,20 @@ class ChartData extends Record({
                     .toList()
                 );
             }, List());
+    }
+
+    _aggregation(operation: string, columns: ChartColumnArg): ?ChartScalar {
+        const columnList: List<string> = this._columnArgList(columns);
+        if(this._columnListError(columnList)) {
+            return null;
+        }
+        return this._memoize(`${operation}.${columnList.join(',')}`, (): ?ChartScalar => {
+            const result: number = this._allValuesForColumns(columnList)
+                .filter(val => val != null)
+                .update(ImmutableMath[operation]());
+
+            return isNaN(result) ? null : result;
+        });
     }
 
     _memoize(key: string, fn: Function): * {
@@ -681,18 +689,7 @@ class ChartData extends Record({
      */
 
     min(columns: ChartColumnArg): ?ChartScalar {
-        const columnList: List<string> = this._columnArgList(columns);
-        if(this._columnListError(columnList)) {
-            return null;
-        }
-        return this._memoize(`min.${columnList.join(',')}`, (): ?ChartScalar => {
-            const result: number = this._allValuesForColumns(columnList)
-                .filter(val => val != null)
-                .update(min());
-
-            return isNaN(result) ? null : result;
-        });
-
+        return this._aggregation("min", columns);
     }
 
     /**
@@ -708,24 +705,14 @@ class ChartData extends Record({
      */
 
     max(columns: ChartColumnArg): ?ChartScalar {
-        const columnList: List<string> = this._columnArgList(columns);
-        if(this._columnListError(columnList)) {
-            return null;
-        }
-        return this._memoize(`max.${columnList.join(',')}`, (): ?ChartScalar => {
-            const result: number = this._allValuesForColumns(columnList)
-                .filter(val => val != null)
-                .update(max());
-
-            return isNaN(result) ? null : result;
-        });
+        return this._aggregation("max", columns);
     }
 
     /**
      * Get the sum of the values in a column.
      *
      * @param {string|Array<string>|List<string>} columns The names of one or more columns to perform the operation on.
-     * @return {number} The sum of the values.
+     * @return {number|null} The sum of the values.
      *
      * @name sum
      * @kind function
@@ -733,18 +720,8 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    sum(columns: string): ChartScalar {
-        const columnList: List<string> = this._columnArgList(columns);
-        if(this._columnListError(columnList)) {
-            return null;
-        }
-        return this._memoize(`sum.${columnList.join(',')}`, (): ChartScalar => {
-            const result: number = this._allValuesForColumns(columnList)
-                .filter(val => val != null)
-                .update(sum());
-
-            return result;
-        });
+    sum(columns: string): ?ChartScalar {
+        return this._aggregation("sum", columns);
     }
 
     /**
@@ -760,17 +737,7 @@ class ChartData extends Record({
      */
 
     average(columns: ChartColumnArg): ?ChartScalar {
-        const columnList: List<string> = this._columnArgList(columns);
-        if(this._columnListError(columnList)) {
-            return null;
-        }
-        return this._memoize(`average.${columnList.join(',')}`, (): ?ChartScalar => {
-            const result: number = this._allValuesForColumns(columnList)
-                .filter(val => val != null)
-                .update(average());
-
-            return isNaN(result) ? null : result;
-        });
+        return this._aggregation("average", columns);
     }
 
     /**
@@ -786,17 +753,7 @@ class ChartData extends Record({
      */
 
     median(columns: ChartColumnArg): ?ChartScalar {
-        const columnList: List<string> = this._columnArgList(columns);
-        if(this._columnListError(columnList)) {
-            return null;
-        }
-        return this._memoize(`median.${columnList.join(',')}`, (): ?ChartScalar => {
-            const result: number = this._allValuesForColumns(columnList)
-                .filter(val => val != null)
-                .update(median());
-
-            return isNaN(result) ? null : result;
-        });
+        return this._aggregation("median", columns);
     }
 }
 
