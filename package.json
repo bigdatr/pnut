@@ -65,6 +65,7 @@
   },
   "dependencies": {
     "classnames": "^2.2.5",
+    "d3-scale": "^1.0.4",
     "immutable": "^3.8.1",
     "immutable-math": "^0.1.3"
   },
