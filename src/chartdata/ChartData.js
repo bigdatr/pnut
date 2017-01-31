@@ -175,7 +175,7 @@ class ChartData extends Record({
         chartDataRows: List<ChartRow>
     ): OrderedMap<string,ChartColumn> {
         return fromJS(columns)
-            .reduce((map: OrderedMap<string,ChartColumn>, col: Map<string,*>) => {
+            .reduce((map: OrderedMap<string,ChartColumn>, col: Map<string,*>): OrderedMap => {
                 return map.set(
                     col.get('key'),
                     new Column(ChartData._addContinuous(col, chartDataRows))
@@ -728,7 +728,8 @@ class ChartData extends Record({
                 }
 
                 // for each column, try to interpolate values
-                return this.columns.reduce((map: ChartRow, {key, isContinuous}): ChartRow => {
+                return this.columns.reduce((map: ChartRow, column: ChartColumn): ChartRow => {
+                    const {key, isContinuous} = column;
                     // only try to interpolate continuous non-primary columns
                     const value: ChartScalar = isContinuous && key != primaryColumn
                         ? ChartData.lerp(rowA.get(key), rowB.get(key), blend)

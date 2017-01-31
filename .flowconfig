@@ -9,3 +9,4 @@ node_modules/immutable/dist/immutable.js.flow
 [ignore]
 .*/node_modules/fbjs/.*
 .*/node_modules/react-side-effect/.*
+.*/example/.*
