@@ -235,13 +235,12 @@ class CanvasExample extends React.Component {
                     columnX={'month'}
                     columnY={'supply'}
                     data={chartData}
-                    dot={({x, y, row, key}) => <circle
-                        key={key}
+                    dot={({x, y, row}) => <circle
                         cx={x}
                         cy={y}
                         r={scaleRadius(row.get('demand'))}
                     />}
-                />;
+                />
             </div>
 
         </div>
@@ -257,8 +256,7 @@ export default () => {
             top: '100px',
             left: '100px',
             bottom: '100px',
-            right: '100px',
-            overflow: 'hidden'
+            right: '100px'
         }}
     ><HockedExample/></div>
 };

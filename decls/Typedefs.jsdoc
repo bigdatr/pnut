@@ -1,0 +1,10 @@
+
+/**
+ * A [d3-scale](https://github.com/d3/d3-scale) that accepts a value within an input `domain` and
+ * maps that value to an output `range`.
+ *
+ * @callback Scale
+ *
+ * @param {number} value
+ * @return {number}
+ */

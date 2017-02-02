@@ -2,6 +2,29 @@
 
 import React from 'react';
 
+/**
+ *
+ * @component
+ *
+ * Canvas is a simple wrapper component used by other canvasses to provide the wrapping SVG element.
+ *
+ * @prop {number} [height]
+ * The height of the canvas - If this is not provided then the component's children won't render.
+ *
+ * @prop {number} [width]
+ * The width of the canvas - If this is not provided then the component's children won't render.
+ *
+ * @prop {Object} [svgProps]
+ * An object of props that will be spread onto the svg element.
+ *
+ * @example
+ *
+ * <Canvas width={200} height={200} svgProps{{fill: 'red'}}>
+ *     <circle cx={0} cy={0} r={10}/>
+ * </Canvas>
+ *
+ */
+
 export default class Canvas extends React.PureComponent {
 
     static defaultProps = {

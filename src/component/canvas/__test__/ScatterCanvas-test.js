@@ -224,7 +224,14 @@ const scaleRadius = scaleLinear()
     .domain([chartData.min('demand'), chartData.max('demand')])
     .range([10, 30]);
 
-
+const customDot = (props) => {
+    const {x, y, row} = props;
+    return <circle
+        cx={x}
+        cy={y}
+        r={scaleRadius(row.get('demand'))}
+    />;
+};
 
 const canvas = shallow(<ScatterCanvas
     width={200}
@@ -235,25 +242,20 @@ const canvas = shallow(<ScatterCanvas
     columnX={'month'}
     columnY={'supply'}
     data={chartData}
-    dot={({x, y, row, key}) => <circle
-        key={key}
-        cx={x}
-        cy={y}
-        r={scaleRadius(row.get('demand'))}
-    />}
+    dot={customDot}
 />);
 
 test('ScatterCanvas renders circles', tt => {
-    tt.is(canvas.children().at(0).type(), 'circle');
+    tt.is(canvas.childAt(0).shallow().type(), 'circle');
 });
 
 test('ScatterCanvas allows custom circle rendering', tt => {
-    tt.is(canvas.children().at(0).prop('r'), scaleRadius(rows[0].demand));
+    tt.is(canvas.childAt(0).shallow().prop('r'), scaleRadius(rows[0].demand));
 });
 
 test('ScatterCanvas custom dot has x and y params', tt => {
-    tt.is(canvas.children().at(0).prop('cx'), scaleX(rows[0].month));
-    tt.is(canvas.children().at(0).prop('cy'), scaleY.range()[1] - scaleY(rows[0].supply));
+    tt.is(canvas.childAt(0).shallow().prop('cx'), scaleX(rows[0].month));
+    tt.is(canvas.childAt(0).shallow().prop('cy'), scaleY.range()[1] - scaleY(rows[0].supply));
 });
 
 
@@ -269,10 +271,10 @@ const defaultDotCanvas = shallow(<ScatterCanvas
 />);
 
 test('ScatterCanvas can render circle by as default dot', tt => {
-    tt.is(defaultDotCanvas.children().at(0).type(), 'circle');
+    tt.is(defaultDotCanvas.childAt(0).shallow().type(), 'circle');
 });
 
 test('ScatterCanvas default dot has x and y params', tt => {
-    tt.is(defaultDotCanvas.children().at(0).prop('cx'), scaleX(rows[0].month));
-    tt.is(defaultDotCanvas.children().at(0).prop('cy'), scaleY.range()[1] - scaleY(rows[0].supply));
+    tt.is(defaultDotCanvas.childAt(0).shallow().prop('cx'), scaleX(rows[0].month));
+    tt.is(defaultDotCanvas.childAt(0).shallow().prop('cy'), scaleY.range()[1] - scaleY(rows[0].supply));
 });

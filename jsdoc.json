@@ -1,6 +1,6 @@
 {
 	"source": {
-    "include": [ "README.md", "src" ],
+    "include": [ "README.md", "src", "decls" ],
     "includePattern": ".+jsx?"
 	},
 	"opts": {
@@ -29,7 +29,6 @@
   ],
   "babel": {
     "extensions": ["js", "es6", "jsx"],
-    "presets": ["blueflag"],
-    "plugins": ["transform-flow-strip-types"]
+    "presets": ["blueflag"]
   }
 }
