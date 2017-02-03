@@ -4,15 +4,18 @@ import {Route, IndexRoute} from 'react-router';
 import AppHandler from 'components/AppHandler';
 import ErrorHandler from 'components/ErrorHandler';
 import ContentsPage from 'components/ContentsPage';
+import LineCanvasExample from 'examples/LineCanvasExample';
+import ColumnCanvasExample from 'examples/ColumnCanvasExample';
+import ScatterCanvasExample from 'examples/ScatterCanvasExample';
 
 const routes = <Route component={AppHandler} path="/">
     <IndexRoute component={ContentsPage} />
 
-    {/*<Route path="component">
-        <Route path="Table" component={TableExample}/>
-        <Route path="Button" component={ButtonExample}/>
-        <Route path="Label" component={LabelExample}/>
-    </Route>*/}
+    {<Route path="example">
+        <Route path="LineCanvas" component={LineCanvasExample}/>
+        <Route path="ColumnCanvas" component={ColumnCanvasExample}/>
+        <Route path="ScatterCanvas" component={ScatterCanvasExample}/>
+    </Route>}
 
     <Route path="*" component={ErrorHandler}/>
 </Route>;
