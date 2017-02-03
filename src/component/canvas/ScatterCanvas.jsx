@@ -63,7 +63,7 @@ const defaultDot = (dotProps: DotProps): React.Element<any> => {
  * The column key from `ChartData` to use for the y axis
  *
  * @prop {Dot} [dot]
- * An optional react element that will be used to render dots on the chart. Defaults to a `<circle/>`
+ * An optional react element that will be used to render dots on the chart. Defaults to rendering a `<circle/>`
  *
  * @example
  *
