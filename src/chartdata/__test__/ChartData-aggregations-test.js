@@ -96,6 +96,56 @@ const columns = [
     }
 ];
 
+const columnsMonths = [
+    {
+        key: 'supply',
+        label: 'Supply',
+        isContinuous: true
+    },
+    {
+        key: 'demand',
+        label: 'Demand',
+        isContinuous: true
+    },
+    {
+        key: 'month',
+        label: 'Month',
+        isContinuous: false
+    }
+];
+const rowsMonths = [
+    {
+        month: "2014-01-01",
+        supply: 123605,
+        demand: 28
+    },
+    {
+        month: "2014-02-01",
+        supply: 457959,
+        demand: 72
+    },
+    {
+        month: "2014-03-01",
+        supply: 543558,
+        demand: 96
+    },
+    {
+        month: "2016-10-01",
+        supply: 1810362,
+        demand: 227
+    },
+    {
+        month: "2016-11-01",
+        supply: 1877047,
+        demand: 247
+    },
+    {
+        month: "2016-12-01",
+        supply: 770154,
+        demand: 204
+    }
+];
+
 // min
 
 test('ChartData.min should return the minimum value for a column', tt => {
@@ -111,6 +161,11 @@ test('ChartData.min should return the minimum value for multiple columns', tt =>
 test('ChartData.min should return the minimum value for a column, even with null values', tt => {
     const data = new ChartData(rowsWithNulls, columns);
     tt.is(data.min('supply'), 32);
+});
+
+test('ChartData.min should return the minimum value for a column, even with strings', tt => {
+    const data = new ChartData(rowsMonths, columnsMonths);
+    tt.is(data.min('month'), "2014-01-01");
 });
 
 test('ChartData.min should return null when there are no values to compare', tt => {
@@ -145,6 +200,11 @@ test('ChartData.max should return the maximum value for multiple columns', tt =>
 test('ChartData.max should return the maximum value for a column, even with null values', tt => {
     const data = new ChartData(rowsWithNulls, columns);
     tt.is(data.max('supply'), 34);
+});
+
+test('ChartData.max should return the maximum value for a column, even with strings', tt => {
+    const data = new ChartData(rowsMonths, columnsMonths);
+    tt.is(data.max('month'), "2016-12-01");
 });
 
 test('ChartData.max should return null when there are no values to compare', tt => {

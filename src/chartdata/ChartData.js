@@ -357,12 +357,13 @@ class ChartData extends Record({
         if(this._columnListError(columnList)) {
             return null;
         }
+
         return this._memoize(`${operation}.${columnList.join(',')}`, (): ?ChartScalar => {
             const result: number = this._allValuesForColumns(columnList)
                 .filter(val => val != null)
                 .update(ImmutableMath[operation]());
 
-            return isNaN(result) ? null : result;
+            return typeof result != "string" && isNaN(result) ? null : result;
         });
     }
 
