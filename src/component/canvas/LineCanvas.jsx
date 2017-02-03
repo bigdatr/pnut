@@ -36,7 +36,7 @@ import type ChartRow from 'src/chartdata/ChartData';
  * The column key from `ChartData` to use for the y axis
  *
  *
- * @prop {Object} pathProps
+ * @prop {Object} [pathProps]
  * An object of props that will be spread onto the svg `path` element. Any valid
  * [svg path attribute](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/path) is allowed.
  *

@@ -37,7 +37,7 @@ import type ChartRow from 'src/chartdata/ChartData';
  * The column key(s) from `ChartData` to use for the y axis. If multiple column keys are provided
  * then a grouped column chart will be rendered
  *
- * @prop {Object|Object[]} columnProps
+ * @prop {Object|Object[]} [columnProps]
  * One or more prop objects that are to be passed to the svg
  * [`rect`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/rect) element. Any valid svg
  * rect props are allowed. If an array of objects is passed here then it should be the same length
