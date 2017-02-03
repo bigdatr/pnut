@@ -98,7 +98,7 @@ export default class ColumnCanvas extends React.PureComponent {
         columnProps: React.PropTypes.oneOfType([
             React.PropTypes.object,
             React.PropTypes.arrayOf(React.PropTypes.object)
-        ]).isRequired
+        ])
     };
 
     buildColumns(): Array<React.Element<any>> {
