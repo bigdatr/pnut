@@ -35,7 +35,7 @@ const defaultDot = (dotProps: DotProps): React.Element<any> => {
  *
  * @component
  *
- * Scatter is the basic svg renderer for Scatter charts.
+ * ScatterCanvas is the basic svg renderer for Scatter charts.
  *
  * @prop {number} [height]
  * The width of the canvas. This is just passed on to the Canvas component.
