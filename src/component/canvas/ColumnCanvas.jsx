@@ -11,38 +11,6 @@ import type ChartRow from 'src/chartdata/ChartData';
  * ColumnCanvas is the basic svg renderer for Column charts. It can render simple column charts and
  * grouped column charts.
  *
- * @prop {number} [height]
- * The width of the canvas. This is just passed on to the Canvas component.
- *
- * @prop {number} [width]
- * The height of the canvas. This is just passed on to the Canvas component.
- *
- * @prop {Object} [svgProps]
- * An object of props that will be spread onto the svg element. This is just passed on to the
- * Canvas component.
- *
- * @prop {ChartData} data
- * The `ChartData` Record used to contain the data for the chart.
- *
- * @prop {Scale} scaleX
- * A [band scale](https://github.com/d3/d3-scale#band-scales) for the x axis
- *
- * @prop {Scale} scaleY
- * A [continuous scale](https://github.com/d3/d3-scale#continuous-scales) for the y axis/axes
- *
- * @prop {string} columnX
- * The column key from `ChartData` to use for the x axis
- *
- * @prop {string|string[]} columnY
- * The column key(s) from `ChartData` to use for the y axis. If multiple column keys are provided
- * then a grouped column chart will be rendered
- *
- * @prop {Object|Object[]} [columnProps]
- * One or more prop objects that are to be passed to the svg
- * [`rect`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/rect) element. Any valid svg
- * rect props are allowed. If an array of objects is passed here then it should be the same length
- * as the columnY array.
- *
  * @example
  *
  * const scaleY = scaleLog()
@@ -77,28 +45,66 @@ import type ChartRow from 'src/chartdata/ChartData';
  */
 
 export default class ColumnCanvas extends React.PureComponent {
-    static defaultProps = {
-        columnProps: []
-    };
 
     static propTypes = {
         // Props passed to canvas
+
+        /**
+         * The width of the canvas. This is just passed on to the Canvas component.
+         */
         height: React.PropTypes.number,
+        /**
+         * The height of the canvas. This is just passed on to the Canvas component.
+         */
         width: React.PropTypes.number,
+        /**
+         * An object of props that will be spread onto the svg element.
+         * This is just passed on to the Canvas component.
+         */
         svgProps: React.PropTypes.object,
+
         // Own props
+
+        /**
+         * {ChartData} The `ChartData` Record used to contain the data for the chart.
+         */
         data: React.PropTypes.object.isRequired,
+        /**
+         * {Scale} A [band scale](https://github.com/d3/d3-scale#band-scales) for the x axis.
+         */
         scaleX: React.PropTypes.func.isRequired,
+        /**
+         * {Scale} A [continuous scale](https://github.com/d3/d3-scale#continuous-scales)
+         * for the y axis/axes.
+         */
         scaleY: React.PropTypes.func.isRequired,
+        /**
+         * The column key from `ChartData` to use for the x axis.
+         */
         columnX: React.PropTypes.string.isRequired,
+        /**
+         * The column key(s) from `ChartData` to use for the y axis.
+         * If multiple column keys are provided then a grouped column chart will be rendered.
+         */
         columnY: React.PropTypes.oneOfType([
             React.PropTypes.string,
             React.PropTypes.arrayOf(React.PropTypes.string)
         ]).isRequired,
+        /**
+         * One or more prop objects that are to be passed to the svg
+         * [`rect`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/rect) element.
+         * Any valid svg `rect` props are allowed.
+         * If an array of objects is passed here then it should be the same length
+         * as the columnY array.
+         */
         columnProps: React.PropTypes.oneOfType([
             React.PropTypes.object,
             React.PropTypes.arrayOf(React.PropTypes.object)
         ])
+    };
+
+    static defaultProps = {
+        columnProps: []
     };
 
     buildColumns(): Array<React.Element<any>> {
