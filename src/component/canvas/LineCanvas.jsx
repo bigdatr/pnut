@@ -10,37 +10,6 @@ import type ChartRow from 'src/chartdata/ChartData';
  *
  * LineCanvas is the basic svg renderer for Line charts.
  *
- * @prop {number} [height]
- * The width of the canvas. This is just passed on to the Canvas component.
- *
- * @prop {number} [width]
- * The height of the canvas. This is just passed on to the Canvas component.
- *
- * @prop {Object} [svgProps]
- * An object of props that will be spread onto the svg element. This is just passed on to the
- * Canvas component.
- *
- * @prop {ChartData} data
- * The `ChartData` Record used to contain the data for the chart.
- *
- * @prop {Scale} scaleX
- * Any d3-scale for the x axis
- *
- * @prop {Scale} scaleY
- * Any d3-scale for the y axis
- *
- * @prop {string} columnX
- * The column key from `ChartData` to use for the x axis
- *
- * @prop {string} columnY
- * The column key from `ChartData` to use for the y axis
- *
- *
- * @prop {Object} [pathProps]
- * An object of props that will be spread onto the svg `path` element. Any valid
- * [svg path attribute](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/path) is allowed.
- *
- *
  * @example
  *
  * const scaleY = scaleLog()
@@ -75,15 +44,48 @@ export default class LineCanvas extends React.PureComponent {
 
     static propTypes = {
         // Props passed to canvas
+
+        /**
+         * The width of the canvas. This is just passed on to the Canvas component.
+         */
         height: React.PropTypes.number,
+        /**
+         * The height of the canvas. This is just passed on to the Canvas component.
+         */
         width: React.PropTypes.number,
+        /**
+         * An object of props that will be spread onto the svg element.
+         * This is just passed on to the Canvas component.
+         */
         svgProps: React.PropTypes.object,
+
         // Own Props
+
+        /**
+         * {ChartData} The `ChartData` Record used to contain the data for the chart.
+         */
         data: React.PropTypes.object.isRequired,
+        /**
+         * {Scale} Any d3-scale for the x axis.
+         */
         scaleX: React.PropTypes.func.isRequired,
+        /**
+         * {Scale} Any d3-scale for the y axis.
+         */
         scaleY: React.PropTypes.func.isRequired,
+        /**
+         * The column key from `ChartData` to use for the x axis.
+         */
         columnX: React.PropTypes.string.isRequired,
+        /**
+         * The column key from `ChartData` to use for the y axis.
+         */
         columnY: React.PropTypes.string.isRequired,
+        /**
+         * An object of props that will be spread onto the svg `path` element. Any valid
+         * [svg path attribute](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/path)
+         * is allowed.
+         */
         pathProps: React.PropTypes.object
     };
 

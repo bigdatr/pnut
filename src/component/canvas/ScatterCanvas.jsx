@@ -37,34 +37,6 @@ const defaultDot = (dotProps: DotProps): React.Element<any> => {
  *
  * ScatterCanvas is the basic svg renderer for Scatter charts.
  *
- * @prop {number} [height]
- * The width of the canvas. This is just passed on to the Canvas component.
- *
- * @prop {number} [width]
- * The height of the canvas. This is just passed on to the Canvas component.
- *
- * @prop {Object} [svgProps]
- * An object of props that will be spread onto the svg element. This is just passed on to the
- * Canvas component.
- *
- * @prop {ChartData} data
- * The `ChartData` Record used to contain the data for the chart.
- *
- * @prop {Scale} scaleX
- * Any d3-scale for the x axis
- *
- * @prop {Scale} scaleY
- * Any d3-scale for the y axis
- *
- * @prop {string} columnX
- * The column key from `ChartData` to use for the x axis
- *
- * @prop {string} columnY
- * The column key from `ChartData` to use for the y axis
- *
- * @prop {Dot} [dot]
- * An optional react element that will be used to render dots on the chart. Defaults to rendering a `<circle/>`
- *
  * @example
  *
  * const scaleY = scaleLog()
@@ -106,15 +78,47 @@ export default class ScatterCanvas extends React.PureComponent {
 
     static propTypes = {
         // Props passed to canvas
+
+        /**
+         * The width of the canvas. This is just passed on to the Canvas component.
+         */
         height: React.PropTypes.number,
+        /**
+         * The height of the canvas. This is just passed on to the Canvas component.
+         */
         width: React.PropTypes.number,
+        /**
+         * An object of props that will be spread onto the svg element.
+         * This is just passed on to the Canvas component.
+         */
         svgProps: React.PropTypes.object,
+
         // Own props
+
+        /**
+         * {ChartData} The `ChartData` Record used to contain the data for the chart.
+         */
         data: React.PropTypes.object.isRequired,
+        /**
+         * {Scale} Any d3-scale for the x axis.
+         */
         scaleX: React.PropTypes.func.isRequired,
+        /**
+         * {Scale} Any d3-scale for the y axis.
+         */
         scaleY: React.PropTypes.func.isRequired,
+        /**
+         * The column key from `ChartData` to use for the x axis.
+         */
         columnX: React.PropTypes.string.isRequired,
+        /**
+         * The column key from `ChartData` to use for the y axis.
+         */
         columnY: React.PropTypes.string.isRequired,
+        /**
+         * An optional react element that will be used to render dots on the chart.
+         * Defaults to rendering a `<circle/>`.
+         */
         dot: React.PropTypes.func
     };
 
