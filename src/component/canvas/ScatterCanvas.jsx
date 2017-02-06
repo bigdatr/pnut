@@ -142,8 +142,8 @@ export default class ScatterCanvas extends React.PureComponent {
     }
 
     render(): React.Element<any> {
-        return <Canvas {...this.props}>
+        return <g {...this.props}>
             {this.buildDots()}
-        </Canvas>;
+        </g>;
     }
 }

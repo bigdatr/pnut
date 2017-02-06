@@ -140,9 +140,9 @@ export default class ColumnCanvas extends React.PureComponent {
     }
 
     render(): React.Element<any> {
-        return <Canvas {...this.props}>
+        return <g {...this.props}>
             {this.buildColumns()}
-        </Canvas>;
+        </g>;
     }
 }
 

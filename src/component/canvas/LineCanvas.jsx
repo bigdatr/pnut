@@ -38,6 +38,8 @@ import type ChartRow from 'src/chartdata/ChartData';
  */
 
 export default class LineCanvas extends React.PureComponent {
+    static chartType = 'plane2d';
+
     static defaultProps = {
         pathProps: {}
     };
@@ -99,14 +101,21 @@ export default class LineCanvas extends React.PureComponent {
     }
 
     render(): React.Element<any> {
-        return <Canvas {...this.props}>
-            <path
+        return <path
                 fill='none'
                 stroke='black'
                 strokeWidth='1'
                 {...this.props.pathProps}
                 d={this.buildPath()}
-            />
-        </Canvas>;
+            />;
+        // return <Canvas {...this.props}>
+        //     <path
+        //         fill='none'
+        //         stroke='black'
+        //         strokeWidth='1'
+        //         {...this.props.pathProps}
+        //         d={this.buildPath()}
+        //     />
+        // </Canvas>;
     }
 }
