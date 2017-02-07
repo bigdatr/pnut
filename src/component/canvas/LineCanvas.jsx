@@ -96,26 +96,20 @@ export default class LineCanvas extends React.PureComponent {
         return data.rows.map((row: ChartRow, index: number): string => {
             const command = index === 0 || !data.rows.get(index - 1) ? 'M' : 'L';
             const rangeY = scaleY.range();
-            return `${command} ${scaleX(row.get(columnX))} ${rangeY[1] - scaleY(row.get(columnY))}`;
+            const offset = scaleX.bandwidth ? scaleX.bandwidth() / 2 : 0;
+            return `${command} ${scaleX(row.get(columnX)) + offset} ${rangeY[1] - scaleY(row.get(columnY))}`;
         }).join(' ');
     }
 
     render(): React.Element<any> {
-        return <path
+        return <Canvas {...this.props}>
+            <path
                 fill='none'
                 stroke='black'
                 strokeWidth='1'
                 {...this.props.pathProps}
                 d={this.buildPath()}
-            />;
-        // return <Canvas {...this.props}>
-        //     <path
-        //         fill='none'
-        //         stroke='black'
-        //         strokeWidth='1'
-        //         {...this.props.pathProps}
-        //         d={this.buildPath()}
-        //     />
-        // </Canvas>;
+            />
+        </Canvas>;
     }
 }

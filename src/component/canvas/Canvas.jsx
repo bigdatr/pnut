@@ -38,15 +38,15 @@ export default class Canvas extends React.PureComponent {
     };
 
     render(): React.Element<any> {
-        if(!this.props.width || !this.props.height) return <svg></svg>;
+        if(!this.props.width || !this.props.height) return <g/>;
 
-        return <svg
+        return <g
             overflow='visible'
-            {...this.props.svgProps}
-            width={this.props.width}
-            height={this.props.height}
         >
             {this.props.children}
-        </svg>;
+        </g>;
     }
 }
+            // {...this.props.svgProps}
+            // width={this.props.width}
+            // height={this.props.height}

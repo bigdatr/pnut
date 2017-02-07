@@ -118,7 +118,7 @@ export default class ColumnCanvas extends React.PureComponent {
 
             const columnYList = [].concat(columnY);
             const columnPropsList = [].concat(columnProps);
-            const columnWidth = scaleX.bandwidth() / columnY.length;
+            const columnWidth = scaleX.bandwidth() / ((typeof columnY === 'string') ? 1 : columnY.length);
 
             const newColumns = columnYList.map((
                 columnY: string,
@@ -140,9 +140,9 @@ export default class ColumnCanvas extends React.PureComponent {
     }
 
     render(): React.Element<any> {
-        return <g {...this.props}>
+        return <Canvas {...this.props}>
             {this.buildColumns()}
-        </g>;
+        </Canvas>;
     }
 }
 

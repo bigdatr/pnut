@@ -1,7 +1,7 @@
 // @flow
-import React, {Component, Children, cloneElement, Element} from 'react';
+import React, {Component, Children, cloneElement, Element, PropTypes} from 'react';
 import {ElementQueryHock} from 'stampy';
-import {List} from 'immutable';
+import {List, Map} from 'immutable';
 import * as d3Scale from 'd3-scale';
 
 import {ChartData} from 'pnut';
@@ -24,124 +24,216 @@ class Chart extends Component {
         // scaleY: React.PropTypes.string,
         // domainY: React.PropTypes.string,
 
-        // width: React.PropTypes.number,
-        // height: React.PropTypes.number,
+        dimensions: PropTypes.array,
+        height: PropTypes.number,
+        padding: PropTypes.array,
+        width: PropTypes.number
     };
 
-    constructor(props) {
+    static defaultProps = {
+        dimensions: ['x','y']
+    }
+
+    constructor(props: Object) {
         super(props);
 
-        const childrenProps = List(Children.map(props.children, child => {
+        const childrenProps = Children.map(props.children, child => {
             return {
                 ...child.props,
                 chartType: child.type.chartType
             };
-        }))
+        });
+
+        const childrenGroups = List(childrenProps)
             .groupBy(ii => ii.chartType);
 
         this.state = {
-            columnY: childrenProps
-                .get('plane2d')
-                .map(ii => ii.y)
-                .toArray(),
-            columnX: props.range || childrenProps
-                .get('plane2d')
-                .map(ii => ii.y)
-                .toArray()
-        }
+            dimensions: props.dimensions
+                .map((dimensionName: string): Object => {
+                    const dimensionKey = `${dimensionName}Dimension`;
+                    const scaleKey = `${dimensionName}Scale`;
+                    const scaleTypeKey = `${dimensionName}ScaleType`;
 
-        // console.log(childrenProps, this.state);
+                    return {
+                        dimensionKey,
+                        dimensionName,
+                        scaleKey,
+                        scaleTypeKey,
+                        dimensions: childrenGroups
+                            .get('canvas')
+                            .map(ii => ii[dimensionKey] || props[dimensionKey])
+                            .toSet()
+                            .toArray()
+                    }
+                })
+        }
 
         this.getChildProps = this.getChildProps.bind(this);
+        this.getCanvasSize = this.getCanvasSize.bind(this);
+        this.getAxisSize = this.getAxisSize.bind(this);
+    }
+    getCanvasSize() {
+        const {width = 0, height = 0, padding} = this.props;
+        const [top = 0, right = 0, bottom = 0, left = 0] = padding;
+        return {
+            width: Math.max(width - left - right, 0), // clamp negatives
+            height: Math.max(height - top - bottom, 0), // clamp negatives
+            outerWidth: width,
+            outerHeight: height,
+            top,
+            right,
+            bottom,
+            left
+        };
+    }
+    getAxisSize(axisType) {
+        const {top, right, bottom, left, width, height} = this.getCanvasSize();
+        switch(axisType) {
+            case 'top':
+                return {
+                    width,
+                    height: top
+                }
+            case 'right':
+                return {
+                    width: right,
+                    height
+                }
+
+            case 'bottom':
+                return {
+                    width,
+                    height: bottom
+                }
+
+            case 'left':
+                return {
+                    width: left,
+                    height
+                }
+
+        }
+    }
+    getDefaultScale(dimension: Object): Function {
+        const {dimensionName, scaleTypeKey, dimensionKey, dimensions} = dimension;
+        // console.log(dimensions);
+        switch(dimensionName) {
+            case 'x':
+                return pp => {
+                    return d3Scale[pp[scaleTypeKey] || 'scaleLinear']()
+                        .domain(pp.data.rows.map(row => row.get(pp[dimensionKey])).toArray())
+                        .range([0, pp.width]);
+                };
+
+            case 'y':
+                return pp => {
+
+                    return d3Scale[pp[scaleTypeKey] || 'scaleLinear']()
+                        .domain([pp.data.min(dimensions), pp.data.max(dimensions)])
+                        .range([0, pp.height]);
+                };
+
+            default:
+                return pp => {
+                    return d3Scale[pp[scaleTypeKey] || 'scaleLinear']()
+                };
+        }
     }
     getChildProps(type, props) {
-        const {width, height} = this.props;
-        const {columns} = this.state;
+        const {columns, dimensions} = this.state;
 
-        const chartProps = Object.assign({}, this.state, this.props, props);
+        const chartProps = Object.assign({}, this.state, this.props, this.getCanvasSize(), props);
+        const {width, height} = chartProps;
 
-        // console.log(type, chartProps);
+        const dimensionProps = List(dimensions)
+            .reduce((props, dimension) => {
+                const {scaleKey, dimensionKey} = dimension;
 
-        const scaleX = defaultFunction(chartProps.scaleX, pp => {
-            return d3Scale[pp.scaleX]();
-        });
-        const domainX = defaultFunction(chartProps.domainX, pp => {
-            return pp.data.rows.map(row => row.get(pp.x)).toArray();
-        });
-        const rangeX = defaultFunction(chartProps.rangeX, pp => {
-            return [0, pp.width];
-        });
+                const scale = this.getDefaultScale(dimension)(chartProps);
+                const editScale = chartProps[scaleKey];
+                // const scale = defaultFunction(chartProps[scaleKey], pp => {
 
-        const scaleY = defaultFunction(chartProps.scaleY, pp => {
-            return d3Scale[pp.scaleY]();
-        });
-        const domainY = defaultFunction(chartProps.domainY, pp => {
-            return [pp.data.min(pp.columnY), pp.data.max(pp.columnY)];
-        });
-        const rangeY = defaultFunction(chartProps.rangeY, pp => {
-            return [0, pp.height];
-        });
+                // })
 
-        // const y = chartProps.y || this.chartProps.y;
-        // const scaleY = chartProps.scaleY || this.chartProps.scaleY;
-        // const domainY = defaultDomain(chartProps.domainY || this.chartProps.domainY);
+                // default
+
+                // console.log(chartProps);
+
+                return props
+                    .set(scaleKey, typeof editScale === 'function' ? editScale(scale.copy(), chartProps) : scale)
+                    .set(dimensionKey, chartProps[dimensionKey])
+
+            }, Map());
 
 
-        const scaleFunctionX = scaleX(chartProps)
-            .domain(domainX(chartProps))
-            .range(rangeX(chartProps));
-
-        const scaleFunctionY = scaleY(chartProps)
-            .domain(domainY(chartProps))
-            .range(rangeY(chartProps));
-
-        // const scaleY = d3Scale[chartProps.scale || this.chartProps.scaleY]()
-        //     .domain([this.chartProps.data.min(columns), this.chartProps.data.max(columns)])
-        //     .range([0, height])
-        //     .nice();
 
         return {
-            columnX: chartProps.x,
-            columnY: chartProps.y,
-            data: chartProps.data,
+            columnX: dimensionProps.get('xDimension'),
+            columnY: dimensionProps.get('yDimension'),
+            width,
             height,
-            scaleX: scaleFunctionX,
-            scaleY: scaleFunctionY,
-            width
+            data: chartProps.data,
+            scaleX: dimensionProps.get('xScale'),
+            scaleY: dimensionProps.get('yScale')
         }
-
-        // switch(type) {
-        //     case 'plane2d':
-        //         return {
-        //         }
-
-        //     case 'axis':
-        //         return {
-        //             scale: props.direction === 'x' ? scaleX : scaleY
-        //         }
-
-        //     default:
-        //         return {};
-        // }
     }
     render(): Element<any> {
-        const {width, height} = this.props;
+        const {width, height, outerWidth, outerHeight, top, left, right, bottom} = this.getCanvasSize();
 
         if(!width || !height) {
-            return <div></div>;
+            return <div/>;
         }
-        const scaledChildren = Children.map(this.props.children, child => {
-            return cloneElement(child, this.getChildProps(child.type.chartType, child.props));
-        });
+
+        const scaledChildren = List(Children.toArray(this.props.children))
+            .map(child => {
+                const {chartType} = child.type;
+                switch(chartType) {
+                    case 'canvas':
+                        return cloneElement(child, this.getChildProps(chartType, child.props));
+
+                    case 'axis':
+                        return cloneElement(child, {
+                            ...this.getChildProps(chartType, child.props),
+                            ...this.getAxisSize(child.props.position)
+                        });
+                }
+            })
+            .groupBy(child => child.type.chartType || 'canvas')
+            .updateIn(['axis'], ii => ii.groupBy(aa => aa.props.position));
+
+
+        const svgStyle = {
+            display: 'block',
+            // overflow: 'visible'
+        }
+
+        function getAxis(key: string, x: number, y: number): ?Element<any> {
+            const axis = scaledChildren.getIn(['axis', key, 0]);
+            if(axis) {
+                return <svg {...svgStyle} name={key} x={x} y={y} height={axis.props.height} width={axis.props.width}>
+                    {scaledChildren.getIn(['axis', key]).toArray()}
+                </svg>
+            }
+        }
+
 
         return <svg
-            overflow='visible'
-            display="block"
+            {...svgStyle}
             {...this.props.svgProps}
-            width={this.props.width}
-            height={this.props.height}
-        >{scaledChildren}</svg>;
+            width={outerWidth}
+            height={outerHeight}
+        >
+            {getAxis('top', left, 0)}
+            {getAxis('right', left + width, top)}
+            {getAxis('bottom', left, height + top)}
+            {getAxis('left', 0, top)}
+            <svg {...svgStyle} x={left} y={top} width={width} height={height}>
+                {scaledChildren.get('canvas')}
+            </svg>
+        </svg>;
     }
+            // <g transform={`translate(${left}, ${top})`} width={innerWidth} height={innerHeight}>
+            // </g>
 }
 
 

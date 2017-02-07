@@ -126,13 +126,14 @@ export default class ScatterCanvas extends React.PureComponent {
         const {data, scaleX, scaleY, columnX, columnY, dot} = this.props;
         const Dot = dot;
         const rangeY = scaleY.range();
+        const offset = scaleX.bandwidth ? scaleX.bandwidth() / 2 : 0;
 
         return data.rows.map((row: ChartRow, index: number): React.Element<any> => {
             const dataX = row.get(columnX);
             const dataY = row.get(columnY);
             return <Dot
                 key={index}
-                x={scaleX(dataX)}
+                x={scaleX(dataX) + offset}
                 y={rangeY[1] - scaleY(dataY)}
                 dataX={dataX}
                 dataY={dataY}
@@ -142,8 +143,8 @@ export default class ScatterCanvas extends React.PureComponent {
     }
 
     render(): React.Element<any> {
-        return <g {...this.props}>
+        return <Canvas {...this.props}>
             {this.buildDots()}
-        </g>;
+        </Canvas>;
     }
 }

@@ -230,21 +230,21 @@ class Axis extends React.Component {
 
 
 class Line extends React.Component {
-    static chartType = 'plane2d';
+    static chartType = 'canvas';
     render() {
         return <LineCanvas {...this.props} />;
     }
 }
 
 class Scatter extends React.Component {
-    static chartType = 'plane2d';
+    static chartType = 'canvas';
     render() {
         return <ScatterCanvas {...this.props} />;
     }
 }
 
 class Column extends React.Component {
-    static chartType = 'plane2d';
+    static chartType = 'canvas';
     render() {
         return <ColumnCanvas {...this.props} />;
     }
@@ -261,16 +261,8 @@ class Plane2dExample extends React.Component {
                 .set('benchmark', 1800000);
         });
 
-        console.log(chartData);
-        // const scaleY = scaleLinear()
-        //     .domain([chartData.min('supply'), chartData.max('supply')])
-        //     .range([0, this.props.eqHeight])
-        //     .nice();
+        // console.log(chartData);
 
-        // const scaleX = scalePoint()
-        //     .domain(rows.map(row => row.month))
-        //     .range([0, this.props.eqWidth]);
-        //
 
         const style= {
             svgProps: {
@@ -286,59 +278,54 @@ class Plane2dExample extends React.Component {
         //  rangeX
 
         const props = {
-            x:"month",
-            scaleX:"scaleBand",
-            // domainX:
-            // rangeX:
+            xDimension: "month",
+            // yDimension: "month",
+            xScaleType:"scaleBand",
+            xScale: scale => scale.align(.5),
+            // yScale:"scaleLinear",
+            yScaleType: 'scaleLinear',
+            // yScale: (scale, pp) => scale.domain([0, pp.data.max(['supply'])])
 
-            scaleY:"scaleLinear",
-            // domainY: pp => [0, pp.data.max(['demand', 'supply'])],
+            // domainY: pp => [0, pp.data.max(['supply'])],
             // rangeY: pp => [0, 50]
         }
 
-
-                    // <Line {...style} x="month" y="demand"/>
+        const columnScale = (scale, props) => scale.padding(0).align(.5);
+                    // <Line {...style} x="month" yDimension="demand"/>
                     // <Line {...style} x="month" y="randomDemand" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
-                    // <Line {...style} y="demand" pathProps={{stroke: 'red', strokeWidth: 2}}/>
+                    // <Line {...style} yDimension="demand" pathProps={{stroke: 'red', strokeWidth: 2}}/>
                     // <Line {...style} y="benchmark" pathProps={{stroke: 'gray', strokeWidth: 2}}/>
-                    // <Scatter {...style} y="demand"/>
+                    // <Scatter {...style} yDimension="demand"/>
         return <div>
             <div style={{position: 'absolute', top: 0, left: 0}}>
                 <Chart
+                    padding={[100,32,32,100]}
                     data={chartData}
                     width={this.props.eqWidth}
                     height={this.props.eqHeight}
                     {...props}
-
                 >
 
-                    <Column {...style} scaleX="scaleBand" y="supply" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
-                    <Line {...style} y="supply" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
-                    <Line {...style} y="supply" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
-                    <Scatter {...style} y="supply"/>
+                    <Column xScaleType="scaleBand" xScale={columnScale} yDimension="supply" columnProps={{fill: 'blue', opacity: .5}} />
+                    <Line yDimension="supply" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
+                    <Line yDimension="supply" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
+
+                    <Column xScaleType="scaleBand" xScale={columnScale} yDimension="demand" columnProps={{fill: 'red', opacity: .5}} />
+                    <Line yDimension="demand" pathProps={{stroke: 'red', strokeWidth: 2}}/>
+                    <Line yDimension="demand" pathProps={{stroke: 'red', strokeWidth: 2}}/>
+
+                    <Scatter yDimension="supply"/>
+                    <Scatter yDimension="demand"/>
 
 
 
-                    <Axis scaleName="scaleY" label="Demand" yPos="20"/>
-                    <Axis scaleName="scaleX" label="Time" yPos="40"/>
+                    <Axis position="top" scaleName="scaleX" label="Other" yPos="20"/>
+                    <Axis position="right" scaleName="scaleY" label="Demand" yPos="20"/>
+                    <Axis position="left" scaleName="scaleY" label="Demand" yPos="40"/>
+                    <Axis position="bottom" scaleName="scaleX" label="Time" yPos="20"/>
                 </Chart>
-                <button onClick={() => this.setState({a: Math.random()})}>rerender</button>
+                <button onClick={() => this.setState({a: Math.random()})} style={{position: 'absolute', top: 0, right: 0}}>rerender</button>
             </div>
-                {/*<LineCanvas
-                                    width={this.props.eqWidth}
-                                    height={this.props.eqHeight}
-                                    scaleX={scaleX}
-                                    scaleY={scaleY}
-                                    columnX={'month'}
-                                    columnY={'supply'}
-                                    data={chartData}
-                                    svgProps={{
-                                        strokeWidth: '2'
-                                    }}
-                                    pathProps={{
-                                        strokeWidth: '2'
-                                    }}
-                                />;*/}
         </div>
     }
 }
