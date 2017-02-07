@@ -13,23 +13,39 @@ export default class AxisX extends React.PureComponent {
         textFormat: (text) => text,
         tickSize: 6,
         textPadding: 6,
-        overlap: 0,
+        overlap: 0
     };
 
     static propTypes = {
-
+        position: React.PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
+        lineProps: React.PropTypes.object,
+        tickProps: React.PropTypes.oneOfType([
+            React.PropTypes.object,
+            React.PropTypes.func
+        ]),
+        textProps: React.PropTypes.oneOfType([
+            React.PropTypes.object,
+            React.PropTypes.func
+        ]),
+        textFormat: React.PropTypes.func,
+        tickSize: React.PropTypes.number,
+        textPadding: React.PropTypes.number,
+        overlap: React.PropTypes.number,
+        scale: React.PropTypes.func.isRequired,
+        ticks: React.PropTypes.array.isRequired,
+        width: React.PropTypes.number.isRequired,
+        height: React.PropTypes.number.isRequired
     };
 
     defaultLineWidth = 1;
 
 
-
-    drawTicks() {
+    drawTicks(): Array<React.Element<any>> {
         const tickSize = this.props.tickSize;
         const strokeWidth = this.props.lineProps.strokeWidth || this.defaultLineWidth;
         const offset = this.props.scale.bandwidth ? this.props.scale.bandwidth() / 2 : 0;
 
-        return this.props.ticks.map(tick => {
+        return this.props.ticks.map((tick: any): React.Element<any> => {
             const distance = this.props.scale(tick) + offset;
 
             const [x1, y1] = this.getPointPosition(distance, strokeWidth / 2);
@@ -71,11 +87,11 @@ export default class AxisX extends React.PureComponent {
                 >
                     {this.props.textFormat(tick)}
                 </text>
-            </g>
+            </g>;
         });
     }
 
-    drawAxis() {
+    drawAxis(): React.Element<any> {
         const strokeWidth = this.props.lineProps.strokeWidth || this.defaultLineWidth;
         const overlap = this.props.overlap;
 
@@ -90,10 +106,10 @@ export default class AxisX extends React.PureComponent {
             stroke='black'
             strokeWidth={strokeWidth}
             {...this.props.lineProps}
-        />
+        />;
     }
 
-    getAlignmentBaselineProp() {
+    getAlignmentBaselineProp(): string {
         switch(this.props.position) {
             case 'left':
             case 'right':
@@ -102,10 +118,12 @@ export default class AxisX extends React.PureComponent {
                 return 'baseline';
             case 'bottom':
                 return 'hanging';
+            default:
+                throw new Error(`unknown position: ${this.props.position}`);
         }
     }
 
-    getTextAnchorProp() {
+    getTextAnchorProp(): string {
         switch(this.props.position) {
             case 'top':
             case 'bottom':
@@ -114,23 +132,27 @@ export default class AxisX extends React.PureComponent {
                 return 'end';
             case 'right':
                 return 'start';
+            default:
+                throw new Error(`unknown position: ${this.props.position}`);
         }
     }
 
-    getLengthProp() {
+    getLengthProp(): string {
         return this.props.position === 'top' || this.props.position === 'bottom' ? 'width' : 'height';
     }
 
-    getPointPosition(distance, offset) {
+    getPointPosition(distance: number, offset: number): Array<number> {
         switch(this.props.position) {
             case 'top':
                 return [distance, this.props.height - offset];
-            case  'right':
+            case 'right':
                 return [offset, distance];
             case 'bottom':
                 return [distance, offset];
             case 'left':
                 return [this.props.width - offset, distance];
+            default:
+                throw new Error(`unknown position: ${this.props.position}`);
         }
     }
 
