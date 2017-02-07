@@ -11,6 +11,7 @@ class Chart extends Component {
     getAxisSize: Function;
 
     static propTypes = {
+        data: PropTypes.object.isRequired,
         dimensions: PropTypes.array,
         height: PropTypes.number,
         padding: PropTypes.array,
@@ -155,10 +156,6 @@ class Chart extends Component {
     render(): Element<any> {
         const {width, height, outerWidth, outerHeight, top, left} = this.getCanvasSize();
 
-        if(!width || !height) {
-            return <div/>;
-        }
-
         const scaledChildren = List(Children.toArray(this.props.children))
             .map((child: Element<any>): Element<any> => {
                 const {chartType} = child.type;
@@ -174,8 +171,12 @@ class Chart extends Component {
                         return cloneElement(child, this.getChildProps(child.props));
                 }
             })
-            .groupBy(child => child.type.chartType || 'canvas')
-            .updateIn(['axis'], ii => ii.groupBy(aa => aa.props.position));
+            .groupBy(child => child.type.chartType)
+            .updateIn(['axis'], (ii: ?List): ?Map => {
+                if(ii) {
+                    return ii.groupBy(aa => aa.props.position);
+                }
+            });
 
 
         function getAxis(key: string, x: number, y: number): ?Element<any> {
