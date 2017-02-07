@@ -1,7 +1,6 @@
 // @flow
 
 import React from 'react';
-import Canvas from './Canvas';
 import type ChartRow from 'src/chartdata/ChartData';
 
 /**
@@ -148,7 +147,7 @@ export class ColumnCanvas extends React.PureComponent {
 
 export default class Column extends React.Component {
     static chartType = 'canvas';
-    render() {
+    render(): React.Element<any> {
         return <ColumnCanvas {...this.props} />;
     }
 }

@@ -1,10 +1,9 @@
 import test from 'ava';
 import React from 'react';
 import {shallow} from 'enzyme';
-import sinon from 'sinon';
 
 import {scaleLinear, scalePoint} from 'd3-scale';
-import LineCanvas from '../LineCanvas';
+import {LineCanvas} from '../LineCanvas';
 import ChartData from '../../../chartdata/ChartData';
 
 

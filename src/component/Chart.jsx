@@ -62,7 +62,9 @@ class Chart extends Component {
     }
     getCanvasSize(): Object {
         const {width = 0, height = 0, padding = []} = this.props;
+        // $FlowBug: flow cant handle default assignment on array destructuring
         const [top = 0, right = 0, bottom = 0, left = 0] = padding;
+
         return {
             width: Math.max(width - left - right, 0), // clamp negatives
             height: Math.max(height - top - bottom, 0), // clamp negatives
@@ -74,31 +76,35 @@ class Chart extends Component {
             left
         };
     }
-    getAxisSize(axisType): Object {
+    getAxisSize(axisType: string): Object {
         const {top, right, bottom, left, width, height} = this.getCanvasSize();
         switch(axisType) {
             case 'top':
                 return {
                     width,
                     height: top
-                }
+                };
+
             case 'right':
                 return {
                     width: right,
                     height
-                }
+                };
 
             case 'bottom':
                 return {
                     width,
                     height: bottom
-                }
+                };
 
             case 'left':
                 return {
                     width: left,
                     height
-                }
+                };
+
+            default:
+                return {};
 
         }
     }
@@ -106,14 +112,14 @@ class Chart extends Component {
         const {dimensionName, scaleTypeKey, dimensionKey, dimensions} = dimension;
         switch(dimensionName) {
             case 'x':
-                return pp => {
+                return (pp: Object): Function => {
                     return d3Scale[pp[scaleTypeKey] || 'scaleLinear']()
                         .domain(pp.data.rows.map(row => row.get(pp[dimensionKey])).toArray())
                         .range([0, pp.width]);
                 };
 
             case 'y':
-                return pp => {
+                return (pp: Object): Function => {
 
                     return d3Scale[pp[scaleTypeKey] || 'scaleLinear']()
                         .domain([pp.data.min(dimensions), pp.data.max(dimensions)])
@@ -121,17 +127,17 @@ class Chart extends Component {
                 };
 
             default:
-                return pp => {
-                    return d3Scale[pp[scaleTypeKey] || 'scaleLinear']()
+                return (pp: Object): Function => {
+                    return d3Scale[pp[scaleTypeKey] || 'scaleLinear']();
                 };
         }
     }
-    getChildProps(type, props) {
+    getChildProps(props: Object): Object {
         const {dimensions} = this.state;
         const chartProps = Object.assign({}, this.state, this.props, this.getCanvasSize(), props);
 
         return List(dimensions)
-            .reduce((props, dimension) => {
+            .reduce((props: Map, dimension: Object): Map => {
                 const {scaleKey, dimensionKey} = dimension;
                 const scale = this.getDefaultScale(dimension)(chartProps);
                 const editScale = chartProps[scaleKey];
@@ -147,44 +153,39 @@ class Chart extends Component {
             .toObject();
     }
     render(): Element<any> {
-        const {width, height, outerWidth, outerHeight, top, left, right, bottom} = this.getCanvasSize();
+        const {width, height, outerWidth, outerHeight, top, left} = this.getCanvasSize();
 
         if(!width || !height) {
             return <div/>;
         }
 
         const scaledChildren = List(Children.toArray(this.props.children))
-            .map(child => {
+            .map((child: Element<any>): Element<any> => {
                 const {chartType} = child.type;
                 switch(chartType) {
-                    case 'canvas':
-                        return cloneElement(child, this.getChildProps(chartType, child.props));
-
                     case 'axis':
                         return cloneElement(child, {
                             ...this.getChildProps(chartType, child.props),
                             ...this.getAxisSize(child.props.position)
                         });
+
+                    case 'canvas':
+                    default:
+                        return cloneElement(child, this.getChildProps(child.props));
                 }
             })
             .groupBy(child => child.type.chartType || 'canvas')
             .updateIn(['axis'], ii => ii.groupBy(aa => aa.props.position));
 
 
-        const svgStyle = {
-            display: 'block',
-            overflow: 'visible'
-        }
-
         function getAxis(key: string, x: number, y: number): ?Element<any> {
             const axis = scaledChildren.getIn(['axis', key, 0]);
             if(axis) {
-                return <svg {...svgStyle} name={key} x={x} y={y} height={axis.props.height} width={axis.props.width}>
+                return <Canvas x={x} y={y} height={axis.props.height} width={axis.props.width}>
                     {scaledChildren.getIn(['axis', key]).toArray()}
-                </svg>
+                </Canvas>;
             }
         }
-
 
         return <Canvas
             width={outerWidth}
@@ -199,13 +200,6 @@ class Chart extends Component {
             </Canvas>
         </Canvas>;
     }
-            // <g transform={`translate(${left}, ${top})`} width={innerWidth} height={innerHeight}>
-            // </g>
 }
-
-
-
-// const withEq = ElementQueryHock([]);
-
 
 export default Chart;

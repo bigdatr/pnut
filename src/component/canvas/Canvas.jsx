@@ -30,7 +30,13 @@ export default class Canvas extends React.PureComponent {
          */
         width: React.PropTypes.number,
         /** An object of props that will be spread onto the svg element. */
-        svgProps: React.PropTypes.object
+        svgProps: React.PropTypes.object,
+
+        /** The x position of the canvas */
+        x: React.PropTypes.number,
+
+        /** The y position of the canvas */
+        y: React.PropTypes.number
     };
 
     static defaultProps = {

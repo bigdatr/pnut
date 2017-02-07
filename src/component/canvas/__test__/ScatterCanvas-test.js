@@ -4,7 +4,7 @@ import {shallow} from 'enzyme';
 import sinon from 'sinon';
 
 import {scaleLinear, scalePoint} from 'd3-scale';
-import ScatterCanvas from '../ScatterCanvas';
+import {ScatterCanvas} from '../ScatterCanvas';
 import ChartData from '../../../chartdata/ChartData';
 
 

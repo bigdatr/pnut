@@ -1,7 +1,6 @@
 // @flow
 
 import React from 'react';
-import Canvas from './Canvas';
 import type {ChartScalar, ChartRow} from 'src/chartdata/ChartData';
 
 type DotProps = {
@@ -150,7 +149,7 @@ export class ScatterCanvas extends React.PureComponent {
 
 export default class Scatter extends React.Component {
     static chartType = 'canvas';
-    render() {
+    render(): React.Element<any> {
         return <ScatterCanvas {...this.props} />;
     }
 }

@@ -1,10 +1,9 @@
 import test from 'ava';
 import React from 'react';
 import {shallow} from 'enzyme';
-import sinon from 'sinon';
 
 import {scaleLog, scaleBand} from 'd3-scale';
-import ColumnCanvas from '../ColumnCanvas';
+import {ColumnCanvas} from '../ColumnCanvas';
 import ChartData from '../../../chartdata/ChartData';
 
 const columns = [
