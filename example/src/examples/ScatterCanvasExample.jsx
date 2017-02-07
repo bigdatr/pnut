@@ -211,12 +211,12 @@ const chartData = new ChartData(rows, columns);
 
 class CanvasExample extends React.Component {
     render() {
-        const scaleY = scaleLinear()
+        const yScale = scaleLinear()
             .domain([chartData.min('supply'), chartData.max('supply')])
             .range([0, this.props.eqHeight])
             .nice();
 
-        const scaleX = scalePoint()
+        const xScale = scalePoint()
             .domain(rows.map(row => row.month))
             .range([0, this.props.eqWidth]);
 
@@ -230,10 +230,10 @@ class CanvasExample extends React.Component {
                 <ScatterCanvas
                     width={this.props.eqWidth}
                     height={this.props.eqHeight}
-                    scaleX={scaleX}
-                    scaleY={scaleY}
-                    columnX={'month'}
-                    columnY={'supply'}
+                    xScale={xScale}
+                    yScale={yScale}
+                    xDimension={'month'}
+                    yDimension={'supply'}
                     data={chartData}
                     dot={({x, y, row}) => <circle
                         cx={x}

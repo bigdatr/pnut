@@ -4,7 +4,7 @@ import {shallow} from 'enzyme';
 
 import Canvas from '../Canvas';
 
-test('Canvas renders a svg element', tt => {
+test('Canvas renders an svg element', tt => {
     const canvas = shallow(<Canvas/>);
     tt.is(canvas.type(), 'svg');
 });

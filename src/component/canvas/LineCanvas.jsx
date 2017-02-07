@@ -12,22 +12,22 @@ import type ChartRow from 'src/chartdata/ChartData';
  *
  * @example
  *
- * const scaleY = scaleLog()
+ * const yScale = scaleLog()
  *     .domain([0, 10])
  *     .range([0, 720])
  *     .nice();
  *
- * const scaleX = scalePoint()
+ * const xScale = scalePoint()
  *     .domain(['January', 'February', 'March', 'April'])
  *     .range([0, 1280]);
  *
  * return <LineCanvas
  *     width={1280}
  *     height={720}
- *     scaleX={scaleX}
- *     scaleY={scaleY}
- *     columnX={'month'}
- *     columnY={'demand'}
+ *     xScale={xScale}
+ *     yScale={yScale}
+ *     xDimension={'month'}
+ *     yDimension={'demand'}
  *     data={chartData}
  *     pathProps={{
  *         strokeWidth: '2'
@@ -37,9 +37,7 @@ import type ChartRow from 'src/chartdata/ChartData';
  *
  */
 
-export default class LineCanvas extends React.PureComponent {
-    static chartType = 'plane2d';
-
+export class LineCanvas extends React.PureComponent {
     static defaultProps = {
         pathProps: {}
     };
@@ -67,22 +65,23 @@ export default class LineCanvas extends React.PureComponent {
          * {ChartData} The `ChartData` Record used to contain the data for the chart.
          */
         data: React.PropTypes.object.isRequired,
+
         /**
          * {Scale} Any d3-scale for the x axis.
          */
-        scaleX: React.PropTypes.func.isRequired,
+        xScale: React.PropTypes.func.isRequired,
         /**
          * {Scale} Any d3-scale for the y axis.
          */
-        scaleY: React.PropTypes.func.isRequired,
+        yScale: React.PropTypes.func.isRequired,
         /**
          * The column key from `ChartData` to use for the x axis.
          */
-        columnX: React.PropTypes.string.isRequired,
+        xDimension: React.PropTypes.string.isRequired,
         /**
          * The column key from `ChartData` to use for the y axis.
          */
-        columnY: React.PropTypes.string.isRequired,
+        yDimension: React.PropTypes.string.isRequired,
         /**
          * An object of props that will be spread onto the svg `path` element. Any valid
          * [svg path attribute](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/path)
@@ -92,17 +91,17 @@ export default class LineCanvas extends React.PureComponent {
     };
 
     buildPath(): string {
-        const {data, scaleX, scaleY, columnX, columnY} = this.props;
+        const {data, xScale, yScale, xDimension, yDimension} = this.props;
         return data.rows.map((row: ChartRow, index: number): string => {
             const command = index === 0 || !data.rows.get(index - 1) ? 'M' : 'L';
-            const rangeY = scaleY.range();
-            const offset = scaleX.bandwidth ? scaleX.bandwidth() / 2 : 0;
-            return `${command} ${scaleX(row.get(columnX)) + offset} ${rangeY[1] - scaleY(row.get(columnY))}`;
+            const rangeY = yScale.range();
+            const offset = xScale.bandwidth ? xScale.bandwidth() / 2 : 0;
+            return `${command} ${xScale(row.get(xDimension)) + offset} ${rangeY[1] - yScale(row.get(yDimension))}`;
         }).join(' ');
     }
 
     render(): React.Element<any> {
-        return <Canvas {...this.props}>
+        return <g>
             <path
                 fill='none'
                 stroke='black'
@@ -110,6 +109,14 @@ export default class LineCanvas extends React.PureComponent {
                 {...this.props.pathProps}
                 d={this.buildPath()}
             />
-        </Canvas>;
+        </g>;
     }
 }
+
+export default class Line extends React.Component {
+    static chartType = 'canvas';
+    render() {
+        return <LineCanvas {...this.props} />;
+    }
+}
+

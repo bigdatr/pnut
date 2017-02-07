@@ -211,12 +211,12 @@ const rows = [
 
 const chartData = new ChartData(rows, columns);
 
-const scaleY = scaleLinear()
+const yScale = scaleLinear()
     .domain([chartData.min('supply'), chartData.max('supply')])
     .range([0, 100])
     .nice();
 
-const scaleX = scalePoint()
+const xScale = scalePoint()
     .domain(rows.map(row => row.month))
     .range([0, 100]);
 
@@ -237,10 +237,10 @@ const canvas = shallow(<ScatterCanvas
     width={200}
     height={200}
     data={chartData}
-    scaleX={scaleX}
-    scaleY={scaleY}
-    columnX={'month'}
-    columnY={'supply'}
+    xScale={xScale}
+    yScale={yScale}
+    xDimension={'month'}
+    yDimension={'supply'}
     data={chartData}
     dot={customDot}
 />);
@@ -254,8 +254,8 @@ test('ScatterCanvas allows custom circle rendering', tt => {
 });
 
 test('ScatterCanvas custom dot has x and y params', tt => {
-    tt.is(canvas.childAt(0).shallow().prop('cx'), scaleX(rows[0].month));
-    tt.is(canvas.childAt(0).shallow().prop('cy'), scaleY.range()[1] - scaleY(rows[0].supply));
+    tt.is(canvas.childAt(0).shallow().prop('cx'), xScale(rows[0].month));
+    tt.is(canvas.childAt(0).shallow().prop('cy'), yScale.range()[1] - yScale(rows[0].supply));
 });
 
 
@@ -263,10 +263,10 @@ const defaultDotCanvas = shallow(<ScatterCanvas
     width={200}
     height={200}
     data={chartData}
-    scaleX={scaleX}
-    scaleY={scaleY}
-    columnX={'month'}
-    columnY={'supply'}
+    xScale={xScale}
+    yScale={yScale}
+    xDimension={'month'}
+    yDimension={'supply'}
     data={chartData}
 />);
 
@@ -275,6 +275,6 @@ test('ScatterCanvas can render circle by as default dot', tt => {
 });
 
 test('ScatterCanvas default dot has x and y params', tt => {
-    tt.is(defaultDotCanvas.childAt(0).shallow().prop('cx'), scaleX(rows[0].month));
-    tt.is(defaultDotCanvas.childAt(0).shallow().prop('cy'), scaleY.range()[1] - scaleY(rows[0].supply));
+    tt.is(defaultDotCanvas.childAt(0).shallow().prop('cx'), xScale(rows[0].month));
+    tt.is(defaultDotCanvas.childAt(0).shallow().prop('cy'), yScale.range()[1] - yScale(rows[0].supply));
 });

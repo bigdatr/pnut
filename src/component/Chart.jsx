@@ -1,29 +1,16 @@
 // @flow
 import React, {Component, Children, cloneElement, Element, PropTypes} from 'react';
-import {ElementQueryHock} from 'stampy';
 import {List, Map} from 'immutable';
+import Canvas from './canvas/Canvas';
 import * as d3Scale from 'd3-scale';
 
-import {ChartData} from 'pnut';
-
-function defaultFunction(functionToCheck, otherwise) {
-    if(typeof functionToCheck === 'function') {
-        return functionToCheck;
-    } else {
-        return otherwise;
-    }
-}
-
 class Chart extends Component {
+    state: Object;
+    getChildProps: Function;
+    getCanvasSize: Function;
+    getAxisSize: Function;
+
     static propTypes = {
-        // x: React.PropTypes.string,
-        // scaleX: React.PropTypes.string,
-        // domainX: React.PropTypes.string,
-
-        // y: React.PropTypes.string,
-        // scaleY: React.PropTypes.string,
-        // domainY: React.PropTypes.string,
-
         dimensions: PropTypes.array,
         height: PropTypes.number,
         padding: PropTypes.array,
@@ -37,12 +24,13 @@ class Chart extends Component {
     constructor(props: Object) {
         super(props);
 
-        const childrenProps = Children.map(props.children, child => {
-            return {
-                ...child.props,
-                chartType: child.type.chartType
-            };
-        });
+        const childrenProps = Children
+            .map(props.children, (child: Element<any>): Object => {
+                return {
+                    ...child.props,
+                    chartType: child.type.chartType
+                };
+            });
 
         const childrenGroups = List(childrenProps)
             .groupBy(ii => ii.chartType);
@@ -64,16 +52,16 @@ class Chart extends Component {
                             .map(ii => ii[dimensionKey] || props[dimensionKey])
                             .toSet()
                             .toArray()
-                    }
+                    };
                 })
-        }
+        };
 
         this.getChildProps = this.getChildProps.bind(this);
         this.getCanvasSize = this.getCanvasSize.bind(this);
         this.getAxisSize = this.getAxisSize.bind(this);
     }
-    getCanvasSize() {
-        const {width = 0, height = 0, padding} = this.props;
+    getCanvasSize(): Object {
+        const {width = 0, height = 0, padding = []} = this.props;
         const [top = 0, right = 0, bottom = 0, left = 0] = padding;
         return {
             width: Math.max(width - left - right, 0), // clamp negatives
@@ -86,7 +74,7 @@ class Chart extends Component {
             left
         };
     }
-    getAxisSize(axisType) {
+    getAxisSize(axisType): Object {
         const {top, right, bottom, left, width, height} = this.getCanvasSize();
         switch(axisType) {
             case 'top':
@@ -116,7 +104,6 @@ class Chart extends Component {
     }
     getDefaultScale(dimension: Object): Function {
         const {dimensionName, scaleTypeKey, dimensionKey, dimensions} = dimension;
-        // console.log(dimensions);
         switch(dimensionName) {
             case 'x':
                 return pp => {
@@ -140,42 +127,24 @@ class Chart extends Component {
         }
     }
     getChildProps(type, props) {
-        const {columns, dimensions} = this.state;
-
+        const {dimensions} = this.state;
         const chartProps = Object.assign({}, this.state, this.props, this.getCanvasSize(), props);
-        const {width, height} = chartProps;
 
-        const dimensionProps = List(dimensions)
+        return List(dimensions)
             .reduce((props, dimension) => {
                 const {scaleKey, dimensionKey} = dimension;
-
                 const scale = this.getDefaultScale(dimension)(chartProps);
                 const editScale = chartProps[scaleKey];
-                // const scale = defaultFunction(chartProps[scaleKey], pp => {
-
-                // })
-
-                // default
-
-                // console.log(chartProps);
 
                 return props
                     .set(scaleKey, typeof editScale === 'function' ? editScale(scale.copy(), chartProps) : scale)
-                    .set(dimensionKey, chartProps[dimensionKey])
+                    .set(dimensionKey, chartProps[dimensionKey]);
 
-            }, Map());
-
-
-
-        return {
-            columnX: dimensionProps.get('xDimension'),
-            columnY: dimensionProps.get('yDimension'),
-            width,
-            height,
-            data: chartProps.data,
-            scaleX: dimensionProps.get('xScale'),
-            scaleY: dimensionProps.get('yScale')
-        }
+            }, Map())
+            .set('data', chartProps.data)
+            .set('width', chartProps.width)
+            .set('height', chartProps.height)
+            .toObject();
     }
     render(): Element<any> {
         const {width, height, outerWidth, outerHeight, top, left, right, bottom} = this.getCanvasSize();
@@ -204,7 +173,7 @@ class Chart extends Component {
 
         const svgStyle = {
             display: 'block',
-            // overflow: 'visible'
+            overflow: 'visible'
         }
 
         function getAxis(key: string, x: number, y: number): ?Element<any> {
@@ -217,9 +186,7 @@ class Chart extends Component {
         }
 
 
-        return <svg
-            {...svgStyle}
-            {...this.props.svgProps}
+        return <Canvas
             width={outerWidth}
             height={outerHeight}
         >
@@ -227,10 +194,10 @@ class Chart extends Component {
             {getAxis('right', left + width, top)}
             {getAxis('bottom', left, height + top)}
             {getAxis('left', 0, top)}
-            <svg {...svgStyle} x={left} y={top} width={width} height={height}>
+            <Canvas x={left} y={top} width={width} height={height}>
                 {scaledChildren.get('canvas')}
-            </svg>
-        </svg>;
+            </Canvas>
+        </Canvas>;
     }
             // <g transform={`translate(${left}, ${top})`} width={innerWidth} height={innerHeight}>
             // </g>

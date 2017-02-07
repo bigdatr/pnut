@@ -211,12 +211,12 @@ const rows = [
 
 const chartData = new ChartData(rows, columns);
 
-const scaleY = scaleLinear()
+const yScale = scaleLinear()
     .domain([chartData.min('supply'), chartData.max('supply')])
     .range([0, 100])
     .nice();
 
-const scaleX = scalePoint()
+const xScale = scalePoint()
     .domain(rows.map(row => row.month))
     .range([0, 100]);
 
@@ -224,10 +224,10 @@ const canvas = shallow(<LineCanvas
     width={200}
     height={200}
     data={chartData}
-    scaleX={scaleX}
-    scaleY={scaleY}
-    columnX={'month'}
-    columnY={'supply'}
+    xScale={xScale}
+    yScale={yScale}
+    xDimension={'month'}
+    yDimension={'supply'}
     data={chartData}
     pathProps={{
         strokeWidth: '2'

@@ -13,12 +13,12 @@ import type ChartRow from 'src/chartdata/ChartData';
  *
  * @example
  *
- * const scaleY = scaleLog()
+ * const yScale = scaleLog()
  *     .domain([0, 10])
  *     .range([0, 720])
  *     .nice();
  *
- * const scaleX = scaleBand()
+ * const xScale = scaleBand()
  *     .domain(['January', 'February', 'March', 'April'])
  *     .range([0, 1280])
  *     .padding(0.1);
@@ -26,10 +26,10 @@ import type ChartRow from 'src/chartdata/ChartData';
  * return <ColumnCanvas
  *     width={1280}
  *     height={720}
- *     scaleX={scaleX}
- *     scaleY={scaleY}
- *     columnX={'month'}
- *     columnY={['supply', 'demand']}
+ *     xScale={xScale}
+ *     yScale={yScale}
+ *     xDimension={'month'}
+ *     yDimension={['supply', 'demand']}
  *     data={chartData}
  *     columnProps={[
  *         {
@@ -44,7 +44,8 @@ import type ChartRow from 'src/chartdata/ChartData';
  *
  */
 
-export default class ColumnCanvas extends React.PureComponent {
+
+export class ColumnCanvas extends React.PureComponent {
 
     static propTypes = {
         // Props passed to canvas
@@ -63,7 +64,6 @@ export default class ColumnCanvas extends React.PureComponent {
          */
         svgProps: React.PropTypes.object,
 
-        // Own props
 
         /**
          * {ChartData} The `ChartData` Record used to contain the data for the chart.
@@ -72,21 +72,21 @@ export default class ColumnCanvas extends React.PureComponent {
         /**
          * {Scale} A [band scale](https://github.com/d3/d3-scale#band-scales) for the x axis.
          */
-        scaleX: React.PropTypes.func.isRequired,
+        xScale: React.PropTypes.func.isRequired,
         /**
          * {Scale} A [continuous scale](https://github.com/d3/d3-scale#continuous-scales)
          * for the y axis/axes.
          */
-        scaleY: React.PropTypes.func.isRequired,
+        yScale: React.PropTypes.func.isRequired,
         /**
          * The column key from `ChartData` to use for the x axis.
          */
-        columnX: React.PropTypes.string.isRequired,
+        xDimension: React.PropTypes.string.isRequired,
         /**
          * The column key(s) from `ChartData` to use for the y axis.
          * If multiple column keys are provided then a grouped column chart will be rendered.
          */
-        columnY: React.PropTypes.oneOfType([
+        yDimension: React.PropTypes.oneOfType([
             React.PropTypes.string,
             React.PropTypes.arrayOf(React.PropTypes.string)
         ]).isRequired,
@@ -113,25 +113,25 @@ export default class ColumnCanvas extends React.PureComponent {
             row: ChartRow
         ): Array<React.Element<any>> => {
 
-            const {scaleX, scaleY, columnX, columnY, columnProps} = this.props;
-            const rangeY = this.props.scaleY.range();
+            const {xScale, yScale, xDimension, yDimension, columnProps} = this.props;
+            const rangeY = this.props.yScale.range();
 
-            const columnYList = [].concat(columnY);
+            const yDimensionList = [].concat(yDimension);
             const columnPropsList = [].concat(columnProps);
-            const columnWidth = scaleX.bandwidth() / ((typeof columnY === 'string') ? 1 : columnY.length);
+            const columnWidth = xScale.bandwidth() / ((typeof yDimension === 'string') ? 1 : yDimension.length);
 
-            const newColumns = columnYList.map((
-                columnY: string,
+            const newColumns = yDimensionList.map((
+                yDimension: string,
                 index: number
             ): React.Element<any> => {
                 return <rect
-                    key={`${row.get(columnX)}-${columnY}`}
+                    key={`${row.get(xDimension)}-${yDimension}`}
                     fill='black'
                     {...columnPropsList[index]}
-                    x={scaleX(row.get(columnX)) + columnWidth * index}
-                    y={rangeY[1] - scaleY(row.get(columnY))}
+                    x={xScale(row.get(xDimension)) + columnWidth * index}
+                    y={rangeY[1] - yScale(row.get(yDimension))}
                     width={columnWidth}
-                    height={scaleY(row.get(columnY))}
+                    height={yScale(row.get(yDimension))}
                 />;
             });
 
@@ -140,9 +140,16 @@ export default class ColumnCanvas extends React.PureComponent {
     }
 
     render(): React.Element<any> {
-        return <Canvas {...this.props}>
+        return <g>
             {this.buildColumns()}
-        </Canvas>;
+        </g>;
+    }
+}
+
+export default class Column extends React.Component {
+    static chartType = 'canvas';
+    render() {
+        return <ColumnCanvas {...this.props} />;
     }
 }
 

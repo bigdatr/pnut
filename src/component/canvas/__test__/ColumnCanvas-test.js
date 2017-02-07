@@ -66,12 +66,12 @@ const rows = [
 
 const chartData = new ChartData(rows, columns);
 
-const scaleY = scaleLog()
+const yScale = scaleLog()
     .domain([chartData.min(['supply', 'demand']), chartData.max(['supply', 'demand'])])
     .range([0, 100])
     .nice();
 
-const scaleX = scaleBand()
+const xScale = scaleBand()
     .domain(rows.map(row => row.property_type))
     .range([0, 100])
     .padding(0.1);
@@ -80,10 +80,10 @@ const canvas = shallow(<ColumnCanvas
     width={200}
     height={200}
     data={chartData}
-    scaleX={scaleX}
-    scaleY={scaleY}
-    columnX={'property_type'}
-    columnY={['supply', 'demand']}
+    xScale={xScale}
+    yScale={yScale}
+    xDimension={'property_type'}
+    yDimension={['supply', 'demand']}
     columnProps={{
         fill: 'blue'
     }}

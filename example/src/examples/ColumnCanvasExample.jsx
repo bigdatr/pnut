@@ -65,12 +65,12 @@ const chartData = new ChartData(rows, columns);
 
 class CanvasExample extends React.Component {
     render() {
-        const scaleY = scaleLog()
+        const yScale = scaleLog()
             .domain([chartData.min(['supply', 'demand']), chartData.max(['supply', 'demand'])])
             .range([0, this.props.eqHeight])
             .nice();
 
-        const scaleX = scaleBand()
+        const xScale = scaleBand()
             .domain(rows.map(row => row.property_type))
             .range([0, this.props.eqWidth])
             .padding(0.1);
@@ -80,10 +80,10 @@ class CanvasExample extends React.Component {
                 <ColumnCanvas
                     width={this.props.eqWidth}
                     height={this.props.eqHeight}
-                    scaleX={scaleX}
-                    scaleY={scaleY}
-                    columnX={'property_type'}
-                    columnY={['supply', 'demand']}
+                    xScale={xScale}
+                    yScale={yScale}
+                    xDimension={'property_type'}
+                    yDimension={['supply', 'demand']}
                     data={chartData}
                     columnProps={[
                         {
