@@ -3,7 +3,7 @@ import React from 'react';
 import {shallow} from 'enzyme';
 
 import {scaleLinear, scalePoint} from 'd3-scale';
-import {LineCanvas} from '../LineCanvas';
+import Line, {LineCanvas} from '../LineCanvas';
 import ChartData from '../../../chartdata/ChartData';
 
 
@@ -240,3 +240,30 @@ test('LineCanvas renders a line', tt => {
 test('LineCanvas applies passed lineProps to line', tt => {
     tt.is(canvas.children().at(0).prop('strokeWidth'), '2');
 });
+
+test('LineCanvas will offset the x position by half if the scale has a bandwidth', tt => {
+    const props = {
+        width: 140,
+        height: 140,
+        data: new ChartData([rows[0], rows[1]], [columns[0], columns[1]]),
+        xScale: xScale,
+        yScale: yScale,
+        xDimension: 'demand',
+        yDimension: 'supply'
+    };
+    const canvasLinear = shallow(<LineCanvas {...props} xScale={scaleLinear().domain(rows.map(row => row.demand)).range([0,100])}/>);
+    const canvasBandwidth = shallow(<LineCanvas {...props} xScale={scalePoint().domain(rows.map(row => row.demand)).range([0,100])} />);
+
+    tt.is(canvasLinear.children().at(0).prop('d').split(' ')[4], '100');
+    tt.is(canvasBandwidth.children().at(0).prop('d').split(' ')[4], '3.225806451612903');
+});
+
+test('Line has a static chartType of canvas', tt => {
+    tt.is(Line.chartType, 'canvas');
+});
+
+test('Line renders a LineCanvas', tt => {
+    const canvas = shallow(<Line data={{}} xScale={() => undefined} yScale={() => undefined} xDimension="string" yDimension="string"/>);
+    tt.is(canvas.name(), 'LineCanvas');
+});
+
