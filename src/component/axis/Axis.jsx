@@ -6,7 +6,6 @@ import Canvas from '../canvas/Canvas';
 export default class AxisX extends React.PureComponent {
 
     static defaultProps = {
-        position: 'top',
         lineProps: {},
         tickProps: {},
         textProps: {},
@@ -41,17 +40,19 @@ export default class AxisX extends React.PureComponent {
 
 
     drawTicks(): Array<React.Element<any>> {
+        const axisPosition = this.props.position;
         const tickSize = this.props.tickSize;
         const strokeWidth = this.props.lineProps.strokeWidth || this.defaultLineWidth;
         const offset = this.props.scale.bandwidth ? this.props.scale.bandwidth() / 2 : 0;
 
-        return this.props.ticks.map((tick: any): React.Element<any> => {
+        return this.props.ticks.map((tick: any, index: number): React.Element<any> => {
             const distance = this.props.scale(tick) + offset;
 
-            const [x1, y1] = this.getPointPosition(distance, strokeWidth / 2);
-            const [x2, y2] = this.getPointPosition(distance, strokeWidth / 2 + tickSize);
+            const [x1, y1] = this.getPointPosition(axisPosition, distance, strokeWidth / 2);
+            const [x2, y2] = this.getPointPosition(axisPosition, distance, strokeWidth / 2 + tickSize);
 
             const [textX, textY] = this.getPointPosition(
+                axisPosition,
                 distance,
                 strokeWidth / 2 + tickSize + this.props.textPadding
             );
@@ -68,7 +69,7 @@ export default class AxisX extends React.PureComponent {
                     strokeWidth={1}
                     {...(
                         typeof this.props.tickProps === 'function'
-                            ? this.props.tickProps(tick, x1, y1, this.props.scale)
+                            ? this.props.tickProps(tick, index, x1, y1, this.props.scale)
                             : this.props.tickProps
                     )}
                 />
@@ -76,12 +77,12 @@ export default class AxisX extends React.PureComponent {
                 <text
                     x={textX}
                     y={textY}
-                    textAnchor={this.getTextAnchorProp()}
-                    dominantBaseline={this.getAlignmentBaselineProp()}
+                    textAnchor={this.getTextAnchorProp(axisPosition)}
+                    dominantBaseline={this.getAlignmentBaselineProp(axisPosition)}
                     fontSize={12}
                     {...(
                         typeof this.props.textProps === 'function'
-                            ? this.props.textProps(tick, textX, textY, this.props.scale)
+                            ? this.props.textProps(tick, index, textX, textY, this.props.scale)
                             : this.props.textProps
                     )}
                 >
@@ -92,11 +93,21 @@ export default class AxisX extends React.PureComponent {
     }
 
     drawAxis(): React.Element<any> {
+        const position = this.props.position;
         const strokeWidth = this.props.lineProps.strokeWidth || this.defaultLineWidth;
         const overlap = this.props.overlap;
 
-        const [x1, y1] = this.getPointPosition(overlap * -1, 0);
-        const [x2, y2] = this.getPointPosition(this.props[this.getLengthProp()] + overlap, 0);
+        const [x1, y1] = this.getPointPosition(
+            position,
+            overlap * -1,
+            0
+        );
+
+        const [x2, y2] = this.getPointPosition(
+            position,
+            this.props[this.getLengthProp(position)] + overlap,
+            0
+        );
 
         return <line
             x1={x1}
@@ -109,22 +120,22 @@ export default class AxisX extends React.PureComponent {
         />;
     }
 
-    getAlignmentBaselineProp(): string {
-        switch(this.props.position) {
+    getAlignmentBaselineProp(position: 'top'|'right'|'bottom'|'left'): string {
+        switch(position) {
             case 'left':
             case 'right':
                 return 'middle';
             case 'top':
-                return 'baseline';
+                return 'auto';
             case 'bottom':
                 return 'hanging';
             default:
-                throw new Error(`unknown position: ${this.props.position}`);
+                throw new Error(`unknown position: ${position}`);
         }
     }
 
-    getTextAnchorProp(): string {
-        switch(this.props.position) {
+    getTextAnchorProp(position: 'top'|'right'|'bottom'|'left'): string {
+        switch(position) {
             case 'top':
             case 'bottom':
                 return 'middle';
@@ -133,16 +144,20 @@ export default class AxisX extends React.PureComponent {
             case 'right':
                 return 'start';
             default:
-                throw new Error(`unknown position: ${this.props.position}`);
+                throw new Error(`unknown position: ${position}`);
         }
     }
 
-    getLengthProp(): string {
-        return this.props.position === 'top' || this.props.position === 'bottom' ? 'width' : 'height';
+    getLengthProp(position: 'top'|'right'|'bottom'|'left'): string {
+        return position === 'top' || position === 'bottom' ? 'width' : 'height';
     }
 
-    getPointPosition(distance: number, offset: number): Array<number> {
-        switch(this.props.position) {
+    getPointPosition(
+        position: 'top'|'right'|'bottom'|'left',
+        distance: number,
+        offset: number
+    ): Array<number> {
+        switch(position) {
             case 'top':
                 return [distance, this.props.height - offset];
             case 'right':
@@ -152,7 +167,7 @@ export default class AxisX extends React.PureComponent {
             case 'left':
                 return [this.props.width - offset, distance];
             default:
-                throw new Error(`unknown position: ${this.props.position}`);
+                throw new Error(`unknown position: ${position}`);
         }
     }
 
@@ -160,6 +175,8 @@ export default class AxisX extends React.PureComponent {
         return <Canvas {...this.props}>
             <g>
                 {this.drawAxis()}
+            </g>
+            <g>
                 {this.drawTicks()}
             </g>
         </Canvas>;

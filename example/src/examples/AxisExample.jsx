@@ -207,7 +207,7 @@ class AxisExample extends React.Component {
 
                     lineVertical={(props) => {
                         const {coordinates, tick} = props;
-                        return <rect x={coordinates.x1} y={coordinates.y1} width={scaleX.bandwidth()} height={coordinates.y2 - coordinates.y1} fill='rgba(0,0,0,0.1)'/>
+                        return <rect x={coordinates.x1 - scaleX.bandwidth() / 2} y={coordinates.y1} width={scaleX.bandwidth()} height={coordinates.y2 - coordinates.y1} fill='rgba(0,0,0,0.1)'/>
                     }}
                 />
             </div>

@@ -41,8 +41,8 @@ export default class Gridlines extends React.PureComponent {
          * {Scale} Any d3-scale for the y axis.
          */
         scaleY: React.PropTypes.func.isRequired,
-        ticksX: React.PropTypes.array,
-        ticksY: React.PropTypes.array
+        ticksX: React.PropTypes.array.isRequired,
+        ticksY: React.PropTypes.array.isRequired
     };
 
     buildHorizontalGridlines(): Array<React.Element<any>> {
@@ -50,11 +50,12 @@ export default class Gridlines extends React.PureComponent {
 
         const rangeX = this.props.scaleX.range();
         const rangeY = this.props.scaleY.range();
+        const offset = this.props.scaleY.bandwidth ? this.props.scaleY.bandwidth() / 2 : 0;
 
         const [x1, x2] = rangeX;
 
         return this.props.ticksY.map((tick: any): React.Element<any>  => {
-            const y1 = rangeY[1] - this.props.scaleY(tick);
+            const y1 = rangeY[1] - (this.props.scaleY(tick) + offset);
             const y2 = y1;
 
             return <LineHorizontal
@@ -71,11 +72,12 @@ export default class Gridlines extends React.PureComponent {
         const LineVertical = this.props.lineVertical;
 
         const rangeY = this.props.scaleY.range();
+        const offset = this.props.scaleX.bandwidth ? this.props.scaleX.bandwidth() / 2 : 0;
 
         const [y1, y2] = rangeY;
 
         return this.props.ticksX.map((tick: any): React.Element<any> => {
-            const x1 = this.props.scaleX(tick);
+            const x1 = this.props.scaleX(tick) + offset;
             const x2 = x1;
 
             return <LineVertical
@@ -90,8 +92,12 @@ export default class Gridlines extends React.PureComponent {
 
     render(): React.Element<any> {
         return <Canvas {...this.props}>
-            {this.buildHorizontalGridlines()}
-            {this.buildVerticalGridlines()}
+            <g>
+                {this.buildHorizontalGridlines()}
+            </g>
+            <g>
+                {this.buildVerticalGridlines()}
+            </g>
         </Canvas>;
     }
 }
