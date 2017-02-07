@@ -4,6 +4,66 @@ import {List, Map} from 'immutable';
 import Canvas from './canvas/Canvas';
 import * as d3Scale from 'd3-scale';
 
+
+/**
+ * @component
+ *
+ * Chart is an organizer for D3's scales. Using the dimensions array it constructs a number of
+ * scales, then it checks the children props and applies the scales accordingly.
+ *
+ * Each scale creates 3 dynamic props on both the Chart and each of it's children.
+ *  * &lt;scaleName&gt;Dimension
+ *  * &lt;scaleName&gt;ScaleType
+ *  * &lt;scaleName&gt;Scale
+ *
+ *
+ * @prop {string} <scaleName>Dimension
+ * Picks the dimension of ChartData that this scale corresponds to.
+ * e.g. `<Chart dimensions={['x', 'y', 'color']} xDimension="time" yDimension="distance" colorDimension="velocity" />`
+ *
+ * @prop {string} [<scaleName>ScaleType = scaleLinear]
+ * Picks the starting D3 scale
+ * e.g. `<Chart xScaleType="scalePoint" yScaleType="scaleLinear" />`
+ *
+ * @prop {function} [<scaleName>Scale]
+ * Called with scale and props after the default scale has been constructed
+ * e.g. `<Chart xScaleType={scale => scale.padding(.1)} />`
+ *
+ *
+ * @example
+ *
+ * // Line chart
+ * <Chart data={data} xDimension="time">
+ *     <Line yDimension="distance"/>
+ *     <Axis yDimension="distance" position="left" />
+ *     <Axis xDimension="time" position="bottom" />
+ * </Chart>
+ *
+ * // Column chart
+ * <Chart data={data} xDimension="favoriteColor">
+ *     <Column yDimension="people"/>
+ * </Chart>
+ *
+ * // Point scale scatter plot
+ * <Chart data={data} xDimension="favColor" xScaleType="scalePoint">
+ *     <Line yDimension="distance"/>
+ * </Chart>
+ *
+ * // Extended scale (column chart with extra padding)
+ * <Chart data={data} xDimension="favoriteColor" xScale={scale => scale.padding(1)}>
+ *     <Column yDimension="people"/>
+ * </Chart>
+ *
+ * // Complete custom scale
+ * var customScale = (scale, props) => {
+ *     return scaleLog()
+ *          .domain([props.data.min('distance'), pp.data.max('distance')])
+ *          .range([0, props.height]);
+ * }
+ * <Chart data={data} xDimension="time" yScale={customScale}>
+ *     <Line yDimension="distance"/>
+ * </Chart>
+ */
 class Chart extends Component {
     state: Object;
     getChildProps: Function;
@@ -12,10 +72,28 @@ class Chart extends Component {
 
     static propTypes = {
         data: PropTypes.object.isRequired,
-        dimensions: PropTypes.array,
-        height: PropTypes.number,
-        padding: PropTypes.array,
-        width: PropTypes.number
+
+        /**
+         * {string[]} Dimensions to construct scales off
+         */
+        dimensions: PropTypes.array.isRequired,
+
+        /**
+         * Total height of the chart.
+         */
+        height: PropTypes.number.isRequired,
+
+        /**
+         * Total width of the chart
+         */
+        width: PropTypes.number.isRequired,
+
+        /**
+         * [top, right, bottom, left] Padding for axis and things.
+         * Renderable height is: height - top - bottom.
+         * Renderable width is: width - left - right.
+         */
+        padding: PropTypes.array
     };
 
     static defaultProps = {
