@@ -111,8 +111,9 @@ class Chart extends Component {
                 };
             });
 
-        const childrenGroups = List(childrenProps)
-            .groupBy(ii => ii.chartType);
+        const canvas = List(childrenProps)
+            .groupBy(ii => ii.chartType)
+            .get('canvas');
 
         this.state = {
             dimensions: props.dimensions
@@ -120,19 +121,27 @@ class Chart extends Component {
                     const dimensionKey = `${dimensionName}Dimension`;
                     const scaleKey = `${dimensionName}Scale`;
                     const scaleTypeKey = `${dimensionName}ScaleType`;
+                    const scaleGroupKey = `${dimensionName}ScaleGroup`;
 
                     return {
                         dimensionKey,
                         dimensionName,
                         scaleKey,
                         scaleTypeKey,
-                        columns: childrenGroups
-                            .get('canvas')
-                            .map(ii => List([].concat(ii[dimensionKey]).concat(props[dimensionKey])))
-                            .flatten(1)
-                            .toSet()
-                            .filter(ii => ii)
-                            .toArray()
+                        scaleGroupKey,
+                        groups: canvas
+                            .groupBy(ii => ii[scaleGroupKey] || dimensionName)
+                            .map(gg => {
+                                return gg
+                                    .map(ii => List([].concat(ii[dimensionKey]).concat(props[dimensionKey])))
+                                    .flatten(1)
+                                    .toSet()
+                                    .filter(ii => ii)
+                                    .toArray();
+                                }
+                            )
+
+                        // columns: getPropGroup(dimensionKey)
                     };
                 })
         };
@@ -190,21 +199,19 @@ class Chart extends Component {
         }
     }
     getDefaultScale(dimension: Object): Function {
-        const {dimensionName, scaleTypeKey, dimensionKey, columns} = dimension;
+        const {dimensionName, scaleTypeKey, scaleGroupKey, dimensionKey, groups} = dimension;
+
 
         switch(dimensionName) {
             case 'x':
             case 'y':
                 return (pp: Object): Function => {
+
                     // choose the max value of range based on x/width y/height
                     const bound = (dimensionName === 'x') ? pp.width : pp.height;
                     // Make the current dimension always a list
                     const currentDimension = List().concat(pp[dimensionKey]);
-
-                    if(pp[dimensionKey] === undefined) {
-                        throw new Error(`a ${pp.chartType} child did not choose a ${dimensionKey} and the chart has not provided it.`);
-                    }
-
+                    const columns = groups.get(pp[scaleGroupKey] || dimensionName)
 
                     // create a set of booleans to check if a group is mixing dimension types
                     function isContinuous(list: List): Set {
@@ -215,7 +222,7 @@ class Chart extends Component {
 
                     // if the size is greater than one we have multiple data types
                     if(isContinuous(List(columns)).size > 1) {
-                        throw new Error(`${dimensionKey} cannot share continuous and non continuous data: ${columns.join(', ')}`);
+                        throw new Error(`${dimensionKey} cannot share continuous and non continuous data: ${groups.get(scaleGroupKey).join(', ')}`);
                     }
 
                     // continuous data domain array is just [min,max]
@@ -228,7 +235,8 @@ class Chart extends Component {
 
                     } else {
                         return d3Scale[pp[scaleTypeKey] || 'scaleBand']()
-                            .domain(pp.data.getColumnData(currentDimension.get(0)).toArray())
+                            // only fetch the data if is going to exist. Otherwise send and empty array
+                            .domain(pp[dimensionKey] ? pp.data.getColumnData(currentDimension.get(0)).toArray() : [])
                             .range([0, bound]);
                     }
 

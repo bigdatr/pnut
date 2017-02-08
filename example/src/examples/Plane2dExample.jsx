@@ -222,10 +222,16 @@ class Plane2dExample extends React.Component {
         });
 
         const props = {
+            dimensions: ['x', 'y'],
             xDimension: "month",
             // xScaleType:"scaleBand",
             // xScale: scale => scale.align(.5),
-            yDimension: ['supply', 'demand']
+            //
+            // fooScale: scale =>
+            // yScaleGroup: 'y1',
+            // yDimension: 'supply',
+            //
+            // fooDimension: 'demand'
         }
 
         const lineHorizontal = ({coordinates}) => <line {...coordinates} strokeWidth="1" stroke="#ccc"/>;
@@ -245,15 +251,13 @@ class Plane2dExample extends React.Component {
                     {...props}
                 >
 
-                <Gridlines lineHorizontal={lineHorizontal} lineVertical={lineVertical} />
-                    <Column yDimension="demand" columnProps={{fill: 'blue', opacity: .5}} />
-                    <Column yDimension={'supply'} columnProps={{fill: 'red', opacity: .5}} />
-                    <Line yDimension="benchmark" xScaleType="scalePoint" pathProps={{stroke: 'black', strokeWidth: 2}}/>
-                    <Line yDimension="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
-                    <Line yDimension="demand" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
-                    <Scatter yDimension="demand" dot={dot} />
-                    <Scatter yDimension="supply" dot={dot}/>
+                    <Line yScaleGroup="y1" yDimension="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
+                    <Line yScaleGroup="y2" yDimension="demand" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
+                    <Line yScaleGroup="y2" yDimension="benchmark" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
+                    <Line yScaleGroup="y1" yDimension="benchmark" pathProps={{stroke: 'red', strokeWidth: 2}}/>
 
+                    {/*<Scatter yDimension="demand" dot={dot} />
+                                        <Scatter yDimension="supply" dot={dot}/>*/}
                     <Axis
                         position='bottom'
                         dimension="x"
@@ -262,7 +266,15 @@ class Plane2dExample extends React.Component {
                         position='left'
                         dimension="y"
                         yDimension="demand"
+                        yScaleGroup="y1"
                     />
+                    <Axis
+                        position='right'
+                        dimension="y"
+                        yDimension="supply"
+                        yScaleGroup="y2"
+                    />
+
 
                 </Chart>
             </div>

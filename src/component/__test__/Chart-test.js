@@ -96,12 +96,12 @@ test('mixing continuous and discreet data in scales will thrown an error', tt =>
     tt.throws(chart);
 });
 
-test('discreet domains will be the length of the data inserted', tt => {
-    const chart = () => shallow(<Chart width={0} height={0} data={data} xDimension="demand">
-        <Line/>
-    </Chart>);
+test('if the dimension is not provided the scales domain will be empty', tt => {
+    const scale = scale => console.log(scale) || tt.is(scale.domain().length, 0);
 
-    tt.throws(chart);
+    const chart = shallow(<Chart width={0} height={0} data={data} xDimension="month">
+        <Line />
+    </Chart>);
 });
 
 test('discreet domains will be the length of the data inserted', tt => {
