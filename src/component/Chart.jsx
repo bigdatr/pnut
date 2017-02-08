@@ -202,7 +202,7 @@ class Chart extends Component {
                     const currentDimension = List().concat(pp[dimensionKey]);
 
                     if(pp[dimensionKey] === undefined) {
-                        throw new Error(`a ${pp.chartType} child did not choose a ${dimensionKey} and the chart has not provided it.`)
+                        throw new Error(`a ${pp.chartType} child did not choose a ${dimensionKey} and the chart has not provided it.`);
                     }
 
 
