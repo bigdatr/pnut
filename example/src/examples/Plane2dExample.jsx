@@ -245,7 +245,6 @@ class Plane2dExample extends React.Component {
             xScaleType:"scaleBand",
             xScale: scale => scale.align(.5),
             yDimension: ['demand']
-            // yScaleType: 'scaleLinear',
         }
 
 
@@ -262,21 +261,6 @@ class Plane2dExample extends React.Component {
                     <Column yDimension="demand" columnProps={{fill: 'blue', opacity: .5}} />
                     <Column yDimension={'supply'} columnProps={{fill: 'red', opacity: .5}} />
                     <Line yDimension="benchmark" xScaleType="scalePoint" pathProps={{stroke: 'gray', strokeWidth: 2}}/>
-{/*                    <Line yDimension="supply" pathProps={{stroke: 'blue', strokeWidth: 2}} />
-                    <Line yDimension="supply" pathProps={{stroke: 'blue', strokeWidth: 2}} />
-
-                    <Column yDimension="demand" columnProps={{fill: 'red', opacity: .5}} />
-                    <Line yDimension="demand" pathProps={{stroke: 'red', strokeWidth: 2}} />
-                    <Line yDimension="demand" pathProps={{stroke: 'red', strokeWidth: 2}} />
-
-
-                    <Scatter yDimension="supply"/>
-                    <Scatter yDimension="demand"/>
-
-                    <Axis position="top" xDimension="month" scaleName="yScale" yPos="20"/>
-                    <Axis position="right" scaleName="yScale" yPos="20"/>
-                    <Axis position="left" scaleName="yScale" yPos="40"/>
-                    <Axis position="bottom" scaleName="xScale" yPos="20"/>*/}
                 </Chart>
             </div>
         </div>
@@ -284,7 +268,6 @@ class Plane2dExample extends React.Component {
 }
 
 const HockedExample = ElementQueryHock([])(Plane2dExample);
-// const HockedExample = Plane2dExample;
 
 
 export default () => {

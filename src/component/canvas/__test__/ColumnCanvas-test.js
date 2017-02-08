@@ -108,7 +108,6 @@ test('ColumnCanvas given a single yDimension as a string will divide the width b
             fill: 'blue'
         }}
     />);
-    // console.log(canvas.children().at(0).prop('width'));
     tt.is(canvas.children().at(0).prop('width'), 14.285714285714286);
 });
 
