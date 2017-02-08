@@ -20,3 +20,5 @@ export {default as Scatter} from './component/canvas/ScatterRenderable';
 export {ScatterRenderable} from './component/canvas/ScatterRenderable';
 export {default as Histogram} from './component/canvas/HistogramRenderable';
 export {HistogramRenderable} from './component/canvas/HistogramRenderable';
+export {default as Interaction} from './component/canvas/InteractionRenderable';
+export {InteractionRenderable} from './component/canvas/InteractionRenderable';

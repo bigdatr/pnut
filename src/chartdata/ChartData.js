@@ -882,6 +882,36 @@ class ChartData extends Record({
         return new ChartData(interpolatedFrame, this.columns);
     }
 
+
+    // @TODO handle dates
+    // @TODO this doesn't belong in chart data
+    calculateRowDistances(columns, value, distanceCalculation = (a, b) => Math.abs(a - b)) {
+        return this.rows.map((row, index) => {
+
+            const nearestColumn = columns.reduce(({columnName, distance}, column) => {
+                const newDistance = distanceCalculation(value, row.get(column));
+                if(newDistance < distance) {
+                    return {
+                        distance: newDistance,
+                        column: column
+                    };
+                } else {
+                    return {
+                        distance,
+                        column
+                    };
+                }
+            }, {distance: Infinity});
+
+
+            return Map({
+                distance: nearestColumn.distance,
+                column: nearestColumn.column,
+                rowIndex: index
+            });
+        })
+    }
+
     /**
      * Get the minimum non-null value in a column, or `Array` or `List`, of columns.
      *
