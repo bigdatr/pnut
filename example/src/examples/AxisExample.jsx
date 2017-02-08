@@ -128,18 +128,6 @@ class AxisExample extends React.Component {
                     ticks={scaleY.ticks(3)}
                     scale={scaleY}
                 />
-
-                {/*<AxisY
-                    width={50}
-                    height={this.props.eqHeight - 50}
-                    ticks={scaleY.ticks(3)}
-                    tickFormat={(tick) => {
-                        return Math.log10(tick) === Math.round(Math.log10(tick))
-                            ? <span  style={{fontSize: '12px', color: 'black'}}>{tick}</span>
-                            : <span style={{fontSize: '10px', color: 'grey'}}>{tick}</span>
-                    }}
-                    scale={scaleY}
-                />*/}
             </div>
 
             <div style={{
