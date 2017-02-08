@@ -116,7 +116,7 @@ export default class ScatterCanvas extends React.PureComponent {
          */
         columnY: React.PropTypes.string.isRequired,
         /**
-         * An optional react element that will be used to render dots on the chart.
+         * An optional react component that will be used to render dots on the chart.
          * Defaults to rendering a `<circle/>`.
          */
         dot: React.PropTypes.func

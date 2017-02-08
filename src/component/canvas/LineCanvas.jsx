@@ -92,7 +92,7 @@ export default class LineCanvas extends React.PureComponent {
     buildPath(): string {
         const {data, scaleX, scaleY, columnX, columnY} = this.props;
         return data.rows.map((row: ChartRow, index: number): string => {
-            const command = index === 0 ? 'M' : 'L';
+            const command = index === 0 || !data.rows.get(index - 1) ? 'M' : 'L';
             const rangeY = scaleY.range();
             return `${command} ${scaleX(row.get(columnX))} ${rangeY[1] - scaleY(row.get(columnY))}`;
         }).join(' ');

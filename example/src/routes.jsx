@@ -7,6 +7,7 @@ import ContentsPage from 'components/ContentsPage';
 import LineCanvasExample from 'examples/LineCanvasExample';
 import ColumnCanvasExample from 'examples/ColumnCanvasExample';
 import ScatterCanvasExample from 'examples/ScatterCanvasExample';
+import AxisExample from 'examples/AxisExample';
 
 const routes = <Route component={AppHandler} path="/">
     <IndexRoute component={ContentsPage} />
@@ -15,6 +16,7 @@ const routes = <Route component={AppHandler} path="/">
         <Route path="LineCanvas" component={LineCanvasExample}/>
         <Route path="ColumnCanvas" component={ColumnCanvasExample}/>
         <Route path="ScatterCanvas" component={ScatterCanvasExample}/>
+        <Route path="Axis" component={AxisExample}/>
     </Route>}
 
     <Route path="*" component={ErrorHandler}/>
