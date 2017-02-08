@@ -142,7 +142,7 @@ class Chart extends Component {
         this.getAxisSize = this.getAxisSize.bind(this);
     }
     getCanvasSize(): Object {
-        const {width = 0, height = 0, padding = []} = this.props;
+        const {width, height, padding = []} = this.props;
         // $FlowBug: flow cant handle default assignment on array destructuring
         const [top = 0, right = 0, bottom = 0, left = 0] = padding;
 
