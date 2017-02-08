@@ -18,10 +18,60 @@ type LineProps = {
     scaleY: (input: any) => number
 };
 
+
+/**
+ *
+ * @typedef Line
+ * @type ReactElement
+ *
+ * @prop {Object} coordinates - The coordinates needed to draw the line
+ * @prop {number} coordinates.x1 - The starting x position of the line
+ * @prop {number} coordinates.y1 - The starting y position of the line
+ * @prop {number} coordinates.x2 - The ending x position of the line
+ * @prop {number} coordinates.y2 - The ending y position of the line
+ *
+ * @prop {*} tick - The tick value for this gridline
+ * @prop {Scale} scaleX - The x scale for the passed to the Gridlines component
+ * @prop {Scale} scaleY - The y scale for the passed to the Gridlines component
+ */
+
 const defaultLine = (props: LineProps): React.Element<any> => {
     const {coordinates} = props;
     return <line {...coordinates} strokeWidth="1" stroke="grey"/>;
 };
+
+
+
+
+/**
+ *
+ * @component
+ *
+ * Draws gridlines on the chart canvas
+ *
+ * @example
+ *
+ * <Gridlines
+ *     width={1280}
+ *     height={720}
+ *     scaleX={scaleX}
+ *     scaleY={scaleY}
+ *     ticksX={['category1', 'category2', 'category3']}
+ *     ticksY={scaleY.ticks()}
+ *
+ *     // optional custom lines
+ *     lineHorizontal={(props) => {
+ *         const {coordinates, tick} = props;
+ *         return <line {...coordinates} strokeWidth="1" stroke="rgba(0,0,0,0.2)"/>
+ *     }}
+ *
+ *     lineVertical={(props) => {
+ *         const {coordinates, tick, scale} = props;
+ *         return <rect x={coordinates.x1 - scale.bandwidth() / 2} y={coordinates.y1} width={scale.bandwidth()} height={coordinates.y2 - coordinates.y1} fill='rgba(0,0,0,0.1)'/>
+ *     }}
+ * />
+ *
+ */
 
 export default class Gridlines extends React.PureComponent {
 
@@ -31,17 +81,38 @@ export default class Gridlines extends React.PureComponent {
     };
 
     static propTypes = {
+        /**
+         * {Line} A custom component used to render a vertical line.
+         * Defaults to rendering a svg `<line/>`.
+         */
         lineVertical: React.PropTypes.func,
+
+        /**
+         * {Line} A custom component used to render a horizontal line.
+         * Defaults to rendering a `<line/>`.
+         */
         lineHorizontal: React.PropTypes.func,
+
         /**
          * {Scale} Any d3-scale for the x axis.
          */
         scaleX: React.PropTypes.func.isRequired,
+
         /**
          * {Scale} Any d3-scale for the y axis.
          */
         scaleY: React.PropTypes.func.isRequired,
+
+        /**
+         * An array of ticks to render as vertical gridlines. In most cases this can be constructed
+         * by calling the scale's [`ticks`](https://github.com/d3/d3-scale#continuous_ticks) function.
+         */
         ticksX: React.PropTypes.array.isRequired,
+
+        /**
+         * An array of ticks to render as horizontal gridlines. In most cases this can be constructed
+         * by calling the scale's [`ticks`](https://github.com/d3/d3-scale#continuous_ticks) function.
+         */
         ticksY: React.PropTypes.array.isRequired
     };
 

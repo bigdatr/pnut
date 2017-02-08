@@ -3,7 +3,26 @@
 import React from 'react';
 import Canvas from '../canvas/Canvas';
 
-export default class AxisX extends React.PureComponent {
+
+/**
+ *
+ * @component
+ *
+ * Axis renders the top, bottom, left, or right axis for a chart.
+ *
+ * @example
+ *
+ * <Axis
+ *     width={this.props.eqWidth - 100}
+ *     height={50}
+ *     position='bottom'
+ *     ticks={['category1', 'category2', 'category3']}
+ *     scale={scaleX}
+ * />
+ *
+ */
+
+export default class Axis extends React.PureComponent {
 
     static defaultProps = {
         lineProps: {},
@@ -16,23 +35,102 @@ export default class AxisX extends React.PureComponent {
     };
 
     static propTypes = {
+        /**
+         * {'top'|'right'|'bottom'|'left'} The position of the axis
+         */
         position: React.PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
+
+        /**
+         * {Object} An object of props that are passed to the axis line - the line that sits
+         * against the chart edge.
+         */
         lineProps: React.PropTypes.object,
+
+
+        /**
+         * @typedef TickPropsFunction
+         * @callback
+         *
+         * @param {*} tick - The value for this tick
+         * @param {number} index - This tick's index in the ticks array
+         * @param {number} x - The calculated x position for this tick
+         * @param {number} y - The calculated y position for this tick
+         * @param {Scale} scale - The scale for this axis
+         */
+
+        /**
+         * {Object|TickPropsFunction} Either an object of props or a function that returns an object of props
+         * to be spread onto the `<line/>` element that is used to draw the tick. This can be used
+         * to customise the look of the ticks.
+         */
         tickProps: React.PropTypes.oneOfType([
             React.PropTypes.object,
             React.PropTypes.func
         ]),
+
+        /**
+         * @typedef TextPropsFunction
+         * @callback
+         *
+         * @param {*} tick - The value for this tick
+         * @param {number} index - This tick's index in the ticks array
+         * @param {number} x - The calculated x position for the text displaying the tick's value
+         * @param {number} y - The calculated y position for the text displaying the tick's value
+         * @param {Scale} scale - The scale for this axis
+         */
+
+        /**
+         * {Object|TextPropsFunction} Either an object of props or a function that returns an object of props
+         * to be spread onto the `<text/>` element that is used to draw the text relating to this
+         * tick. This can be used to customise the look of the tick's text. To customise the text
+         * string see `textFormat`
+         */
         textProps: React.PropTypes.oneOfType([
             React.PropTypes.object,
             React.PropTypes.func
         ]),
+
+        /**
+         * {Function} a function that is called for each tick and is passed the tick value. This can
+         * be used for example to add a percent symbol to the tick: `(value) => value + '%'`
+         */
         textFormat: React.PropTypes.func,
+
+        /**
+         * The length of the tick line.
+         */
         tickSize: React.PropTypes.number,
+
+        /**
+         * The padding between a tick line and the tick text
+         */
         textPadding: React.PropTypes.number,
+
+        /**
+         * The distance the axis line should extend past its bounds. This can be used to make two
+         * perpendicular axis lines overlap where they meet.
+         */
         overlap: React.PropTypes.number,
+
+        /**
+         * {Scale} The [d3-scale](https://github.com/d3/d3-scale) for the axis
+         */
         scale: React.PropTypes.func.isRequired,
+
+        /**
+         * An array of ticks to display on the axis. In most cases this can be constructed by
+         * calling the scale's [`ticks`](https://github.com/d3/d3-scale#continuous_ticks) function.
+         */
         ticks: React.PropTypes.array.isRequired,
+
+        /**
+         * The width of the axis
+         */
         width: React.PropTypes.number.isRequired,
+
+        /**
+         * The height of the axis
+         */
         height: React.PropTypes.number.isRequired
     };
 

@@ -93,7 +93,6 @@ class AxisExample extends React.Component {
                 <Axis
                     width={this.props.eqWidth - 100}
                     height={50}
-                    label='Bottom Axis'
                     position='bottom'
                     ticks={rows.map(row => row.property_type)}
                     scale={scaleX}
@@ -110,7 +109,6 @@ class AxisExample extends React.Component {
                     width={this.props.eqWidth - 100}
                     height={50}
                     position='top'
-                    label='Top Axis'
                     ticks={rows.map(row => row.property_type)}
                     scale={scaleX}
                 />
@@ -127,7 +125,6 @@ class AxisExample extends React.Component {
                     width={50}
                     height={this.props.eqHeight - 100}
                     position='left'
-                    label='Left Axis'
                     ticks={scaleY.ticks(3)}
                     scale={scaleY}
                 />
@@ -156,7 +153,6 @@ class AxisExample extends React.Component {
                     width={50}
                     height={this.props.eqHeight - 100}
                     position='right'
-                    label='Right Axis'
                     ticks={scaleY.ticks(3)}
                     scale={scaleY}
                 />
