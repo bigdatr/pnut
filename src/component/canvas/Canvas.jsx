@@ -30,7 +30,13 @@ export default class Canvas extends React.PureComponent {
          */
         width: React.PropTypes.number,
         /** An object of props that will be spread onto the svg element. */
-        svgProps: React.PropTypes.object
+        svgProps: React.PropTypes.object,
+
+        /** The x position of the canvas */
+        x: React.PropTypes.number,
+
+        /** The y position of the canvas */
+        y: React.PropTypes.number
     };
 
     static defaultProps = {
@@ -38,13 +44,15 @@ export default class Canvas extends React.PureComponent {
     };
 
     render(): React.Element<any> {
-        if(!this.props.width || !this.props.height) return <svg></svg>;
+        if(!this.props.width || !this.props.height) return <svg/>;
 
         return <svg
             overflow='visible'
-            {...this.props.svgProps}
+            display='block'
             width={this.props.width}
             height={this.props.height}
+            x={this.props.x}
+            y={this.props.y}
         >
             {this.props.children}
         </svg>;

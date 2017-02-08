@@ -1,10 +1,6 @@
-import {ScatterCanvas, ChartData, Canvas} from 'pnut';
+import {Line, ChartData, Chart, Scatter, Column, Axis, Gridlines} from 'pnut';
 import React from 'react';
-import {scaleLinear, scalePoint} from 'd3-scale';
-import {interpolateRdBu} from 'd3-scale-chromatic';
 import {ElementQueryHock} from 'stampy';
-import {fromJS, Map, List} from 'immutable';
-
 
 const columns = [
     {
@@ -21,6 +17,15 @@ const columns = [
         key: 'month',
         label: 'Month',
         isContinuous: false
+    },
+    {
+        key: 'randomDemand',
+        label: 'Random Demand',
+        isContinuous: true
+    },
+    {
+        key: 'benchmark',
+        label: 'Bench Mark'
     }
 ];
 
@@ -207,58 +212,85 @@ const rows = [
     }
 ];
 
-const chartData = new ChartData(rows, columns);
 
-class CanvasExample extends React.Component {
+class Plane2dExample extends React.Component {
     render() {
-        const yScale = scaleLinear()
-            .domain([chartData.min('supply'), chartData.max('supply')])
-            .range([0, this.props.eqHeight])
-            .nice();
+        const chartData = (new ChartData(rows, columns)).mapRows(ii => {
+            return ii
+                .set('randomDemand', ii.get('demand') + ((Math.random() - 0.5) * 1000000))
+                .set('benchmark', 1300000);
+        });
 
-        const xScale = scalePoint()
-            .domain(rows.map(row => row.month))
-            .range([0, this.props.eqWidth]);
+        const props = {
+            dimensions: ['x', 'y'],
+            xDimension: "month",
+            // xScaleType:"scaleBand",
+            // xScale: scale => scale.align(.5),
+            //
+            // fooScale: scale =>
+            // yScaleGroup: 'y1',
+            // yDimension: 'supply',
+            //
+            // fooDimension: 'demand'
+        }
 
-        const scaleRadius = scaleLinear()
-            .domain([chartData.min('demand'), chartData.max('demand')])
-            .range([5, 30]);
+        const lineHorizontal = ({coordinates}) => <line {...coordinates} strokeWidth="1" stroke="#ccc"/>;
+        const lineVertical = ({coordinates}) => <line {...coordinates} strokeWidth="0" stroke="#ccc"/>;
+        const dot = ({x,y}) => <circle fill='#fff' cx={x} cy={y} r={4} strokWidth="1" stroke="#ccc"/>;
 
+
+        const path = ({d}) => <path d={d} stroke="red"/>;
 
         return <div>
             <div style={{position: 'absolute', top: 0, left: 0}}>
-                <Canvas width={this.props.eqWidth} height={this.props.eqHeight}>
-                    <ScatterCanvas
-                        width={this.props.eqWidth}
-                        height={this.props.eqHeight}
-                        xScale={xScale}
-                        yScale={yScale}
-                        xDimension={'month'}
-                        yDimension={'supply'}
-                        data={chartData}
-                        dot={({x, y, row}) => <circle
-                            cx={x}
-                            cy={y}
-                            r={scaleRadius(row.get('demand'))}
-                        />}
-                    />
-                </Canvas>
-            </div>
+                <Chart
+                    padding={[64,64,64,90]}
+                    data={chartData}
+                    width={this.props.eqWidth || 0}
+                    height={this.props.eqHeight || 0}
+                    {...props}
+                >
 
+                    <Line yScaleGroup="y1" yDimension="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
+                    <Line yScaleGroup="y2" yDimension="demand" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
+
+                    {/*<Scatter yDimension="demand" dot={dot} />
+                                        <Scatter yDimension="supply" dot={dot}/>*/}
+                    <Axis
+                        position='bottom'
+                        dimension="x"
+                    />
+                    <Axis
+                        position='left'
+                        dimension="y"
+                        yDimension="demand"
+                        yScaleGroup="y1"
+                    />
+                    <Axis
+                        position='right'
+                        dimension="y"
+                        yDimension="supply"
+                        yScaleGroup="y2"
+                    />
+
+
+                </Chart>
+            </div>
         </div>
     }
 }
 
-const HockedExample = ElementQueryHock([])(CanvasExample);
+const HockedExample = ElementQueryHock([])(Plane2dExample);
+
 
 export default () => {
     return <div
         style={{
             position: 'absolute',
-            top: '100px',
-            left: '100px',
-            bottom: '100px',
-            right: '100px'
+            width: '100%',
+            height: '100%',
+            top: 0,
+            left: 0
         }}
     ><HockedExample/></div>
 };

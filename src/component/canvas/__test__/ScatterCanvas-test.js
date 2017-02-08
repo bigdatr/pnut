@@ -1,10 +1,9 @@
 import test from 'ava';
 import React from 'react';
 import {shallow} from 'enzyme';
-import sinon from 'sinon';
 
 import {scaleLinear, scalePoint} from 'd3-scale';
-import ScatterCanvas from '../ScatterCanvas';
+import Scatter, {ScatterCanvas} from '../ScatterCanvas';
 import ChartData from '../../../chartdata/ChartData';
 
 
@@ -211,12 +210,12 @@ const rows = [
 
 const chartData = new ChartData(rows, columns);
 
-const scaleY = scaleLinear()
+const yScale = scaleLinear()
     .domain([chartData.min('supply'), chartData.max('supply')])
     .range([0, 100])
     .nice();
 
-const scaleX = scalePoint()
+const xScale = scalePoint()
     .domain(rows.map(row => row.month))
     .range([0, 100]);
 
@@ -237,10 +236,10 @@ const canvas = shallow(<ScatterCanvas
     width={200}
     height={200}
     data={chartData}
-    scaleX={scaleX}
-    scaleY={scaleY}
-    columnX={'month'}
-    columnY={'supply'}
+    xScale={xScale}
+    yScale={yScale}
+    xDimension={'month'}
+    yDimension={'supply'}
     data={chartData}
     dot={customDot}
 />);
@@ -254,8 +253,8 @@ test('ScatterCanvas allows custom circle rendering', tt => {
 });
 
 test('ScatterCanvas custom dot has x and y params', tt => {
-    tt.is(canvas.childAt(0).shallow().prop('cx'), scaleX(rows[0].month));
-    tt.is(canvas.childAt(0).shallow().prop('cy'), scaleY.range()[1] - scaleY(rows[0].supply));
+    tt.is(canvas.childAt(0).shallow().prop('cx'), xScale(rows[0].month));
+    tt.is(canvas.childAt(0).shallow().prop('cy'), yScale.range()[1] - yScale(rows[0].supply));
 });
 
 
@@ -263,10 +262,10 @@ const defaultDotCanvas = shallow(<ScatterCanvas
     width={200}
     height={200}
     data={chartData}
-    scaleX={scaleX}
-    scaleY={scaleY}
-    columnX={'month'}
-    columnY={'supply'}
+    xScale={xScale}
+    yScale={yScale}
+    xDimension={'month'}
+    yDimension={'supply'}
     data={chartData}
 />);
 
@@ -275,6 +274,33 @@ test('ScatterCanvas can render circle by as default dot', tt => {
 });
 
 test('ScatterCanvas default dot has x and y params', tt => {
-    tt.is(defaultDotCanvas.childAt(0).shallow().prop('cx'), scaleX(rows[0].month));
-    tt.is(defaultDotCanvas.childAt(0).shallow().prop('cy'), scaleY.range()[1] - scaleY(rows[0].supply));
+    tt.is(defaultDotCanvas.childAt(0).shallow().prop('cx'), xScale(rows[0].month));
+    tt.is(defaultDotCanvas.childAt(0).shallow().prop('cy'), yScale.range()[1] - yScale(rows[0].supply));
+});
+
+test('ScatterCanvas will offset the cx position by half the bandwidth if the scale has a bandwidth', tt => {
+    const props = {
+        width: 140,
+        height: 140,
+        data: new ChartData([rows[0], rows[1]], [columns[0], columns[1]]),
+        xScale: xScale,
+        yScale: yScale,
+        xDimension: 'demand',
+        yDimension: 'supply'
+    };
+    const canvasLinear = shallow(<ScatterCanvas {...props} xScale={scaleLinear().domain(rows.map(row => row.demand)).range([0,100])}/>);
+    const canvasBandwidth = shallow(<ScatterCanvas {...props} xScale={scalePoint().domain(rows.map(row => row.demand)).range([0,100])} />);
+
+    tt.is(canvasLinear.childAt(1).shallow().prop('cx'), 100);
+    tt.is(canvasBandwidth.childAt(1).shallow().prop('cx'), 3.225806451612903);
+});
+
+
+test('Scatter has a static chartType of canvas', tt => {
+    tt.is(Scatter.chartType, 'canvas');
+});
+
+test('Scatter renders a ScatterCanvas', tt => {
+    const canvas = shallow(<Scatter data={{}} xScale={() => undefined} yScale={() => undefined} xDimension="string" yDimension="string"/>);
+    tt.is(canvas.name(), 'ScatterCanvas');
 });

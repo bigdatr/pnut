@@ -1,7 +1,6 @@
 // @flow
 
 import React from 'react';
-import Canvas from './Canvas';
 import type {ChartScalar, ChartRow} from 'src/chartdata/ChartData';
 
 type DotProps = {
@@ -20,8 +19,8 @@ type DotProps = {
  *
  * @prop {number} x - The x position of the dot on the canvas
  * @prop {number} y - The y position of the dot on the canvas
- * @prop {ChartScalar} dataX - The `ChartScalar` value for `columnX` in this row.
- * @prop {ChartScalar} dataY - The `ChartScalar` value for `columnY` in this row.
+ * @prop {ChartScalar} dataX - The `ChartScalar` value for `xDimension` in this row.
+ * @prop {ChartScalar} dataY - The `ChartScalar` value for `yDimension` in this row.
  * @prop {ChartRow} row - The `ChartRow` corresponding to this dot.
  */
 
@@ -39,12 +38,12 @@ const defaultDot = (dotProps: DotProps): React.Element<any> => {
  *
  * @example
  *
- * const scaleY = scaleLog()
+ * const yScale = scaleLog()
  *     .domain([0, 10])
  *     .range([0, 720])
  *     .nice();
  *
- * const scaleX = scalePoint()
+ * const xScale = scalePoint()
  *     .domain(['January', 'February', 'March', 'April'])
  *     .range([0, 1280]);
  *
@@ -55,10 +54,10 @@ const defaultDot = (dotProps: DotProps): React.Element<any> => {
  * return <ScatterCanvas
  *     width={1280}
  *     height={720}
- *     scaleX={scaleX}
- *     scaleY={scaleY}
- *     columnX={'month'}
- *     columnY={'demand'}
+ *     xScale={xScale}
+ *     yScale={yScale}
+ *     xDimension={'month'}
+ *     yDimension={'demand'}
  *     data={chartData}
  *     dot={({x, y, dataX, dataY, row}) => <circle
  *         cx={x}
@@ -70,8 +69,7 @@ const defaultDot = (dotProps: DotProps): React.Element<any> => {
  *
  */
 
-export default class ScatterCanvas extends React.PureComponent {
-
+export class ScatterCanvas extends React.PureComponent {
     static defaultProps = {
         dot: defaultDot
     };
@@ -102,19 +100,19 @@ export default class ScatterCanvas extends React.PureComponent {
         /**
          * {Scale} Any d3-scale for the x axis.
          */
-        scaleX: React.PropTypes.func.isRequired,
+        xScale: React.PropTypes.func.isRequired,
         /**
          * {Scale} Any d3-scale for the y axis.
          */
-        scaleY: React.PropTypes.func.isRequired,
+        yScale: React.PropTypes.func.isRequired,
         /**
          * The column key from `ChartData` to use for the x axis.
          */
-        columnX: React.PropTypes.string.isRequired,
+        xDimension: React.PropTypes.string.isRequired,
         /**
          * The column key from `ChartData` to use for the y axis.
          */
-        columnY: React.PropTypes.string.isRequired,
+        yDimension: React.PropTypes.string.isRequired,
         /**
          * An optional react component that will be used to render dots on the chart.
          * Defaults to rendering a `<circle/>`.
@@ -123,17 +121,18 @@ export default class ScatterCanvas extends React.PureComponent {
     };
 
     buildDots(): Array<React.Element<any>> {
-        const {data, scaleX, scaleY, columnX, columnY, dot} = this.props;
+        const {data, xScale, yScale, xDimension, yDimension, dot} = this.props;
         const Dot = dot;
-        const rangeY = scaleY.range();
+        const rangeY = yScale.range();
+        const offset = xScale.bandwidth ? xScale.bandwidth() / 2 : 0;
 
         return data.rows.map((row: ChartRow, index: number): React.Element<any> => {
-            const dataX = row.get(columnX);
-            const dataY = row.get(columnY);
+            const dataX = row.get(xDimension);
+            const dataY = row.get(yDimension);
             return <Dot
                 key={index}
-                x={scaleX(dataX)}
-                y={rangeY[1] - scaleY(dataY)}
+                x={xScale(dataX) + offset}
+                y={rangeY[1] - yScale(dataY)}
                 dataX={dataX}
                 dataY={dataY}
                 row={row}
@@ -142,8 +141,15 @@ export default class ScatterCanvas extends React.PureComponent {
     }
 
     render(): React.Element<any> {
-        return <Canvas {...this.props}>
+        return <g>
             {this.buildDots()}
-        </Canvas>;
+        </g>;
+    }
+}
+
+export default class Scatter extends React.Component {
+    static chartType = 'canvas';
+    render(): React.Element<any> {
+        return <ScatterCanvas {...this.props} />;
     }
 }

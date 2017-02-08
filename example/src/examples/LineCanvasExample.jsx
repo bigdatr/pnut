@@ -1,4 +1,4 @@
-import {LineCanvas, ChartData} from 'pnut';
+import {LineCanvas, ChartData, Canvas} from 'pnut';
 import React from 'react';
 import {scaleLinear, scalePoint} from 'd3-scale';
 import {ElementQueryHock} from 'stampy';
@@ -25,182 +25,182 @@ const rows = [
     {
         month: "2014-01-01",
         supply: 123605,
-        demand: 28
+        demand: 280000
     },
     {
         month: "2014-02-01",
         supply: 457959,
-        demand: 72
+        demand: 720000
     },
     {
         month: "2014-03-01",
         supply: 543558,
-        demand: 96
+        demand: 960000
     },
     {
         month: "2014-04-01",
         supply: 657625,
-        demand: 107
+        demand: 107000
     },
     {
         month: "2014-05-01",
         supply: 724687,
-        demand: 116
+        demand: 116000
     },
     {
         month: "2014-06-01",
         supply: 577673,
-        demand: 93
+        demand: 930000
     },
     {
         month: "2014-07-01",
         supply: 510476,
-        demand: 85
+        demand: 850000
     },
     {
         month: "2014-08-01",
         supply: 587977,
-        demand: 104
+        demand: 104000
     },
     {
         month: "2014-09-01",
         supply: 589351,
-        demand: 121
+        demand: 121000
     },
     {
         month: "2014-10-01",
         supply: 557710,
-        demand: 138
+        demand: 138000
     },
     {
         month: "2014-11-01",
         supply: 550750,
-        demand: 139
+        demand: 139000
     },
     {
         month: "2014-12-01",
         supply: 240661,
-        demand: 95
+        demand: 950000
     },
     {
         month: "2015-01-01",
         supply: 278804,
-        demand: 87
+        demand: 870000
     },
     {
         month: "2015-02-01",
         supply: 785962,
-        demand: 141
+        demand: 141000
     },
     {
         month: "2015-03-01",
         supply: 713841,
-        demand: 129
+        demand: 129000
     },
     {
         month: "2015-04-01",
         supply: 681580,
-        demand: 132
+        demand: 1320000
     },
     {
         month: "2015-05-01",
         supply: 930395,
-        demand: 139
+        demand: 1390000
     },
     {
         month: "2015-06-01",
         supply: 937566,
-        demand: 109
+        demand: 1090000
     },
     {
         month: "2015-07-01",
         supply: 1011621,
-        demand: 126
+        demand: 1260000
     },
     {
         month: "2015-08-01",
         supply: 1638135,
-        demand: 154
+        demand: 1540000
     },
     {
         month: "2015-09-01",
         supply: 1209174,
-        demand: 138
+        demand: 1380000
     },
     {
         month: "2015-10-01",
         supply: 1060541,
-        demand: 137
+        demand: 1370000
     },
     {
         month: "2015-11-01",
         supply: 1236615,
-        demand: 170
+        demand: 1700000
     },
     {
         month: "2015-12-01",
         supply: 629503,
-        demand: 125
+        demand: 125000
     },
     {
         month: "2016-01-01",
         supply: 678891,
-        demand: 109
+        demand: 109000
     },
     {
         month: "2016-02-01",
         supply: 1681174,
-        demand: 163
+        demand: 1630000
     },
     {
         month: "2016-03-01",
         supply: 1209983,
-        demand: 140
+        demand: 1400000
     },
     {
         month: "2016-04-01",
         supply: 1380393,
-        demand: 149
+        demand: 1490000
     },
     {
         month: "2016-05-01",
         supply: 1267107,
-        demand: 151
+        demand: 1510000
     },
     {
         month: "2016-06-01",
         supply: 1371218,
-        demand: 154
+        demand: 1540000
     },
     {
         month: "2016-07-01",
         supply: 1652395,
-        demand: 160
+        demand: 1600000
     },
     {
         month: "2016-08-01",
         supply: 1561521,
-        demand: 181
+        demand: 1810000
     },
     {
         month: "2016-09-01",
         supply: 1896226,
-        demand: 218
+        demand: 2180000
     },
     {
         month: "2016-10-01",
         supply: 1810362,
-        demand: 227
+        demand: 2270000
     },
     {
         month: "2016-11-01",
         supply: 1877047,
-        demand: 247
+        demand: 2470000
     },
     {
         month: "2016-12-01",
         supply: 770154,
-        demand: 204
+        demand: 2040000
     }
 ];
 
@@ -210,34 +210,36 @@ const chartData = new ChartData(rows, columns);
 
 class CanvasExample extends React.Component {
     render() {
-        const scaleY = scaleLinear()
+        const yScale = scaleLinear()
             .domain([chartData.min('supply'), chartData.max('supply')])
             .range([0, this.props.eqHeight])
             .nice();
 
-        const scaleX = scalePoint()
+        const xScale = scalePoint()
             .domain(rows.map(row => row.month))
             .range([0, this.props.eqWidth]);
 
         return <div>
             <div style={{position: 'absolute', top: 0, left: 0}}>
-                <LineCanvas
-                    width={this.props.eqWidth}
-                    height={this.props.eqHeight}
-                    scaleX={scaleX}
-                    scaleY={scaleY}
-                    columnX={'month'}
-                    columnY={'supply'}
-                    data={chartData}
-                    svgProps={{
-                        strokeWidth: '2'
-                    }}
-                    pathProps={{
-                        strokeWidth: '2'
-                    }}
-                />;
+                <Canvas width={this.props.eqWidth} height={this.props.eqHeight}>
+                    <LineCanvas
+                        width={this.props.eqWidth}
+                        height={this.props.eqHeight}
+                        xScale={xScale}
+                        yScale={yScale}
+                        xDimension={'month'}
+                        yDimension={'supply'}
+                        data={chartData}
+                        svgProps={{
+                            strokeWidth: '2'
+                        }}
+                        pathProps={{
+                            strokeWidth: '2',
+                            stroke: "#000"
+                        }}
+                    />
+                </Canvas>
             </div>
-
         </div>
     }
 }

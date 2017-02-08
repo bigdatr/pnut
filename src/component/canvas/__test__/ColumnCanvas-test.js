@@ -1,10 +1,9 @@
 import test from 'ava';
 import React from 'react';
 import {shallow} from 'enzyme';
-import sinon from 'sinon';
 
 import {scaleLog, scaleBand} from 'd3-scale';
-import ColumnCanvas from '../ColumnCanvas';
+import Column, {ColumnCanvas} from '../ColumnCanvas';
 import ChartData from '../../../chartdata/ChartData';
 
 const columns = [
@@ -66,24 +65,23 @@ const rows = [
 
 const chartData = new ChartData(rows, columns);
 
-const scaleY = scaleLog()
+const yScale = scaleLog()
     .domain([chartData.min(['supply', 'demand']), chartData.max(['supply', 'demand'])])
     .range([0, 100])
     .nice();
 
-const scaleX = scaleBand()
+const xScale = scaleBand()
     .domain(rows.map(row => row.property_type))
-    .range([0, 100])
-    .padding(0.1);
+    .range([0, 100]);
 
 const canvas = shallow(<ColumnCanvas
-    width={200}
-    height={200}
+    width={140}
+    height={140}
     data={chartData}
-    scaleX={scaleX}
-    scaleY={scaleY}
-    columnX={'property_type'}
-    columnY={['supply', 'demand']}
+    xScale={xScale}
+    yScale={yScale}
+    xDimension={'property_type'}
+    yDimension={['supply', 'demand']}
     columnProps={{
         fill: 'blue'
     }}
@@ -95,4 +93,29 @@ test('ColumnCanvas renders multiple columns', tt => {
 
 test('ColumnCanvas applies passed columnProps to columns', tt => {
     tt.is(canvas.children().at(0).prop('fill'), 'blue');
+});
+
+test('ColumnCanvas given a single yDimension as a string will divide the width by 1', tt => {
+    const canvas = shallow(<ColumnCanvas
+        width={140}
+        height={140}
+        data={chartData}
+        xScale={xScale}
+        yScale={yScale}
+        xDimension={'property_type'}
+        yDimension={'supply'}
+        columnProps={{
+            fill: 'blue'
+        }}
+    />);
+    tt.is(canvas.children().at(0).prop('width'), 14.285714285714286);
+});
+
+test('Column has a static chartType of canvas', tt => {
+    tt.is(Column.chartType, 'canvas');
+});
+
+test('Column renders a ColumnCanvas', tt => {
+    const canvas = shallow(<Column data={{}} xScale={() => undefined} yScale={() => undefined} xDimension="string" yDimension="string"/>);
+    tt.is(canvas.name(), 'ColumnCanvas');
 });

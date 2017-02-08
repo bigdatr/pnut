@@ -9,7 +9,7 @@
   "license": "MIT",
   "scripts": {
     "ava": "NODE_ENV=test ava",
-    "build": "rm -rf lib && babel src --out-dir lib && yarn run css",
+    "build": "rm -rf lib && yarn run css && babel src --out-dir lib ",
     "build-examples": "cd example && yarn install && yarn run build && cd -",
     "check-coverage": "NODE_ENV=test nyc check-coverage --branches 100.0  --functions 100.0 --lines 100.0",
     "css": "yarn run css-base-combined && yarn run css-default-combined && yarn run css-base && yarn run css-default && yarn run postcss",

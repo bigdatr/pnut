@@ -1,8 +1,6 @@
 // @flow
 
 import React from 'react';
-import Canvas from '../canvas/Canvas';
-
 
 /**
  *
@@ -12,7 +10,7 @@ import Canvas from '../canvas/Canvas';
  *
  * @example
  *
- * <Axis
+ * <AxisRenderable
  *     width={this.props.eqWidth - 100}
  *     height={50}
  *     position='bottom'
@@ -21,14 +19,14 @@ import Canvas from '../canvas/Canvas';
  * />
  *
  */
-
-export default class Axis extends React.PureComponent {
+export class AxisRenderable extends React.PureComponent {
 
     static defaultProps = {
         lineProps: {},
         tickProps: {},
         textProps: {},
         textFormat: (text) => text,
+        ticks: (scale) => scale.ticks ? scale.ticks() : scale.domain(),
         tickSize: 6,
         textPadding: 6,
         overlap: 0
@@ -121,7 +119,7 @@ export default class Axis extends React.PureComponent {
          * An array of ticks to display on the axis. In most cases this can be constructed by
          * calling the scale's [`ticks`](https://github.com/d3/d3-scale#continuous_ticks) function.
          */
-        ticks: React.PropTypes.array.isRequired,
+        ticks: React.PropTypes.func,
 
         /**
          * The width of the axis
@@ -143,7 +141,7 @@ export default class Axis extends React.PureComponent {
         const strokeWidth = this.props.lineProps.strokeWidth || this.defaultLineWidth;
         const offset = this.props.scale.bandwidth ? this.props.scale.bandwidth() / 2 : 0;
 
-        return this.props.ticks.map((tick: any, index: number): React.Element<any> => {
+        return this.props.ticks(this.props.scale).map((tick: any, index: number): React.Element<any> => {
             const distance = this.props.scale(tick) + offset;
 
             const [x1, y1] = this.getPointPosition(axisPosition, distance, strokeWidth / 2);
@@ -259,24 +257,38 @@ export default class Axis extends React.PureComponent {
             case 'top':
                 return [distance, this.props.height - offset];
             case 'right':
-                return [offset, distance];
+                return [offset, this.props.height - distance];
             case 'bottom':
                 return [distance, offset];
             case 'left':
-                return [this.props.width - offset, distance];
+                return [this.props.width - offset, this.props.height - distance];
             default:
                 throw new Error(`unknown position: ${position}`);
         }
     }
 
     render(): React.Element<any> {
-        return <Canvas {...this.props}>
+        return <g>
             <g>
                 {this.drawAxis()}
             </g>
             <g>
                 {this.drawTicks()}
             </g>
-        </Canvas>;
+        </g>;
+    }
+}
+
+
+export default class Axis extends React.Component {
+    static chartType = 'axis';
+    static propTypes = {
+        /**
+         * The dimension to base this axis off. Probably x or y
+         */
+        dimension: React.PropTypes.string.isRequired
+    }
+    render(): React.Element<any> {
+        return <AxisRenderable {...this.props} scale={this.props[`${this.props.dimension}Scale`]}/>;
     }
 }

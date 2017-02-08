@@ -2,7 +2,7 @@ import test from 'ava';
 import React from 'react';
 import {shallow} from 'enzyme';
 import sinon from 'sinon';
-import Axis from '../Axis';
+import Axis,{AxisRenderable} from '../Axis';
 import {scaleLinear, scaleBand} from 'd3-scale';
 
 const savedErrorLog = console.error;
@@ -11,10 +11,10 @@ const scale = scaleLinear()
     .domain([0,100])
     .range([0,200]);
 
-const topAxis = shallow(<Axis
+const topAxis = shallow(<AxisRenderable
     position={'top'}
     scale={scale}
-    ticks={scale.ticks(10)}
+    ticks={scale => scale.ticks(10)}
     width={100}
     height={100}
 />);
@@ -25,10 +25,10 @@ test('Rendering throws error if bad position is passed', tt => {
     console.error = error;
 
     tt.throws(() => {
-        shallow(<Axis
+        shallow(<AxisRenderable
             position={'nottop'}
             scale={scale}
-            ticks={scale.ticks(10)}
+            ticks={scale => scale.ticks(10)}
             width={100}
             height={100}
         />);
@@ -145,10 +145,10 @@ const scaleBandScale = scaleBand()
     .domain(['category1', 'category2'])
     .range([0,width]);
 
-const scaleBandAxis = shallow(<Axis
+const scaleBandAxis = shallow(<AxisRenderable
     position={'bottom'}
     scale={scaleBandScale}
-    ticks={['category1', 'category2']}
+    ticks={() => ['category1', 'category2']}
     width={width}
     height={100}
 />);
@@ -159,10 +159,10 @@ test('Axis places ticks in middle of bandwidth', tt => {
 });
 
 
-const axisWithCustomTicks = shallow(<Axis
+const axisWithCustomTicks = shallow(<AxisRenderable
     position={'bottom'}
     scale={scaleBandScale}
-    ticks={['category1', 'category2']}
+    ticks={() => ['category1', 'category2']}
     tickProps={(tick, index, x1, y1, scale) => (index === 0 ? {stroke: 'red'} : {stroke: 'blue'})}
     textProps={(tick, index, x1, y1, scale) => (index === 0 ? {color: 'red'} : {color: 'blue'})}
     width={width}
@@ -179,3 +179,29 @@ test('Axis allows custom text props', tt => {
     tt.is(axisWithCustomTicks.childAt(1).childAt(0).childAt(1).prop('color'), 'red');
     tt.is(axisWithCustomTicks.childAt(1).childAt(1).childAt(1).prop('color'), 'blue');
 });
+
+
+
+test('Axis with discrete scales will use domain for ticks. Other will use ticks', tt => {
+    const linear = scaleLinear()
+        .domain([0, 100])
+        .range([0, 200]);
+
+    const band = scaleBand()
+        .domain(['category1', 'category2'])
+        .range([0, width]);
+
+    const linearAxis = shallow(<AxisRenderable position="top" scale={linear} width={100} height={100} />);
+    const bandAxis = shallow(<AxisRenderable position="top" scale={band} width={100} height={100} />);
+
+    tt.is(linearAxis.childAt(1).children().length, 11);
+    tt.is(bandAxis.childAt(1).children().length, 2);
+
+});
+
+test('Axis renders a AxisRenderable', tt => {
+    const canvas = shallow(<Axis data={{}} scale={() => undefined} />);
+    tt.is(canvas.name(), 'AxisRenderable');
+});
+
+
