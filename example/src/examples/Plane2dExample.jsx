@@ -244,37 +244,39 @@ class Plane2dExample extends React.Component {
             xDimension: "month",
             xScaleType:"scaleBand",
             xScale: scale => scale.align(.5),
+            yDimension: ['demand']
             // yScaleType: 'scaleLinear',
         }
+
 
         return <div>
             <div style={{position: 'absolute', top: 0, left: 0}}>
                 <Chart
-                    padding={[100,32,32,100]}
+                    padding={[0,0,0,0]}
                     data={chartData}
-                    width={this.props.eqWidth}
-                    height={this.props.eqHeight}
-                    xDimension="month"
+                    width={this.props.eqWidth || 0}
+                    height={this.props.eqHeight || 0}
                     {...props}
                 >
 
-                    <Column yDimension="supply" columnProps={{fill: 'blue', opacity: .5}} />
-                    <Line yDimension="supply" pathProps={{stroke: 'blue', strokeWidth: 2}} />
+                    <Column yDimension="demand" columnProps={{fill: 'blue', opacity: .5}} />
+                    <Column yDimension={'supply'} columnProps={{fill: 'red', opacity: .5}} />
+                    <Line yDimension="benchmark" xScaleType="scalePoint" pathProps={{stroke: 'gray', strokeWidth: 2}}/>
+{/*                    <Line yDimension="supply" pathProps={{stroke: 'blue', strokeWidth: 2}} />
                     <Line yDimension="supply" pathProps={{stroke: 'blue', strokeWidth: 2}} />
 
                     <Column yDimension="demand" columnProps={{fill: 'red', opacity: .5}} />
                     <Line yDimension="demand" pathProps={{stroke: 'red', strokeWidth: 2}} />
                     <Line yDimension="demand" pathProps={{stroke: 'red', strokeWidth: 2}} />
 
-                    <Line yDimension="benchmark" xScaleType="scalePoint" pathProps={{stroke: 'red', strokeWidth: 2}}/>
 
                     <Scatter yDimension="supply"/>
                     <Scatter yDimension="demand"/>
 
-                    <Axis position="top" scaleName="colorScale" label="Other" yPos="20"/>
-                    <Axis position="right" scaleName="yScale" label="Demand" yPos="20"/>
-                    <Axis position="left" scaleName="yScale" label="Demand" yPos="40"/>
-                    <Axis position="bottom" scaleName="xScale" label="Time" yPos="20"/>
+                    <Axis position="top" xDimension="month" scaleName="yScale" yPos="20"/>
+                    <Axis position="right" scaleName="yScale" yPos="20"/>
+                    <Axis position="left" scaleName="yScale" yPos="40"/>
+                    <Axis position="bottom" scaleName="xScale" yPos="20"/>*/}
                 </Chart>
             </div>
         </div>

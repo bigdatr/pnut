@@ -1,6 +1,6 @@
 // @flow
 import React, {Component, Children, cloneElement, Element, PropTypes} from 'react';
-import {List, Map} from 'immutable';
+import {List, Map, Set} from 'immutable';
 import Canvas from './canvas/Canvas';
 import * as d3Scale from 'd3-scale';
 
@@ -126,10 +126,12 @@ class Chart extends Component {
                         dimensionName,
                         scaleKey,
                         scaleTypeKey,
-                        dimensions: childrenGroups
+                        columns: childrenGroups
                             .get('canvas')
-                            .map(ii => ii[dimensionKey] || props[dimensionKey])
+                            .map(ii => List([].concat(ii[dimensionKey]).concat(props[dimensionKey])))
+                            .flatten(1)
                             .toSet()
+                            .filter(ii => ii)
                             .toArray()
                     };
                 })
@@ -188,21 +190,49 @@ class Chart extends Component {
         }
     }
     getDefaultScale(dimension: Object): Function {
-        const {dimensionName, scaleTypeKey, dimensionKey, dimensions} = dimension;
+        const {dimensionName, scaleTypeKey, dimensionKey, columns} = dimension;
+
         switch(dimensionName) {
             case 'x':
-                return (pp: Object): Function => {
-                    return d3Scale[pp[scaleTypeKey] || 'scaleLinear']()
-                        .domain(pp.data.rows.map(row => row.get(pp[dimensionKey])).toArray())
-                        .range([0, pp.width]);
-                };
-
             case 'y':
                 return (pp: Object): Function => {
+                    // choose the max value of range based on x/width y/height
+                    const bound = (dimensionName === 'x') ? pp.width : pp.height;
+                    // Make the current dimension always a list
+                    const currentDimension = List().concat(pp[dimensionKey]);
+                    var domainArray;
+
+                    if(pp[dimensionKey] === undefined) {
+                        throw new Error(`a child element did not choose a dimension `)
+                    }
+
+
+                    // create a set of booleans to check if a group is mixing dimension types
+                    function isContinuous(list: List): Set {
+                        return list
+                            .map(dd => pp.data.columns.getIn([dd, 'isContinuous']))
+                            .toSet();
+                    }
+
+                    // if the size is greater than one we have multiple data types
+                    if(isContinuous(List(columns)).size > 1) {
+                        throw new Error(`A scale cannot share continuous and non continuous data ${columns.join(', ')}`);
+                    }
+
+                    // continuous data domain array is just [min,max]
+                    // non continuous domain array has one item for each discreet point
+                    if(isContinuous(currentDimension).get(true)) {
+                        domainArray = [pp.data.min(columns), pp.data.max(columns)];
+
+                    } else {
+                        domainArray = pp.data
+                            .getColumnData(currentDimension.get(0))
+                            .toArray();
+                    }
 
                     return d3Scale[pp[scaleTypeKey] || 'scaleLinear']()
-                        .domain([pp.data.min(dimensions), pp.data.max(dimensions)])
-                        .range([0, pp.height]);
+                        .domain(domainArray)
+                        .range([0, bound]);
                 };
 
             default:
@@ -240,7 +270,7 @@ class Chart extends Component {
                 switch(chartType) {
                     case 'axis':
                         return cloneElement(child, {
-                            ...this.getChildProps(chartType, child.props),
+                            ...this.getChildProps(child.props),
                             ...this.getAxisSize(child.props.position)
                         });
 
