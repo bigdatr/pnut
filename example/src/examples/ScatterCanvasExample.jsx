@@ -1,4 +1,4 @@
-import {ScatterCanvas, ChartData} from 'pnut';
+import {ScatterCanvas, ChartData, Canvas} from 'pnut';
 import React from 'react';
 import {scaleLinear, scalePoint} from 'd3-scale';
 import {interpolateRdBu} from 'd3-scale-chromatic';
@@ -227,20 +227,22 @@ class CanvasExample extends React.Component {
 
         return <div>
             <div style={{position: 'absolute', top: 0, left: 0}}>
-                <ScatterCanvas
-                    width={this.props.eqWidth}
-                    height={this.props.eqHeight}
-                    xScale={xScale}
-                    yScale={yScale}
-                    xDimension={'month'}
-                    yDimension={'supply'}
-                    data={chartData}
-                    dot={({x, y, row}) => <circle
-                        cx={x}
-                        cy={y}
-                        r={scaleRadius(row.get('demand'))}
-                    />}
-                />
+                <Canvas width={this.props.eqWidth} height={this.props.eqHeight}>
+                    <ScatterCanvas
+                        width={this.props.eqWidth}
+                        height={this.props.eqHeight}
+                        xScale={xScale}
+                        yScale={yScale}
+                        xDimension={'month'}
+                        yDimension={'supply'}
+                        data={chartData}
+                        dot={({x, y, row}) => <circle
+                            cx={x}
+                            cy={y}
+                            r={scaleRadius(row.get('demand'))}
+                        />}
+                    />
+                </Canvas>
             </div>
 
         </div>

@@ -1,4 +1,4 @@
-import {LineCanvas, ChartData} from 'pnut';
+import {LineCanvas, ChartData, Canvas} from 'pnut';
 import React from 'react';
 import {scaleLinear, scalePoint} from 'd3-scale';
 import {ElementQueryHock} from 'stampy';
@@ -221,23 +221,25 @@ class CanvasExample extends React.Component {
 
         return <div>
             <div style={{position: 'absolute', top: 0, left: 0}}>
-                <LineCanvas
-                    width={this.props.eqWidth}
-                    height={this.props.eqHeight}
-                    xScale={xScale}
-                    yScale={yScale}
-                    xDimension={'month'}
-                    yDimension={'supply'}
-                    data={chartData}
-                    svgProps={{
-                        strokeWidth: '2'
-                    }}
-                    pathProps={{
-                        strokeWidth: '2'
-                    }}
-                />;
+                <Canvas width={this.props.eqWidth} height={this.props.eqHeight}>
+                    <LineCanvas
+                        width={this.props.eqWidth}
+                        height={this.props.eqHeight}
+                        xScale={xScale}
+                        yScale={yScale}
+                        xDimension={'month'}
+                        yDimension={'supply'}
+                        data={chartData}
+                        svgProps={{
+                            strokeWidth: '2'
+                        }}
+                        pathProps={{
+                            strokeWidth: '2',
+                            stroke: "#000"
+                        }}
+                    />
+                </Canvas>
             </div>
-
         </div>
     }
 }

@@ -1,4 +1,4 @@
-import {ColumnCanvas, ChartData} from 'pnut';
+import {ColumnCanvas, ChartData, Canvas} from 'pnut';
 import React from 'react';
 import {scaleLog, scaleBand} from 'd3-scale';
 import {ElementQueryHock} from 'stampy';
@@ -75,27 +75,25 @@ class CanvasExample extends React.Component {
             .range([0, this.props.eqWidth])
             .padding(0.1);
 
-        return <div>
-            <div style={{position: 'absolute', top: 0, left: 0}}>
-                <ColumnCanvas
-                    width={this.props.eqWidth}
-                    height={this.props.eqHeight}
-                    xScale={xScale}
-                    yScale={yScale}
-                    xDimension={'property_type'}
-                    yDimension={['supply', 'demand']}
-                    data={chartData}
-                    columnProps={[
-                        {
-                            fill: 'blue'
-                        },
-                        {
-                            fill: 'red'
-                        }
-                    ]}
-                />;
-            </div>
-        </div>
+        return <Canvas width={this.props.eqWidth} height={this.props.eqHeight}>
+            <ColumnCanvas
+                width={this.props.eqWidth}
+                height={this.props.eqHeight}
+                xScale={xScale}
+                yScale={yScale}
+                xDimension={'property_type'}
+                yDimension={['supply', 'demand']}
+                data={chartData}
+                columnProps={[
+                    {
+                        fill: 'blue'
+                    },
+                    {
+                        fill: 'red'
+                    }
+                ]}
+            />;
+        </Canvas>
     }
 }
 
