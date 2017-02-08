@@ -200,10 +200,9 @@ class Chart extends Component {
                     const bound = (dimensionName === 'x') ? pp.width : pp.height;
                     // Make the current dimension always a list
                     const currentDimension = List().concat(pp[dimensionKey]);
-                    var domainArray;
 
                     if(pp[dimensionKey] === undefined) {
-                        throw new Error(`a child element did not choose a dimension `)
+                        throw new Error(`a ${pp.chartType} child did not choose a ${dimensionKey} and the chart has not provided it.`)
                     }
 
 
@@ -216,23 +215,23 @@ class Chart extends Component {
 
                     // if the size is greater than one we have multiple data types
                     if(isContinuous(List(columns)).size > 1) {
-                        throw new Error(`A scale cannot share continuous and non continuous data ${columns.join(', ')}`);
+                        throw new Error(`${dimensionKey} cannot share continuous and non continuous data: ${columns.join(', ')}`);
                     }
 
                     // continuous data domain array is just [min,max]
                     // non continuous domain array has one item for each discreet point
                     if(isContinuous(currentDimension).get(true)) {
-                        domainArray = [pp.data.min(columns), pp.data.max(columns)];
+                        return d3Scale[pp[scaleTypeKey] || 'scaleLinear']()
+                            .domain([pp.data.min(columns), pp.data.max(columns)])
+                            .range([0, bound]);
+
 
                     } else {
-                        domainArray = pp.data
-                            .getColumnData(currentDimension.get(0))
-                            .toArray();
+                        return d3Scale[pp[scaleTypeKey] || 'scaleBand']()
+                            .domain(pp.data.getColumnData(currentDimension.get(0)).toArray())
+                            .range([0, bound]);
                     }
 
-                    return d3Scale[pp[scaleTypeKey] || 'scaleLinear']()
-                        .domain(domainArray)
-                        .range([0, bound]);
                 };
 
             default:
@@ -267,16 +266,20 @@ class Chart extends Component {
         const scaledChildren = List(Children.toArray(this.props.children))
             .map((child: Element<any>): Element<any> => {
                 const {chartType} = child.type;
+                const childProps = {
+                    ...child.props,
+                    chartType
+                };
                 switch(chartType) {
                     case 'axis':
                         return cloneElement(child, {
-                            ...this.getChildProps(child.props),
-                            ...this.getAxisSize(child.props.position)
+                            ...this.getChildProps(childProps),
+                            ...this.getAxisSize(childProps.position)
                         });
 
                     case 'canvas':
                     default:
-                        return cloneElement(child, this.getChildProps(child.props));
+                        return cloneElement(child, this.getChildProps(childProps));
                 }
             })
             .groupBy(child => child.type.chartType)

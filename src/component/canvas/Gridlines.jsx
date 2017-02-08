@@ -1,7 +1,6 @@
 // @flow
 
 import React from 'react';
-import Canvas from './Canvas';
 
 type LineCoordinates = {
     x1: number,
@@ -14,8 +13,8 @@ type LineProps = {
     key: string,
     coordinates: LineCoordinates,
     tick: any,
-    scaleX: (input: any) => number,
-    scaleY: (input: any) => number
+    xScale: (input: any) => number,
+    yScale: (input: any) => number
 };
 
 
@@ -31,8 +30,8 @@ type LineProps = {
  * @prop {number} coordinates.y2 - The ending y position of the line
  *
  * @prop {*} tick - The tick value for this gridline
- * @prop {Scale} scaleX - The x scale for the passed to the Gridlines component
- * @prop {Scale} scaleY - The y scale for the passed to the Gridlines component
+ * @prop {Scale} xScale - The x scale for the passed to the Gridlines component
+ * @prop {Scale} yScale - The y scale for the passed to the Gridlines component
  */
 
 const defaultLine = (props: LineProps): React.Element<any> => {
@@ -51,13 +50,13 @@ const defaultLine = (props: LineProps): React.Element<any> => {
  *
  * @example
  *
- * <Gridlines
+ * <GridlinesRenderable
  *     width={1280}
  *     height={720}
- *     scaleX={scaleX}
- *     scaleY={scaleY}
- *     ticksX={['category1', 'category2', 'category3']}
- *     ticksY={scaleY.ticks()}
+ *     xScale={xScale}
+ *     yScale={yScale}
+ *     xTicks={['category1', 'category2', 'category3']}
+ *     yTicks={yScale.ticks()}
  *
  *     // optional custom lines
  *     lineHorizontal={(props) => {
@@ -73,11 +72,13 @@ const defaultLine = (props: LineProps): React.Element<any> => {
  *
  */
 
-export default class Gridlines extends React.PureComponent {
+export class GridlinesRenderable extends React.PureComponent {
 
     static defaultProps = {
         lineHorizontal: defaultLine,
-        lineVertical: defaultLine
+        lineVertical: defaultLine,
+        xTicks: (scale) => scale.ticks ? scale.ticks() : scale.domain(),
+        yTicks: (scale) => scale.ticks ? scale.ticks() : scale.domain()
     };
 
     static propTypes = {
@@ -96,45 +97,45 @@ export default class Gridlines extends React.PureComponent {
         /**
          * {Scale} Any d3-scale for the x axis.
          */
-        scaleX: React.PropTypes.func.isRequired,
+        xScale: React.PropTypes.func.isRequired,
 
         /**
          * {Scale} Any d3-scale for the y axis.
          */
-        scaleY: React.PropTypes.func.isRequired,
+        yScale: React.PropTypes.func.isRequired,
 
         /**
          * An array of ticks to render as vertical gridlines. In most cases this can be constructed
          * by calling the scale's [`ticks`](https://github.com/d3/d3-scale#continuous_ticks) function.
          */
-        ticksX: React.PropTypes.array.isRequired,
+        xTicks: React.PropTypes.func,
 
         /**
          * An array of ticks to render as horizontal gridlines. In most cases this can be constructed
          * by calling the scale's [`ticks`](https://github.com/d3/d3-scale#continuous_ticks) function.
          */
-        ticksY: React.PropTypes.array.isRequired
+        yTicks: React.PropTypes.func
     };
 
     buildHorizontalGridlines(): Array<React.Element<any>> {
         const LineHorizontal = this.props.lineHorizontal;
 
-        const rangeX = this.props.scaleX.range();
-        const rangeY = this.props.scaleY.range();
-        const offset = this.props.scaleY.bandwidth ? this.props.scaleY.bandwidth() / 2 : 0;
+        const rangeX = this.props.xScale.range();
+        const rangeY = this.props.yScale.range();
+        const offset = this.props.yScale.bandwidth ? this.props.yScale.bandwidth() / 2 : 0;
 
         const [x1, x2] = rangeX;
 
-        return this.props.ticksY.map((tick: any): React.Element<any>  => {
-            const y1 = rangeY[1] - (this.props.scaleY(tick) + offset);
+        return this.props.yTicks(this.props.yScale).map((tick: any): React.Element<any>  => {
+            const y1 = rangeY[1] - (this.props.yScale(tick) + offset);
             const y2 = y1;
 
             return <LineHorizontal
                 key={tick}
                 coordinates={{x1,x2,y1,y2}}
                 tick={tick}
-                scaleX={this.props.scaleX}
-                scaleY={this.props.scaleY}
+                xScale={this.props.xScale}
+                yScale={this.props.yScale}
             />;
         });
     }
@@ -142,33 +143,40 @@ export default class Gridlines extends React.PureComponent {
     buildVerticalGridlines(): Array<React.Element<any>> {
         const LineVertical = this.props.lineVertical;
 
-        const rangeY = this.props.scaleY.range();
-        const offset = this.props.scaleX.bandwidth ? this.props.scaleX.bandwidth() / 2 : 0;
+        const rangeY = this.props.yScale.range();
+        const offset = this.props.xScale.bandwidth ? this.props.xScale.bandwidth() / 2 : 0;
 
         const [y1, y2] = rangeY;
 
-        return this.props.ticksX.map((tick: any): React.Element<any> => {
-            const x1 = this.props.scaleX(tick) + offset;
+        return this.props.xTicks(this.props.xScale).map((tick: any): React.Element<any> => {
+            const x1 = this.props.xScale(tick) + offset;
             const x2 = x1;
 
             return <LineVertical
                 key={tick}
                 coordinates={{x1,x2,y1,y2}}
                 tick={tick}
-                scaleX={this.props.scaleX}
-                scaleY={this.props.scaleY}
+                xScale={this.props.xScale}
+                yScale={this.props.yScale}
             />;
         });
     }
 
     render(): React.Element<any> {
-        return <Canvas {...this.props}>
+        return <g>
             <g>
                 {this.buildHorizontalGridlines()}
             </g>
             <g>
                 {this.buildVerticalGridlines()}
             </g>
-        </Canvas>;
+        </g>;
+    }
+}
+
+export default class Gridlines extends React.Component {
+    static chartType = 'canvas';
+    render(): React.Element<any> {
+        return <GridlinesRenderable {...this.props} />;
     }
 }

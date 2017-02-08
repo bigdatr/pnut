@@ -1,4 +1,4 @@
-import {Line, ChartData, Chart, Scatter, Column} from 'pnut';
+import {Line, ChartData, Chart, Scatter, Column, Axis, Gridlines} from 'pnut';
 import React from 'react';
 import {ElementQueryHock} from 'stampy';
 
@@ -213,54 +213,57 @@ const rows = [
 ];
 
 
-
-
-// console.log(chartData);
-
-
-class Axis extends React.Component {
-    static chartType = 'axis';
-
-    render() {
-        const {label, scaleName} = this.props;
-        if(this.props[scaleName]) {
-            const domain = this.props[scaleName].domain();
-            return <text y={this.props.yPos}>Axis of {this.props.label} from {domain[0]} to {domain[domain.length - 1]}</text>
-        }
-
-        return <g></g>
-    }
-}
-
 class Plane2dExample extends React.Component {
     render() {
         const chartData = (new ChartData(rows, columns)).mapRows(ii => {
             return ii
                 .set('randomDemand', ii.get('demand') + ((Math.random() - 0.5) * 1000000))
-                .set('benchmark', 1800000);
+                .set('benchmark', 1300000);
         });
 
         const props = {
             xDimension: "month",
-            xScaleType:"scaleBand",
-            xScale: scale => scale.align(.5),
-            yDimension: ['demand']
+            // xScaleType:"scaleBand",
+            // xScale: scale => scale.align(.5),
+            yDimension: ['supply', 'demand']
         }
 
+        const lineHorizontal = ({coordinates}) => <line {...coordinates} strokeWidth="1" stroke="#ccc"/>;
+        const lineVertical = ({coordinates}) => <line {...coordinates} strokeWidth="0" stroke="#ccc"/>;
+        const dot = ({x,y}) => <circle fill='#fff' cx={x} cy={y} r={4} strokWidth="1" stroke="#ccc"/>;
+
+
+        const path = ({d}) => <path d={d} stroke="red"/>;
 
         return <div>
             <div style={{position: 'absolute', top: 0, left: 0}}>
                 <Chart
-                    padding={[0,0,0,0]}
+                    padding={[64,64,64,90]}
                     data={chartData}
                     width={this.props.eqWidth || 0}
                     height={this.props.eqHeight || 0}
                     {...props}
                 >
 
+                <Gridlines lineHorizontal={lineHorizontal} lineVertical={lineVertical} />
                     <Column yDimension="demand" columnProps={{fill: 'blue', opacity: .5}} />
                     <Column yDimension={'supply'} columnProps={{fill: 'red', opacity: .5}} />
-                    <Line yDimension="benchmark" xScaleType="scalePoint" pathProps={{stroke: 'gray', strokeWidth: 2}}/>
+                    <Line yDimension="benchmark" xScaleType="scalePoint" pathProps={{stroke: 'black', strokeWidth: 2}}/>
+                    <Line yDimension="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
+                    <Line yDimension="demand" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
+                    <Scatter yDimension="demand" dot={dot} />
+                    <Scatter yDimension="supply" dot={dot}/>
+
+                    <Axis
+                        position='bottom'
+                        dimension="x"
+                    />
+                    <Axis
+                        position='left'
+                        dimension="y"
+                        yDimension="demand"
+                    />
+
                 </Chart>
             </div>
         </div>
