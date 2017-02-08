@@ -131,17 +131,14 @@ class Chart extends Component {
                         scaleGroupKey,
                         groups: canvas
                             .groupBy(ii => ii[scaleGroupKey] || dimensionName)
-                            .map(gg => {
-                                return gg
+                            .map((groupList: List): string[] => {
+                                return groupList
                                     .map(ii => List([].concat(ii[dimensionKey]).concat(props[dimensionKey])))
                                     .flatten(1)
                                     .toSet()
                                     .filter(ii => ii)
                                     .toArray();
-                                }
-                            )
-
-                        // columns: getPropGroup(dimensionKey)
+                            })
                     };
                 })
         };
@@ -211,7 +208,7 @@ class Chart extends Component {
                     const bound = (dimensionName === 'x') ? pp.width : pp.height;
                     // Make the current dimension always a list
                     const currentDimension = List().concat(pp[dimensionKey]);
-                    const columns = groups.get(pp[scaleGroupKey] || dimensionName)
+                    const columns = groups.get(pp[scaleGroupKey] || dimensionName);
 
                     // create a set of booleans to check if a group is mixing dimension types
                     function isContinuous(list: List): Set {

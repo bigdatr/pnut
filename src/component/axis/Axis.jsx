@@ -289,7 +289,6 @@ export default class Axis extends React.Component {
         dimension: React.PropTypes.string.isRequired
     }
     render(): React.Element<any> {
-        const {scaleName = `${this.props.dimension}Scale`} = this.props;
         return <AxisRenderable {...this.props} scale={this.props[`${this.props.dimension}Scale`]}/>;
     }
 }

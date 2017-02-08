@@ -115,8 +115,7 @@ export class LineCanvas extends React.PureComponent {
 export default class Line extends React.Component {
     static chartType = 'canvas';
     render(): React.Element<any> {
-        const {xScaleName = 'xScale', yScaleName = 'yScale'} = this.props;
-        return <LineCanvas {...this.props} xScale={this.props[xScaleName]} yScale={this.props[yScaleName]}/>;
+        return <LineCanvas {...this.props} />;
     }
 }
 
