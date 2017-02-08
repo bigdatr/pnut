@@ -27,8 +27,8 @@ import type ChartRow from 'src/chartdata/ChartData';
  *     height={720}
  *     xScale={xScale}
  *     yScale={yScale}
- *     xDimension={'month'}
- *     yDimension={['supply', 'demand']}
+ *     xColumn={'month'}
+ *     yColumn={['supply', 'demand']}
  *     data={chartData}
  *     columnProps={[
  *         {
@@ -80,12 +80,12 @@ export class ColumnCanvas extends React.PureComponent {
         /**
          * The column key from `ChartData` to use for the x axis.
          */
-        xDimension: React.PropTypes.string.isRequired,
+        xColumn: React.PropTypes.string.isRequired,
         /**
          * The column key(s) from `ChartData` to use for the y axis.
          * If multiple column keys are provided then a grouped column chart will be rendered.
          */
-        yDimension: React.PropTypes.oneOfType([
+        yColumn: React.PropTypes.oneOfType([
             React.PropTypes.string,
             React.PropTypes.arrayOf(React.PropTypes.string)
         ]).isRequired,
@@ -112,25 +112,25 @@ export class ColumnCanvas extends React.PureComponent {
             row: ChartRow
         ): Array<React.Element<any>> => {
 
-            const {xScale, yScale, xDimension, yDimension, columnProps} = this.props;
+            const {xScale, yScale, xColumn, yColumn, columnProps} = this.props;
             const rangeY = this.props.yScale.range();
 
-            const yDimensionList = [].concat(yDimension);
+            const yColumnList = [].concat(yColumn);
             const columnPropsList = [].concat(columnProps);
-            const columnWidth = xScale.bandwidth() / ((typeof yDimension === 'string') ? 1 : yDimension.length);
+            const columnWidth = xScale.bandwidth() / ((typeof yColumn === 'string') ? 1 : yColumn.length);
 
-            const newColumns = yDimensionList.map((
-                yDimension: string,
+            const newColumns = yColumnList.map((
+                yColumn: string,
                 index: number
             ): React.Element<any> => {
                 return <rect
-                    key={`${row.get(xDimension)}-${yDimension}`}
+                    key={`${row.get(xColumn)}-${yColumn}`}
                     fill='black'
                     {...columnPropsList[index]}
-                    x={xScale(row.get(xDimension)) + columnWidth * index}
-                    y={rangeY[1] - yScale(row.get(yDimension))}
+                    x={xScale(row.get(xColumn)) + columnWidth * index}
+                    y={rangeY[1] - yScale(row.get(yColumn))}
                     width={columnWidth}
-                    height={yScale(row.get(yDimension))}
+                    height={yScale(row.get(yColumn))}
                 />;
             });
 

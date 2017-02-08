@@ -80,8 +80,8 @@ const canvas = shallow(<ColumnCanvas
     data={chartData}
     xScale={xScale}
     yScale={yScale}
-    xDimension={'property_type'}
-    yDimension={['supply', 'demand']}
+    xColumn={'property_type'}
+    yColumn={['supply', 'demand']}
     columnProps={{
         fill: 'blue'
     }}
@@ -95,15 +95,15 @@ test('ColumnCanvas applies passed columnProps to columns', tt => {
     tt.is(canvas.children().at(0).prop('fill'), 'blue');
 });
 
-test('ColumnCanvas given a single yDimension as a string will divide the width by 1', tt => {
+test('ColumnCanvas given a single yColumn as a string will divide the width by 1', tt => {
     const canvas = shallow(<ColumnCanvas
         width={140}
         height={140}
         data={chartData}
         xScale={xScale}
         yScale={yScale}
-        xDimension={'property_type'}
-        yDimension={'supply'}
+        xColumn={'property_type'}
+        yColumn={'supply'}
         columnProps={{
             fill: 'blue'
         }}
@@ -116,6 +116,6 @@ test('Column has a static chartType of canvas', tt => {
 });
 
 test('Column renders a ColumnCanvas', tt => {
-    const canvas = shallow(<Column data={{}} xScale={() => undefined} yScale={() => undefined} xDimension="string" yDimension="string"/>);
+    const canvas = shallow(<Column data={{}} xScale={() => undefined} yScale={() => undefined} xColumn="string" yColumn="string"/>);
     tt.is(canvas.name(), 'ColumnCanvas');
 });

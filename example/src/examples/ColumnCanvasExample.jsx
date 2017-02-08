@@ -81,8 +81,8 @@ class CanvasExample extends React.Component {
                 height={this.props.eqHeight}
                 xScale={xScale}
                 yScale={yScale}
-                xDimension={'property_type'}
-                yDimension={['supply', 'demand']}
+                xColumn={'property_type'}
+                yColumn={['supply', 'demand']}
                 data={chartData}
                 columnProps={[
                     {

@@ -225,8 +225,8 @@ const canvas = shallow(<LineCanvas
     data={chartData}
     xScale={xScale}
     yScale={yScale}
-    xDimension={'month'}
-    yDimension={'supply'}
+    xColumn={'month'}
+    yColumn={'supply'}
     data={chartData}
     pathProps={{
         strokeWidth: '2'
@@ -248,8 +248,8 @@ test('LineCanvas will offset the x position by half if the scale has a bandwidth
         data: new ChartData([rows[0], rows[1]], [columns[0], columns[1]]),
         xScale: xScale,
         yScale: yScale,
-        xDimension: 'demand',
-        yDimension: 'supply'
+        xColumn: 'demand',
+        yColumn: 'supply'
     };
     const canvasLinear = shallow(<LineCanvas {...props} xScale={scaleLinear().domain(rows.map(row => row.demand)).range([0,100])}/>);
     const canvasBandwidth = shallow(<LineCanvas {...props} xScale={scalePoint().domain(rows.map(row => row.demand)).range([0,100])} />);
@@ -263,7 +263,7 @@ test('Line has a static chartType of canvas', tt => {
 });
 
 test('Line renders a LineCanvas', tt => {
-    const canvas = shallow(<Line data={{}} xScale={() => undefined} yScale={() => undefined} xDimension="string" yDimension="string"/>);
+    const canvas = shallow(<Line data={{}} xScale={() => undefined} yScale={() => undefined} xColumn="string" yColumn="string"/>);
     tt.is(canvas.name(), 'LineCanvas');
 });
 

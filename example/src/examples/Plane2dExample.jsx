@@ -223,13 +223,13 @@ class Plane2dExample extends React.Component {
 
         const props = {
             dimensions: ['x', 'y'],
-            xDimension: "month",
+            xColumn: "month",
             // xScaleType:"scaleBand",
             // xScale: scale => scale.align(.5),
             //
             // fooScale: scale =>
             // yScaleGroup: 'y1',
-            // yDimension: 'supply',
+            // yColumn: 'supply',
             //
             // fooDimension: 'demand'
         }
@@ -251,11 +251,11 @@ class Plane2dExample extends React.Component {
                     {...props}
                 >
 
-                    <Line yScaleGroup="y1" yDimension="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
-                    <Line yScaleGroup="y2" yDimension="demand" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
+                    <Line yScaleGroup="y1" yColumn="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
+                    <Line yScaleGroup="y2" yColumn="demand" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
 
-                    {/*<Scatter yDimension="demand" dot={dot} />
-                                        <Scatter yDimension="supply" dot={dot}/>*/}
+                    {/*<Scatter yColumn="demand" dot={dot} />
+                                        <Scatter yColumn="supply" dot={dot}/>*/}
                     <Axis
                         position='bottom'
                         dimension="x"
@@ -263,13 +263,13 @@ class Plane2dExample extends React.Component {
                     <Axis
                         position='left'
                         dimension="y"
-                        yDimension="demand"
+                        yColumn="demand"
                         yScaleGroup="y1"
                     />
                     <Axis
                         position='right'
                         dimension="y"
-                        yDimension="supply"
+                        yColumn="supply"
                         yScaleGroup="y2"
                     />
 

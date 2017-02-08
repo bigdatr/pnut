@@ -25,8 +25,8 @@ import type ChartRow from 'src/chartdata/ChartData';
  *     height={720}
  *     xScale={xScale}
  *     yScale={yScale}
- *     xDimension={'month'}
- *     yDimension={'demand'}
+ *     xColumn={'month'}
+ *     yColumn={'demand'}
  *     data={chartData}
  *     pathProps={{
  *         strokeWidth: '2'
@@ -76,11 +76,11 @@ export class LineCanvas extends React.PureComponent {
         /**
          * The column key from `ChartData` to use for the x axis.
          */
-        xDimension: React.PropTypes.string.isRequired,
+        xColumn: React.PropTypes.string.isRequired,
         /**
          * The column key from `ChartData` to use for the y axis.
          */
-        yDimension: React.PropTypes.string.isRequired,
+        yColumn: React.PropTypes.string.isRequired,
         /**
          * An object of props that will be spread onto the svg `path` element. Any valid
          * [svg path attribute](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/path)
@@ -90,12 +90,12 @@ export class LineCanvas extends React.PureComponent {
     };
 
     buildPath(): string {
-        const {data, xScale, yScale, xDimension, yDimension} = this.props;
+        const {data, xScale, yScale, xColumn, yColumn} = this.props;
         return data.rows.map((row: ChartRow, index: number): string => {
             const command = index === 0 || !data.rows.get(index - 1) ? 'M' : 'L';
             const rangeY = yScale.range();
             const offset = xScale.bandwidth ? xScale.bandwidth() / 2 : 0;
-            return `${command} ${xScale(row.get(xDimension)) + offset} ${rangeY[1] - yScale(row.get(yDimension))}`;
+            return `${command} ${xScale(row.get(xColumn)) + offset} ${rangeY[1] - yScale(row.get(yColumn))}`;
         }).join(' ');
     }
 

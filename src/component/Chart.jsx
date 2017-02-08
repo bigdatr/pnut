@@ -9,49 +9,68 @@ import * as d3Scale from 'd3-scale';
  * @component
  *
  * Chart is an organizer for D3's scales. Using the dimensions array it constructs a number of
- * scales, then it checks the children props and applies the scales accordingly.
+ * scales. It checks it's children's props and applies to them these scales configurations it found.
  *
- * Each scale creates 3 dynamic props on both the Chart and each of it's children.
- *  * &lt;scaleName&gt;Dimension
- *  * &lt;scaleName&gt;ScaleType
- *  * &lt;scaleName&gt;Scale
+ * Each scale creates 4 dynamic props on the Chart and each of it's children.
+ *  * &lt;dimensionName&gt;Column
+ *  * &lt;dimensionName&gt;ScaleType
+ *  * &lt;dimensionName&gt;ScaleGroup
+ *  * &lt;dimensionName&gt;Scale
+ *
+ * Each child will inherit any of these dimension props from the Chart component.
+ * While declaring them on the child will override the parent value. This lets you declare common axis on the
+ * Chart component and specific axis on the relevant child. This flexibility makes chart construction
+ * expressive and highly customizable.
+ *
+ * ```
+ * <Chart data={data} xColumn="time">
+ *     <Line yColumn="distance"/>
+ *     <Line yColumn="velocity"/>
+ *     <Axis dimension="y" position="left" />
+ *     <Axis dimension="x" position="bottom" />
+ * </Chart>
+ * ```
  *
  *
- * @prop {string} <scaleName>Dimension
+ * @prop {string} <dimensionName>Column
  * Picks the dimension of ChartData that this scale corresponds to.
- * e.g. `<Chart dimensions={['x', 'y', 'color']} xDimension="time" yDimension="distance" colorDimension="velocity" />`
+ * e.g. `<Chart dimensions={['x', 'y', 'color']} xColumn="time" yColumn="distance" colorColumn="velocity" />`
  *
- * @prop {string} [<scaleName>ScaleType = scaleLinear]
+ * @prop {string} [<dimensionName>ScaleType = scaleLinear]
  * Picks the starting D3 scale
  * e.g. `<Chart xScaleType="scalePoint" yScaleType="scaleLinear" />`
  *
- * @prop {function} [<scaleName>Scale]
+ * @prop {function} [<dimensionName>Scale]
  * Called with scale and props after the default scale has been constructed
  * e.g. `<Chart xScaleType={scale => scale.padding(.1)} />`
+ *
+ * @prop {function} [<dimensionName>ScaleGroup]
+ * Sometimes a dimension might have multiple scales. Scale groups isolate columns into different scales.
+ * Useage examples might be a correlation graph with independant y axis.
  *
  *
  * @example
  *
  * // Line chart
- * <Chart data={data} xDimension="time">
- *     <Line yDimension="distance"/>
- *     <Axis yDimension="distance" position="left" />
- *     <Axis xDimension="time" position="bottom" />
+ * <Chart data={data} xColumn="time">
+ *     <Line yColumn="distance"/>
+ *     <Axis yColumn="distance" position="left" />
+ *     <Axis xColumn="time" position="bottom" />
  * </Chart>
  *
  * // Column chart
- * <Chart data={data} xDimension="favoriteColor">
- *     <Column yDimension="people"/>
+ * <Chart data={data} xColumn="favoriteColor">
+ *     <Column yColumn="people"/>
  * </Chart>
  *
  * // Point scale scatter plot
- * <Chart data={data} xDimension="favColor" xScaleType="scalePoint">
- *     <Line yDimension="distance"/>
+ * <Chart data={data} xColumn="favColor" xScaleType="scalePoint">
+ *     <Line yColumn="distance"/>
  * </Chart>
  *
  * // Extended scale (column chart with extra padding)
- * <Chart data={data} xDimension="favoriteColor" xScale={scale => scale.padding(1)}>
- *     <Column yDimension="people"/>
+ * <Chart data={data} xColumn="favoriteColor" xScale={scale => scale.padding(1)}>
+ *     <Column yColumn="people"/>
  * </Chart>
  *
  * // Complete custom scale
@@ -60,8 +79,8 @@ import * as d3Scale from 'd3-scale';
  *          .domain([props.data.min('distance'), pp.data.max('distance')])
  *          .range([0, props.height]);
  * }
- * <Chart data={data} xDimension="time" yScale={customScale}>
- *     <Line yDimension="distance"/>
+ * <Chart data={data} xColumn="time" yScale={customScale}>
+ *     <Line yColumn="distance"/>
  * </Chart>
  */
 class Chart extends Component {
@@ -118,13 +137,13 @@ class Chart extends Component {
         this.state = {
             dimensions: props.dimensions
                 .map((dimensionName: string): Object => {
-                    const dimensionKey = `${dimensionName}Dimension`;
+                    const columnKey = `${dimensionName}Column`;
                     const scaleKey = `${dimensionName}Scale`;
                     const scaleTypeKey = `${dimensionName}ScaleType`;
                     const scaleGroupKey = `${dimensionName}ScaleGroup`;
 
                     return {
-                        dimensionKey,
+                        columnKey,
                         dimensionName,
                         scaleKey,
                         scaleTypeKey,
@@ -133,7 +152,7 @@ class Chart extends Component {
                             .groupBy(ii => ii[scaleGroupKey] || dimensionName)
                             .map((groupList: List): string[] => {
                                 return groupList
-                                    .map(ii => List([].concat(ii[dimensionKey]).concat(props[dimensionKey])))
+                                    .map(ii => List([].concat(ii[columnKey]).concat(props[columnKey])))
                                     .flatten(1)
                                     .toSet()
                                     .filter(ii => ii)
@@ -196,8 +215,7 @@ class Chart extends Component {
         }
     }
     getDefaultScale(dimension: Object): Function {
-        const {dimensionName, scaleTypeKey, scaleGroupKey, dimensionKey, groups} = dimension;
-
+        const {dimensionName, scaleTypeKey, scaleGroupKey, columnKey, groups} = dimension;
 
         switch(dimensionName) {
             case 'x':
@@ -207,7 +225,7 @@ class Chart extends Component {
                     // choose the max value of range based on x/width y/height
                     const bound = (dimensionName === 'x') ? pp.width : pp.height;
                     // Make the current dimension always a list
-                    const currentDimension = List().concat(pp[dimensionKey]);
+                    const currentDimension = List().concat(pp[columnKey]);
                     const columns = groups.get(pp[scaleGroupKey] || dimensionName);
 
                     // create a set of booleans to check if a group is mixing dimension types
@@ -219,7 +237,7 @@ class Chart extends Component {
 
                     // if the size is greater than one we have multiple data types
                     if(isContinuous(List(columns)).size > 1) {
-                        throw new Error(`${dimensionKey} cannot share continuous and non continuous data: ${groups.get(scaleGroupKey).join(', ')}`);
+                        throw new Error(`${columnKey} cannot share continuous and non continuous data: ${groups.get(scaleGroupKey).join(', ')}`);
                     }
 
                     // continuous data domain array is just [min,max]
@@ -233,7 +251,7 @@ class Chart extends Component {
                     } else {
                         return d3Scale[pp[scaleTypeKey] || 'scaleBand']()
                             // only fetch the data if is going to exist. Otherwise send and empty array
-                            .domain(pp[dimensionKey] ? pp.data.getColumnData(currentDimension.get(0)).toArray() : [])
+                            .domain(pp[columnKey] ? pp.data.getColumnData(currentDimension.get(0)).toArray() : [])
                             .range([0, bound]);
                     }
 
@@ -251,13 +269,13 @@ class Chart extends Component {
 
         return List(dimensions)
             .reduce((props: Map, dimension: Object): Map => {
-                const {scaleKey, dimensionKey} = dimension;
+                const {scaleKey, columnKey} = dimension;
                 const scale = this.getDefaultScale(dimension)(chartProps);
                 const editScale = chartProps[scaleKey];
 
                 return props
                     .set(scaleKey, typeof editScale === 'function' ? editScale(scale.copy(), chartProps) : scale)
-                    .set(dimensionKey, chartProps[dimensionKey]);
+                    .set(columnKey, chartProps[columnKey]);
 
             }, Map())
             .set('data', chartProps.data)

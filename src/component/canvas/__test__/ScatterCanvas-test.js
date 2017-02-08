@@ -238,8 +238,8 @@ const canvas = shallow(<ScatterCanvas
     data={chartData}
     xScale={xScale}
     yScale={yScale}
-    xDimension={'month'}
-    yDimension={'supply'}
+    xColumn={'month'}
+    yColumn={'supply'}
     data={chartData}
     dot={customDot}
 />);
@@ -264,8 +264,8 @@ const defaultDotCanvas = shallow(<ScatterCanvas
     data={chartData}
     xScale={xScale}
     yScale={yScale}
-    xDimension={'month'}
-    yDimension={'supply'}
+    xColumn={'month'}
+    yColumn={'supply'}
     data={chartData}
 />);
 
@@ -285,8 +285,8 @@ test('ScatterCanvas will offset the cx position by half the bandwidth if the sca
         data: new ChartData([rows[0], rows[1]], [columns[0], columns[1]]),
         xScale: xScale,
         yScale: yScale,
-        xDimension: 'demand',
-        yDimension: 'supply'
+        xColumn: 'demand',
+        yColumn: 'supply'
     };
     const canvasLinear = shallow(<ScatterCanvas {...props} xScale={scaleLinear().domain(rows.map(row => row.demand)).range([0,100])}/>);
     const canvasBandwidth = shallow(<ScatterCanvas {...props} xScale={scalePoint().domain(rows.map(row => row.demand)).range([0,100])} />);
@@ -301,6 +301,6 @@ test('Scatter has a static chartType of canvas', tt => {
 });
 
 test('Scatter renders a ScatterCanvas', tt => {
-    const canvas = shallow(<Scatter data={{}} xScale={() => undefined} yScale={() => undefined} xDimension="string" yDimension="string"/>);
+    const canvas = shallow(<Scatter data={{}} xScale={() => undefined} yScale={() => undefined} xColumn="string" yColumn="string"/>);
     tt.is(canvas.name(), 'ScatterCanvas');
 });

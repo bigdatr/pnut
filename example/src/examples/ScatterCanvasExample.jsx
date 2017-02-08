@@ -233,8 +233,8 @@ class CanvasExample extends React.Component {
                         height={this.props.eqHeight}
                         xScale={xScale}
                         yScale={yScale}
-                        xDimension={'month'}
-                        yDimension={'supply'}
+                        xColumn={'month'}
+                        yColumn={'supply'}
                         data={chartData}
                         dot={({x, y, row}) => <circle
                             cx={x}

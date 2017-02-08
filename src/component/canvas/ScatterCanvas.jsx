@@ -19,8 +19,8 @@ type DotProps = {
  *
  * @prop {number} x - The x position of the dot on the canvas
  * @prop {number} y - The y position of the dot on the canvas
- * @prop {ChartScalar} dataX - The `ChartScalar` value for `xDimension` in this row.
- * @prop {ChartScalar} dataY - The `ChartScalar` value for `yDimension` in this row.
+ * @prop {ChartScalar} dataX - The `ChartScalar` value for `xColumn` in this row.
+ * @prop {ChartScalar} dataY - The `ChartScalar` value for `yColumn` in this row.
  * @prop {ChartRow} row - The `ChartRow` corresponding to this dot.
  */
 
@@ -56,8 +56,8 @@ const defaultDot = (dotProps: DotProps): React.Element<any> => {
  *     height={720}
  *     xScale={xScale}
  *     yScale={yScale}
- *     xDimension={'month'}
- *     yDimension={'demand'}
+ *     xColumn={'month'}
+ *     yColumn={'demand'}
  *     data={chartData}
  *     dot={({x, y, dataX, dataY, row}) => <circle
  *         cx={x}
@@ -108,11 +108,11 @@ export class ScatterCanvas extends React.PureComponent {
         /**
          * The column key from `ChartData` to use for the x axis.
          */
-        xDimension: React.PropTypes.string.isRequired,
+        xColumn: React.PropTypes.string.isRequired,
         /**
          * The column key from `ChartData` to use for the y axis.
          */
-        yDimension: React.PropTypes.string.isRequired,
+        yColumn: React.PropTypes.string.isRequired,
         /**
          * An optional react component that will be used to render dots on the chart.
          * Defaults to rendering a `<circle/>`.
@@ -121,14 +121,14 @@ export class ScatterCanvas extends React.PureComponent {
     };
 
     buildDots(): Array<React.Element<any>> {
-        const {data, xScale, yScale, xDimension, yDimension, dot} = this.props;
+        const {data, xScale, yScale, xColumn, yColumn, dot} = this.props;
         const Dot = dot;
         const rangeY = yScale.range();
         const offset = xScale.bandwidth ? xScale.bandwidth() / 2 : 0;
 
         return data.rows.map((row: ChartRow, index: number): React.Element<any> => {
-            const dataX = row.get(xDimension);
-            const dataY = row.get(yDimension);
+            const dataX = row.get(xColumn);
+            const dataY = row.get(yColumn);
             return <Dot
                 key={index}
                 x={xScale(dataX) + offset}

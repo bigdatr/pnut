@@ -227,8 +227,8 @@ class CanvasExample extends React.Component {
                         height={this.props.eqHeight}
                         xScale={xScale}
                         yScale={yScale}
-                        xDimension={'month'}
-                        yDimension={'supply'}
+                        xColumn={'month'}
+                        yColumn={'supply'}
                         data={chartData}
                         svgProps={{
                             strokeWidth: '2'

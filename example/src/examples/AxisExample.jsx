@@ -164,8 +164,8 @@ class AxisExample extends React.Component {
                         height={this.props.eqHeight - 100}
                         xScale={xScale}
                         yScale={yScale}
-                        xDimension={'property_type'}
-                        yDimension={['supply', 'demand']}
+                        xColumn={'property_type'}
+                        yColumn={['supply', 'demand']}
                         data={chartData}
                         columnProps={[
                             {
