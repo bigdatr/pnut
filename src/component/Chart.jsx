@@ -74,9 +74,9 @@ class Chart extends Component {
         data: PropTypes.object.isRequired,
 
         /**
-         * {string[]} Dimensions to construct scales off
+         * Dimensions to construct scales off
          */
-        dimensions: PropTypes.array.isRequired,
+        dimensions: PropTypes.arrayOf(PropTypes.string).isRequired,
 
         /**
          * Total height of the chart.
@@ -93,7 +93,7 @@ class Chart extends Component {
          * Renderable height is: height - top - bottom.
          * Renderable width is: width - left - right.
          */
-        padding: PropTypes.array
+        padding: PropTypes.arrayOf(PropTypes.number)
     };
 
     static defaultProps = {
@@ -226,7 +226,7 @@ class Chart extends Component {
                     }
 
                     // continuous data domain array is just [min,max]
-                    // non continuous domain array has one item for each discreet point
+                    // non continuous domain array has one item for each discrete point
                     if(isContinuous(currentDimension).get(true)) {
                         return d3Scale[pp[scaleTypeKey] || 'scaleLinear']()
                             .domain([pp.data.min(columns), pp.data.max(columns)])

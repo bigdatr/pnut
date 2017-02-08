@@ -73,7 +73,7 @@ test('Gridlines renders a GridlinesRenderable', tt => {
 });
 
 
-test('GridlinesRenderable with discreet scales will use domain for ticks. Other will use ticks', tt => {
+test('GridlinesRenderable with discrete scales will use domain for ticks. Other will use ticks', tt => {
     const linear = scaleLinear()
         .domain([0, 100])
         .range([0, 200]);

@@ -2,7 +2,7 @@ import test from 'ava';
 import React from 'react';
 import {shallow} from 'enzyme';
 import sinon from 'sinon';
-import Axis, {AxisRenderable} from '../Axis';
+import Axis,{AxisRenderable} from '../Axis';
 import {scaleLinear, scaleBand} from 'd3-scale';
 
 const savedErrorLog = console.error;
@@ -182,7 +182,7 @@ test('Axis allows custom text props', tt => {
 
 
 
-test('Axis with discreet scales will use domain for ticks. Other will use ticks', tt => {
+test('Axis with discrete scales will use domain for ticks. Other will use ticks', tt => {
     const linear = scaleLinear()
         .domain([0, 100])
         .range([0, 200]);

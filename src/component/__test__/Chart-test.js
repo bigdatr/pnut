@@ -86,7 +86,7 @@ test('it puts axis types in thier spots', tt => {
     tt.is(chart.children().at(1).children().at(0).name(), 'Line');
 });
 
-test('mixing continuous and discreet data in scales will thrown an error', tt => {
+test('mixing continuous and discrete data in scales will thrown an error', tt => {
 
     const chart = () => shallow(<Chart width={0} height={0} data={data} xDimension="demand">
         <Line yDimension="supply"/>
@@ -104,7 +104,7 @@ test('if the dimension is not provided the scales domain will be empty', tt => {
     </Chart>);
 });
 
-test('discreet domains will be the length of the data inserted', tt => {
+test('discrete domains will be the length of the data inserted', tt => {
     const scale = scale => tt.is(scale.domain().length, 3);
 
     shallow(<Chart width={0} height={0} data={data} xDimension="month" xScale={scale}>
