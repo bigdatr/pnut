@@ -4,9 +4,9 @@ import {Route, IndexRoute} from 'react-router';
 import AppHandler from 'components/AppHandler';
 import ErrorHandler from 'components/ErrorHandler';
 import ContentsPage from 'components/ContentsPage';
-import LineCanvasExample from 'examples/LineCanvasExample';
-import ColumnCanvasExample from 'examples/ColumnCanvasExample';
-import ScatterCanvasExample from 'examples/ScatterCanvasExample';
+import LineRenderableExample from 'examples/LineRenderableExample';
+import ColumnRenderableExample from 'examples/ColumnRenderableExample';
+import ScatterRenderableExample from 'examples/ScatterRenderableExample';
 import AxisExample from 'examples/AxisExample';
 import Plane2dExample from 'examples/Plane2dExample';
 
@@ -18,9 +18,9 @@ const routes = <Route component={AppHandler} path="/">
     </Route>
 
     <Route path="canvas">
-        <Route path="LineCanvas" component={LineCanvasExample}/>
-        <Route path="ColumnCanvas" component={ColumnCanvasExample}/>
-        <Route path="ScatterCanvas" component={ScatterCanvasExample}/>
+        <Route path="LineRenderable" component={LineRenderableExample}/>
+        <Route path="ColumnRenderable" component={ColumnRenderableExample}/>
+        <Route path="ScatterRenderable" component={ScatterRenderableExample}/>
         <Route path="Axis" component={AxisExample}/>
     </Route>
 

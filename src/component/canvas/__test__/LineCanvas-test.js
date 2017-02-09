@@ -3,7 +3,7 @@ import React from 'react';
 import {shallow} from 'enzyme';
 
 import {scaleLinear, scalePoint} from 'd3-scale';
-import Line, {LineCanvas} from '../LineCanvas';
+import Line, {LineRenderable} from '../LineRenderable';
 import ChartData from '../../../chartdata/ChartData';
 
 
@@ -219,7 +219,7 @@ const xScale = scalePoint()
     .domain(rows.map(row => row.month))
     .range([0, 100]);
 
-const canvas = shallow(<LineCanvas
+const canvas = shallow(<LineRenderable
     width={200}
     height={200}
     data={chartData}
@@ -233,15 +233,15 @@ const canvas = shallow(<LineCanvas
     }}
 />);
 
-test('LineCanvas renders a line', tt => {
+test('LineRenderable renders a line', tt => {
     tt.is(canvas.children().at(0).type(), 'path');
 });
 
-test('LineCanvas applies passed lineProps to line', tt => {
+test('LineRenderable applies passed lineProps to line', tt => {
     tt.is(canvas.children().at(0).prop('strokeWidth'), '2');
 });
 
-test('LineCanvas will offset the x position by half if the scale has a bandwidth', tt => {
+test('LineRenderable will offset the x position by half if the scale has a bandwidth', tt => {
     const props = {
         width: 140,
         height: 140,
@@ -251,8 +251,8 @@ test('LineCanvas will offset the x position by half if the scale has a bandwidth
         xColumn: 'demand',
         yColumn: 'supply'
     };
-    const canvasLinear = shallow(<LineCanvas {...props} xScale={scaleLinear().domain(rows.map(row => row.demand)).range([0,100])}/>);
-    const canvasBandwidth = shallow(<LineCanvas {...props} xScale={scalePoint().domain(rows.map(row => row.demand)).range([0,100])} />);
+    const canvasLinear = shallow(<LineRenderable {...props} xScale={scaleLinear().domain(rows.map(row => row.demand)).range([0,100])}/>);
+    const canvasBandwidth = shallow(<LineRenderable {...props} xScale={scalePoint().domain(rows.map(row => row.demand)).range([0,100])} />);
 
     tt.is(canvasLinear.children().at(0).prop('d').split(' ')[4], '100');
     tt.is(canvasBandwidth.children().at(0).prop('d').split(' ')[4], '3.225806451612903');
@@ -262,8 +262,8 @@ test('Line has a static chartType of canvas', tt => {
     tt.is(Line.chartType, 'canvas');
 });
 
-test('Line renders a LineCanvas', tt => {
+test('Line renders a LineRenderable', tt => {
     const canvas = shallow(<Line data={{}} xScale={() => undefined} yScale={() => undefined} xColumn="string" yColumn="string"/>);
-    tt.is(canvas.name(), 'LineCanvas');
+    tt.is(canvas.name(), 'LineRenderable');
 });
 

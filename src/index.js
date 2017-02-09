@@ -6,11 +6,11 @@ export {default as Chart} from './component/Chart';
 // Children
 export {default as Axis} from './component/axis/Axis';
 export {AxisRenderable} from './component/axis/Axis';
-export {default as Column} from './component/canvas/ColumnCanvas';
-export {ColumnCanvas} from './component/canvas/ColumnCanvas';
+export {default as Column} from './component/canvas/ColumnRenderable';
+export {ColumnRenderable} from './component/canvas/ColumnRenderable';
 export {default as Gridlines} from './component/canvas/Gridlines';
 export {GridlinesRenderable} from './component/canvas/Gridlines';
-export {default as Line} from './component/canvas/LineCanvas';
-export {LineCanvas} from './component/canvas/LineCanvas';
-export {default as Scatter} from './component/canvas/ScatterCanvas';
-export {ScatterCanvas} from './component/canvas/ScatterCanvas';
+export {default as Line} from './component/canvas/LineRenderable';
+export {LineRenderable} from './component/canvas/LineRenderable';
+export {default as Scatter} from './component/canvas/ScatterRenderable';
+export {ScatterRenderable} from './component/canvas/ScatterRenderable';

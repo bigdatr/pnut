@@ -4,7 +4,7 @@ import {shallow} from 'enzyme';
 import {spy} from 'sinon';
 
 import Chart from '../Chart';
-import Line from '../canvas/LineCanvas';
+import Line from '../canvas/LineRenderable';
 import ChartData from '../../chartdata/ChartData';
 
 const columns = [

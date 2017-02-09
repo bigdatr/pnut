@@ -3,7 +3,7 @@ import React from 'react';
 import {shallow} from 'enzyme';
 
 import {scaleLinear, scalePoint} from 'd3-scale';
-import Scatter, {ScatterCanvas} from '../ScatterCanvas';
+import Scatter, {ScatterRenderable} from '../ScatterRenderable';
 import ChartData from '../../../chartdata/ChartData';
 
 
@@ -232,7 +232,7 @@ const customDot = (props) => {
     />;
 };
 
-const canvas = shallow(<ScatterCanvas
+const canvas = shallow(<ScatterRenderable
     width={200}
     height={200}
     data={chartData}
@@ -244,21 +244,21 @@ const canvas = shallow(<ScatterCanvas
     dot={customDot}
 />);
 
-test('ScatterCanvas renders circles', tt => {
+test('ScatterRenderable renders circles', tt => {
     tt.is(canvas.childAt(0).shallow().type(), 'circle');
 });
 
-test('ScatterCanvas allows custom circle rendering', tt => {
+test('ScatterRenderable allows custom circle rendering', tt => {
     tt.is(canvas.childAt(0).shallow().prop('r'), scaleRadius(rows[0].demand));
 });
 
-test('ScatterCanvas custom dot has x and y params', tt => {
+test('ScatterRenderable custom dot has x and y params', tt => {
     tt.is(canvas.childAt(0).shallow().prop('cx'), xScale(rows[0].month));
     tt.is(canvas.childAt(0).shallow().prop('cy'), yScale.range()[1] - yScale(rows[0].supply));
 });
 
 
-const defaultDotCanvas = shallow(<ScatterCanvas
+const defaultDotCanvas = shallow(<ScatterRenderable
     width={200}
     height={200}
     data={chartData}
@@ -269,16 +269,16 @@ const defaultDotCanvas = shallow(<ScatterCanvas
     data={chartData}
 />);
 
-test('ScatterCanvas can render circle by as default dot', tt => {
+test('ScatterRenderable can render circle by as default dot', tt => {
     tt.is(defaultDotCanvas.childAt(0).shallow().type(), 'circle');
 });
 
-test('ScatterCanvas default dot has x and y params', tt => {
+test('ScatterRenderable default dot has x and y params', tt => {
     tt.is(defaultDotCanvas.childAt(0).shallow().prop('cx'), xScale(rows[0].month));
     tt.is(defaultDotCanvas.childAt(0).shallow().prop('cy'), yScale.range()[1] - yScale(rows[0].supply));
 });
 
-test('ScatterCanvas will offset the cx position by half the bandwidth if the scale has a bandwidth', tt => {
+test('ScatterRenderable will offset the cx position by half the bandwidth if the scale has a bandwidth', tt => {
     const props = {
         width: 140,
         height: 140,
@@ -288,8 +288,8 @@ test('ScatterCanvas will offset the cx position by half the bandwidth if the sca
         xColumn: 'demand',
         yColumn: 'supply'
     };
-    const canvasLinear = shallow(<ScatterCanvas {...props} xScale={scaleLinear().domain(rows.map(row => row.demand)).range([0,100])}/>);
-    const canvasBandwidth = shallow(<ScatterCanvas {...props} xScale={scalePoint().domain(rows.map(row => row.demand)).range([0,100])} />);
+    const canvasLinear = shallow(<ScatterRenderable {...props} xScale={scaleLinear().domain(rows.map(row => row.demand)).range([0,100])}/>);
+    const canvasBandwidth = shallow(<ScatterRenderable {...props} xScale={scalePoint().domain(rows.map(row => row.demand)).range([0,100])} />);
 
     tt.is(canvasLinear.childAt(1).shallow().prop('cx'), 100);
     tt.is(canvasBandwidth.childAt(1).shallow().prop('cx'), 3.225806451612903);
@@ -300,7 +300,7 @@ test('Scatter has a static chartType of canvas', tt => {
     tt.is(Scatter.chartType, 'canvas');
 });
 
-test('Scatter renders a ScatterCanvas', tt => {
+test('Scatter renders a ScatterRenderable', tt => {
     const canvas = shallow(<Scatter data={{}} xScale={() => undefined} yScale={() => undefined} xColumn="string" yColumn="string"/>);
-    tt.is(canvas.name(), 'ScatterCanvas');
+    tt.is(canvas.name(), 'ScatterRenderable');
 });

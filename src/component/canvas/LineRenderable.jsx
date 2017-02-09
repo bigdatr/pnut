@@ -7,7 +7,7 @@ import type ChartRow from 'src/chartdata/ChartData';
  *
  * @component
  *
- * LineCanvas is the basic svg renderer for Line charts.
+ * LineRenderable is the basic svg renderer for Line charts.
  *
  * @example
  *
@@ -20,7 +20,7 @@ import type ChartRow from 'src/chartdata/ChartData';
  *     .domain(['January', 'February', 'March', 'April'])
  *     .range([0, 1280]);
  *
- * return <LineCanvas
+ * return <LineRenderable
  *     width={1280}
  *     height={720}
  *     xScale={xScale}
@@ -36,7 +36,7 @@ import type ChartRow from 'src/chartdata/ChartData';
  *
  */
 
-export class LineCanvas extends React.PureComponent {
+export class LineRenderable extends React.PureComponent {
     static defaultProps = {
         pathProps: {}
     };
@@ -115,7 +115,7 @@ export class LineCanvas extends React.PureComponent {
 export default class Line extends React.Component {
     static chartType = 'canvas';
     render(): React.Element<any> {
-        return <LineCanvas {...this.props} />;
+        return <LineRenderable {...this.props} />;
     }
 }
 

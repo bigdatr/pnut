@@ -1,4 +1,4 @@
-import {ColumnCanvas, AxisRenderable, ChartData, Gridlines, Canvas} from 'pnut';
+import {ColumnRenderable, AxisRenderable, ChartData, Gridlines, Canvas} from 'pnut';
 import React from 'react';
 import {scaleLog, scaleLinear, scaleBand} from 'd3-scale';
 import {ElementQueryHock} from 'stampy';
@@ -159,7 +159,7 @@ class AxisExample extends React.Component {
                 zIndex: 2
             }}>
                 <Canvas width={eqWidth} height={eqHeight}>
-                    <ColumnCanvas
+                    <ColumnRenderable
                         width={this.props.eqWidth - 100}
                         height={this.props.eqHeight - 100}
                         xScale={xScale}

@@ -34,7 +34,7 @@ const defaultDot = (dotProps: DotProps): React.Element<any> => {
  *
  * @component
  *
- * ScatterCanvas is the basic svg renderer for Scatter charts.
+ * ScatterRenderable is the basic svg renderer for Scatter charts.
  *
  * @example
  *
@@ -51,7 +51,7 @@ const defaultDot = (dotProps: DotProps): React.Element<any> => {
  *     .domain([0, 100])
  *     .range([5, 30]);
  *
- * return <ScatterCanvas
+ * return <ScatterRenderable
  *     width={1280}
  *     height={720}
  *     xScale={xScale}
@@ -69,7 +69,7 @@ const defaultDot = (dotProps: DotProps): React.Element<any> => {
  *
  */
 
-export class ScatterCanvas extends React.PureComponent {
+export class ScatterRenderable extends React.PureComponent {
     static defaultProps = {
         dot: defaultDot
     };
@@ -150,6 +150,6 @@ export class ScatterCanvas extends React.PureComponent {
 export default class Scatter extends React.Component {
     static chartType = 'canvas';
     render(): React.Element<any> {
-        return <ScatterCanvas {...this.props} />;
+        return <ScatterRenderable {...this.props} />;
     }
 }

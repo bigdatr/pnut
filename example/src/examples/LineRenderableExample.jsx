@@ -1,4 +1,4 @@
-import {LineCanvas, ChartData, Canvas} from 'pnut';
+import {LineRenderable, ChartData, Canvas} from 'pnut';
 import React from 'react';
 import {scaleLinear, scalePoint} from 'd3-scale';
 import {ElementQueryHock} from 'stampy';
@@ -222,7 +222,7 @@ class CanvasExample extends React.Component {
         return <div>
             <div style={{position: 'absolute', top: 0, left: 0}}>
                 <Canvas width={this.props.eqWidth} height={this.props.eqHeight}>
-                    <LineCanvas
+                    <LineRenderable
                         width={this.props.eqWidth}
                         height={this.props.eqHeight}
                         xScale={xScale}

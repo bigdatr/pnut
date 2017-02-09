@@ -7,7 +7,7 @@ import type ChartRow from 'src/chartdata/ChartData';
  *
  * @component
  *
- * ColumnCanvas is the basic svg renderer for Column charts. It can render simple column charts and
+ * ColumnRenderable is the basic svg renderer for Column charts. It can render simple column charts and
  * grouped column charts.
  *
  * @example
@@ -22,7 +22,7 @@ import type ChartRow from 'src/chartdata/ChartData';
  *     .range([0, 1280])
  *     .padding(0.1);
  *
- * return <ColumnCanvas
+ * return <ColumnRenderable
  *     width={1280}
  *     height={720}
  *     xScale={xScale}
@@ -44,7 +44,7 @@ import type ChartRow from 'src/chartdata/ChartData';
  */
 
 
-export class ColumnCanvas extends React.PureComponent {
+export class ColumnRenderable extends React.PureComponent {
 
     static propTypes = {
         // Props passed to canvas
@@ -148,7 +148,7 @@ export class ColumnCanvas extends React.PureComponent {
 export default class Column extends React.Component {
     static chartType = 'canvas';
     render(): React.Element<any> {
-        return <ColumnCanvas {...this.props} />;
+        return <ColumnRenderable {...this.props} />;
     }
 }
 
