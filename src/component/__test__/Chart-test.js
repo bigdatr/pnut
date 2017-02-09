@@ -39,7 +39,7 @@ const rows = [
 
 const data = new ChartData(rows, columns);
 
-test('Canvas.getCanvasSize props and padding default to 0', tt => {
+test('Svg.getCanvasSize props and padding default to 0', tt => {
     const chart = shallow(<Chart width={0} height={0} data={data} xColumn="demand"><Line yColumn="supply"/></Chart>);
 
     Object.values(chart.instance().getCanvasSize())
@@ -48,7 +48,7 @@ test('Canvas.getCanvasSize props and padding default to 0', tt => {
         });
 });
 
-test('Canvas.getAxisSize returns correct padding for each combination', tt => {
+test('Svg.getAxisSize returns correct padding for each combination', tt => {
     const chart = shallow(<Chart width={0} height={0} padding={[1,1,1,1]} data={data} xColumn="demand"><Line yColumn="supply"/></Chart>);
     tt.deepEqual(chart.instance().getAxisSize(), {});
     tt.is(chart.instance().getAxisSize('top').height, 1);
@@ -57,7 +57,7 @@ test('Canvas.getAxisSize returns correct padding for each combination', tt => {
     tt.is(chart.instance().getAxisSize('right').width, 1);
 });
 
-test('Canvas.getDefaultScale will default to a linearScale with no range or domain', tt => {
+test('Svg.getDefaultScale will default to a linearScale with no range or domain', tt => {
     const chart = shallow(<Chart width={0} height={0} data={data} xColumn="demand"><Line yColumn="supply"/></Chart>).instance();
     tt.is(chart.getDefaultScale({})({})(1), 1);
 });

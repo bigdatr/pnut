@@ -1,7 +1,7 @@
 // @flow
 import React, {Component, Children, cloneElement, Element, PropTypes} from 'react';
 import {List, Map, Set} from 'immutable';
-import Canvas from './canvas/Canvas';
+import Svg from './Svg';
 import * as d3Scale from 'd3-scale';
 
 
@@ -316,13 +316,13 @@ class Chart extends Component {
         function getAxis(key: string, x: number, y: number): ?Element<any> {
             const axis = scaledChildren.getIn(['axis', key, 0]);
             if(axis) {
-                return <Canvas x={x} y={y} height={axis.props.height} width={axis.props.width}>
+                return <Svg x={x} y={y} height={axis.props.height} width={axis.props.width}>
                     {scaledChildren.getIn(['axis', key]).toArray()}
-                </Canvas>;
+                </Svg>;
             }
         }
 
-        return <Canvas
+        return <Svg
             width={outerWidth}
             height={outerHeight}
         >
@@ -330,10 +330,10 @@ class Chart extends Component {
             {getAxis('right', left + width, top)}
             {getAxis('bottom', left, height + top)}
             {getAxis('left', 0, top)}
-            <Canvas x={left} y={top} width={width} height={height}>
+            <Svg x={left} y={top} width={width} height={height}>
                 {scaledChildren.get('canvas')}
-            </Canvas>
-        </Canvas>;
+            </Svg>
+        </Svg>;
     }
 }
 

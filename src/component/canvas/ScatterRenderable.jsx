@@ -78,16 +78,16 @@ export class ScatterRenderable extends React.PureComponent {
         // Props passed to canvas
 
         /**
-         * The width of the canvas. This is just passed on to the Canvas component.
+         * The width of the canvas. This is just passed on to the Svg component.
          */
         height: React.PropTypes.number,
         /**
-         * The height of the canvas. This is just passed on to the Canvas component.
+         * The height of the canvas. This is just passed on to the Svg component.
          */
         width: React.PropTypes.number,
         /**
          * An object of props that will be spread onto the svg element.
-         * This is just passed on to the Canvas component.
+         * This is just passed on to the Svg component.
          */
         svgProps: React.PropTypes.object,
 

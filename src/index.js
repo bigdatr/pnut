@@ -1,6 +1,6 @@
 // @flow
 export {default as ChartData} from './chartdata/ChartData';
-export {default as Canvas} from './component/canvas/Canvas';
+export {default as Svg} from './component/Svg';
 export {default as Chart} from './component/Chart';
 
 // Children

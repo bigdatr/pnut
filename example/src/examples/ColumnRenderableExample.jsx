@@ -1,4 +1,4 @@
-import {ColumnRenderable, ChartData, Canvas} from 'pnut';
+import {ColumnRenderable, ChartData, Svg} from 'pnut';
 import React from 'react';
 import {scaleLog, scaleBand} from 'd3-scale';
 import {ElementQueryHock} from 'stampy';
@@ -75,7 +75,7 @@ class CanvasExample extends React.Component {
             .range([0, this.props.eqWidth])
             .padding(0.1);
 
-        return <Canvas width={this.props.eqWidth} height={this.props.eqHeight}>
+        return <Svg width={this.props.eqWidth} height={this.props.eqHeight}>
             <ColumnRenderable
                 width={this.props.eqWidth}
                 height={this.props.eqHeight}
@@ -93,7 +93,7 @@ class CanvasExample extends React.Component {
                     }
                 ]}
             />;
-        </Canvas>
+        </Svg>
     }
 }
 

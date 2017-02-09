@@ -6,17 +6,17 @@ import React from 'react';
  *
  * @component
  *
- * Canvas is a simple wrapper component used by other canvasses to provide the wrapping SVG element.
+ * Svg is a simple wrapper component used by other canvasses to provide the wrapping SVG element.
  *
  * @example
  *
- * <Canvas width={200} height={200} svgProps{{fill: 'red'}}>
+ * <Svg width={200} height={200} svgProps{{fill: 'red'}}>
  *     <circle cx={0} cy={0} r={10}/>
- * </Canvas>
+ * </Svg>
  *
  */
 
-export default class Canvas extends React.PureComponent {
+export default class Svg extends React.PureComponent {
 
     static propTypes = {
         /**

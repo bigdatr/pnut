@@ -1,4 +1,4 @@
-import {ScatterRenderable, ChartData, Canvas} from 'pnut';
+import {ScatterRenderable, ChartData, Svg} from 'pnut';
 import React from 'react';
 import {scaleLinear, scalePoint} from 'd3-scale';
 import {interpolateRdBu} from 'd3-scale-chromatic';
@@ -227,7 +227,7 @@ class CanvasExample extends React.Component {
 
         return <div>
             <div style={{position: 'absolute', top: 0, left: 0}}>
-                <Canvas width={this.props.eqWidth} height={this.props.eqHeight}>
+                <Svg width={this.props.eqWidth} height={this.props.eqHeight}>
                     <ScatterRenderable
                         width={this.props.eqWidth}
                         height={this.props.eqHeight}
@@ -242,7 +242,7 @@ class CanvasExample extends React.Component {
                             r={scaleRadius(row.get('demand'))}
                         />}
                     />
-                </Canvas>
+                </Svg>
             </div>
 
         </div>
