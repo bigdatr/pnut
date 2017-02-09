@@ -224,20 +224,7 @@ class Plane2dExample extends React.Component {
         const props = {
             dimensions: ['x', 'y'],
             xColumn: "month",
-            // xScaleType:"scaleBand",
-            // xScale: scale => scale.align(.5),
-            //
-            // fooScale: scale =>
-            // yScaleGroup: 'y1',
-            // yColumn: 'supply',
-            //
-            // fooDimension: 'demand'
         }
-
-        const lineHorizontal = ({coordinates}) => <line {...coordinates} strokeWidth="1" stroke="#ccc"/>;
-        const lineVertical = ({coordinates}) => <line {...coordinates} strokeWidth="0" stroke="#ccc"/>;
-        const dot = ({x,y}) => <circle fill='#fff' cx={x} cy={y} r={4} strokWidth="1" stroke="#ccc"/>;
-
 
         const path = ({d}) => <path d={d} stroke="red"/>;
 
@@ -253,9 +240,6 @@ class Plane2dExample extends React.Component {
 
                     <Line yScaleGroup="y1" yColumn="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
                     <Line yScaleGroup="y2" yColumn="demand" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
-
-                    {/*<Scatter yColumn="demand" dot={dot} />
-                                        <Scatter yColumn="supply" dot={dot}/>*/}
                     <Axis
                         position='bottom'
                         dimension="x"
