@@ -9,7 +9,7 @@ import * as d3Scale from 'd3-scale';
  * @component
  *
  * Chart is an organizer for D3's scales. Using the dimensions array it constructs a number of
- * scales. It checks it's children's props and applies to them these scales configurations it found.
+ * scales. It checks its children's props and applies to them the scale configurations it found.
  *
  * Each scale creates 4 dynamic props on the Chart and each of it's children.
  *  * &lt;dimensionName&gt;Column
@@ -46,7 +46,7 @@ import * as d3Scale from 'd3-scale';
  *
  * @prop {function} [<dimensionName>ScaleGroup]
  * Sometimes a dimension might have multiple scales. Scale groups isolate columns into different scales.
- * Useage examples might be a correlation graph with independant y axis.
+ * Usage examples might be a correlation graph with independent y axes.
  *
  *
  * @example
