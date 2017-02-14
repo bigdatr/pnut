@@ -7,7 +7,7 @@ import type ChartRow from 'src/chartdata/ChartData';
  *
  * @component
  *
- * LineCanvas is the basic svg renderer for Line charts.
+ * LineRenderable is the basic svg renderer for Line charts.
  *
  * @example
  *
@@ -20,13 +20,13 @@ import type ChartRow from 'src/chartdata/ChartData';
  *     .domain(['January', 'February', 'March', 'April'])
  *     .range([0, 1280]);
  *
- * return <LineCanvas
+ * return <LineRenderable
  *     width={1280}
  *     height={720}
  *     xScale={xScale}
  *     yScale={yScale}
- *     xDimension={'month'}
- *     yDimension={'demand'}
+ *     xColumn={'month'}
+ *     yColumn={'demand'}
  *     data={chartData}
  *     pathProps={{
  *         strokeWidth: '2'
@@ -36,7 +36,7 @@ import type ChartRow from 'src/chartdata/ChartData';
  *
  */
 
-export class LineCanvas extends React.PureComponent {
+export class LineRenderable extends React.PureComponent {
     static defaultProps = {
         pathProps: {}
     };
@@ -45,16 +45,16 @@ export class LineCanvas extends React.PureComponent {
         // Props passed to canvas
 
         /**
-         * The width of the canvas. This is just passed on to the Canvas component.
+         * The width of the canvas. This is just passed on to the Svg component.
          */
         height: React.PropTypes.number,
         /**
-         * The height of the canvas. This is just passed on to the Canvas component.
+         * The height of the canvas. This is just passed on to the Svg component.
          */
         width: React.PropTypes.number,
         /**
          * An object of props that will be spread onto the svg element.
-         * This is just passed on to the Canvas component.
+         * This is just passed on to the Svg component.
          */
         svgProps: React.PropTypes.object,
 
@@ -76,11 +76,11 @@ export class LineCanvas extends React.PureComponent {
         /**
          * The column key from `ChartData` to use for the x axis.
          */
-        xDimension: React.PropTypes.string.isRequired,
+        xColumn: React.PropTypes.string.isRequired,
         /**
          * The column key from `ChartData` to use for the y axis.
          */
-        yDimension: React.PropTypes.string.isRequired,
+        yColumn: React.PropTypes.string.isRequired,
         /**
          * An object of props that will be spread onto the svg `path` element. Any valid
          * [svg path attribute](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/path)
@@ -90,12 +90,12 @@ export class LineCanvas extends React.PureComponent {
     };
 
     buildPath(): string {
-        const {data, xScale, yScale, xDimension, yDimension} = this.props;
+        const {data, xScale, yScale, xColumn, yColumn} = this.props;
         return data.rows.map((row: ChartRow, index: number): string => {
             const command = index === 0 || !data.rows.get(index - 1) ? 'M' : 'L';
             const rangeY = yScale.range();
             const offset = xScale.bandwidth ? xScale.bandwidth() / 2 : 0;
-            return `${command} ${xScale(row.get(xDimension)) + offset} ${rangeY[1] - yScale(row.get(yDimension))}`;
+            return `${command} ${xScale(row.get(xColumn)) + offset} ${rangeY[1] - yScale(row.get(yColumn))}`;
         }).join(' ');
     }
 
@@ -115,7 +115,7 @@ export class LineCanvas extends React.PureComponent {
 export default class Line extends React.Component {
     static chartType = 'canvas';
     render(): React.Element<any> {
-        return <LineCanvas {...this.props} />;
+        return <LineRenderable {...this.props} />;
     }
 }
 

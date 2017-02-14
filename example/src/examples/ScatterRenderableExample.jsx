@@ -1,7 +1,10 @@
-import {LineCanvas, ChartData, Canvas} from 'pnut';
+import {ScatterRenderable, ChartData, Svg} from 'pnut';
 import React from 'react';
 import {scaleLinear, scalePoint} from 'd3-scale';
+import {interpolateRdBu} from 'd3-scale-chromatic';
 import {ElementQueryHock} from 'stampy';
+import {fromJS, Map, List} from 'immutable';
+
 
 const columns = [
     {
@@ -25,188 +28,186 @@ const rows = [
     {
         month: "2014-01-01",
         supply: 123605,
-        demand: 280000
+        demand: 28
     },
     {
         month: "2014-02-01",
         supply: 457959,
-        demand: 720000
+        demand: 72
     },
     {
         month: "2014-03-01",
         supply: 543558,
-        demand: 960000
+        demand: 96
     },
     {
         month: "2014-04-01",
         supply: 657625,
-        demand: 107000
+        demand: 107
     },
     {
         month: "2014-05-01",
         supply: 724687,
-        demand: 116000
+        demand: 116
     },
     {
         month: "2014-06-01",
         supply: 577673,
-        demand: 930000
+        demand: 93
     },
     {
         month: "2014-07-01",
         supply: 510476,
-        demand: 850000
+        demand: 85
     },
     {
         month: "2014-08-01",
         supply: 587977,
-        demand: 104000
+        demand: 104
     },
     {
         month: "2014-09-01",
         supply: 589351,
-        demand: 121000
+        demand: 121
     },
     {
         month: "2014-10-01",
         supply: 557710,
-        demand: 138000
+        demand: 138
     },
     {
         month: "2014-11-01",
         supply: 550750,
-        demand: 139000
+        demand: 139
     },
     {
         month: "2014-12-01",
         supply: 240661,
-        demand: 950000
+        demand: 95
     },
     {
         month: "2015-01-01",
         supply: 278804,
-        demand: 870000
+        demand: 87
     },
     {
         month: "2015-02-01",
         supply: 785962,
-        demand: 141000
+        demand: 141
     },
     {
         month: "2015-03-01",
         supply: 713841,
-        demand: 129000
+        demand: 129
     },
     {
         month: "2015-04-01",
         supply: 681580,
-        demand: 1320000
+        demand: 132
     },
     {
         month: "2015-05-01",
         supply: 930395,
-        demand: 1390000
+        demand: 139
     },
     {
         month: "2015-06-01",
         supply: 937566,
-        demand: 1090000
+        demand: 109
     },
     {
         month: "2015-07-01",
         supply: 1011621,
-        demand: 1260000
+        demand: 126
     },
     {
         month: "2015-08-01",
         supply: 1638135,
-        demand: 1540000
+        demand: 154
     },
     {
         month: "2015-09-01",
         supply: 1209174,
-        demand: 1380000
+        demand: 138
     },
     {
         month: "2015-10-01",
         supply: 1060541,
-        demand: 1370000
+        demand: 137
     },
     {
         month: "2015-11-01",
         supply: 1236615,
-        demand: 1700000
+        demand: 170
     },
     {
         month: "2015-12-01",
         supply: 629503,
-        demand: 125000
+        demand: 125
     },
     {
         month: "2016-01-01",
         supply: 678891,
-        demand: 109000
+        demand: 109
     },
     {
         month: "2016-02-01",
         supply: 1681174,
-        demand: 1630000
+        demand: 163
     },
     {
         month: "2016-03-01",
         supply: 1209983,
-        demand: 1400000
+        demand: 140
     },
     {
         month: "2016-04-01",
         supply: 1380393,
-        demand: 1490000
+        demand: 149
     },
     {
         month: "2016-05-01",
         supply: 1267107,
-        demand: 1510000
+        demand: 151
     },
     {
         month: "2016-06-01",
         supply: 1371218,
-        demand: 1540000
+        demand: 154
     },
     {
         month: "2016-07-01",
         supply: 1652395,
-        demand: 1600000
+        demand: 160
     },
     {
         month: "2016-08-01",
         supply: 1561521,
-        demand: 1810000
+        demand: 181
     },
     {
         month: "2016-09-01",
         supply: 1896226,
-        demand: 2180000
+        demand: 218
     },
     {
         month: "2016-10-01",
         supply: 1810362,
-        demand: 2270000
+        demand: 227
     },
     {
         month: "2016-11-01",
         supply: 1877047,
-        demand: 2470000
+        demand: 247
     },
     {
         month: "2016-12-01",
         supply: 770154,
-        demand: 2040000
+        demand: 204
     }
 ];
 
-
 const chartData = new ChartData(rows, columns);
-
 
 class CanvasExample extends React.Component {
     render() {
@@ -219,27 +220,31 @@ class CanvasExample extends React.Component {
             .domain(rows.map(row => row.month))
             .range([0, this.props.eqWidth]);
 
+        const scaleRadius = scaleLinear()
+            .domain([chartData.min('demand'), chartData.max('demand')])
+            .range([5, 30]);
+
+
         return <div>
             <div style={{position: 'absolute', top: 0, left: 0}}>
-                <Canvas width={this.props.eqWidth} height={this.props.eqHeight}>
-                    <LineCanvas
+                <Svg width={this.props.eqWidth} height={this.props.eqHeight}>
+                    <ScatterRenderable
                         width={this.props.eqWidth}
                         height={this.props.eqHeight}
                         xScale={xScale}
                         yScale={yScale}
-                        xDimension={'month'}
-                        yDimension={'supply'}
+                        xColumn={'month'}
+                        yColumn={'supply'}
                         data={chartData}
-                        svgProps={{
-                            strokeWidth: '2'
-                        }}
-                        pathProps={{
-                            strokeWidth: '2',
-                            stroke: "#000"
-                        }}
+                        dot={({x, y, row}) => <circle
+                            cx={x}
+                            cy={y}
+                            r={scaleRadius(row.get('demand'))}
+                        />}
                     />
-                </Canvas>
+                </Svg>
             </div>
+
         </div>
     }
 }
@@ -250,10 +255,10 @@ export default () => {
     return <div
         style={{
             position: 'absolute',
-            width: '100%',
-            height: '100%',
-            top: 0,
-            left: 0
+            top: '100px',
+            left: '100px',
+            bottom: '100px',
+            right: '100px'
         }}
     ><HockedExample/></div>
 };

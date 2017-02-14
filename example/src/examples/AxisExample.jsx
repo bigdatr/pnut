@@ -1,4 +1,4 @@
-import {ColumnCanvas, AxisRenderable, ChartData, Gridlines, Canvas} from 'pnut';
+import {ColumnRenderable, AxisRenderable, ChartData, Gridlines, Svg} from 'pnut';
 import React from 'react';
 import {scaleLog, scaleLinear, scaleBand} from 'd3-scale';
 import {ElementQueryHock} from 'stampy';
@@ -91,7 +91,7 @@ class AxisExample extends React.Component {
                 height: '50px',
                 left: '50px'
             }}>
-                <Canvas width={eqWidth} height={eqHeight}>
+                <Svg width={eqWidth} height={eqHeight}>
                     <AxisRenderable
                         width={this.props.eqWidth - 100}
                         height={50}
@@ -99,7 +99,7 @@ class AxisExample extends React.Component {
                         ticks={() => rows.map(row => row.property_type)}
                         scale={xScale}
                     />
-                </Canvas>
+                </Svg>
             </div>
             <div style={{
                 position: 'absolute',
@@ -108,7 +108,7 @@ class AxisExample extends React.Component {
                 height: '50px',
                 left: '50px'
             }}>
-                <Canvas width={eqWidth} height={eqHeight}>
+                <Svg width={eqWidth} height={eqHeight}>
                     <AxisRenderable
                         width={this.props.eqWidth - 100}
                         height={50}
@@ -116,7 +116,7 @@ class AxisExample extends React.Component {
                         ticks={() => rows.map(row => row.property_type)}
                         scale={xScale}
                     />
-                </Canvas>
+                </Svg>
             </div>
 
             <div style={{
@@ -125,7 +125,7 @@ class AxisExample extends React.Component {
                 top: '50px',
                 left: 0
             }}>
-                <Canvas width={eqWidth} height={eqHeight}>
+                <Svg width={eqWidth} height={eqHeight}>
                     <AxisRenderable
                         width={50}
                         height={this.props.eqHeight - 100}
@@ -133,7 +133,7 @@ class AxisExample extends React.Component {
                         ticks={() => yScale.ticks(3)}
                         scale={yScale}
                     />
-                </Canvas>
+                </Svg>
             </div>
 
             <div style={{
@@ -142,7 +142,7 @@ class AxisExample extends React.Component {
                 top: '50px',
                 right: 0
             }}>
-                <Canvas width={50} height={eqHeight}>
+                <Svg width={50} height={eqHeight}>
                     <AxisRenderable
                         width={50}
                         height={this.props.eqHeight - 100}
@@ -150,7 +150,7 @@ class AxisExample extends React.Component {
                         ticks={() => yScale.ticks(3)}
                         scale={yScale}
                     />
-                </Canvas>
+                </Svg>
             </div>
             <div style={{
                 position: 'absolute',
@@ -158,14 +158,14 @@ class AxisExample extends React.Component {
                 left: '50px',
                 zIndex: 2
             }}>
-                <Canvas width={eqWidth} height={eqHeight}>
-                    <ColumnCanvas
+                <Svg width={eqWidth} height={eqHeight}>
+                    <ColumnRenderable
                         width={this.props.eqWidth - 100}
                         height={this.props.eqHeight - 100}
                         xScale={xScale}
                         yScale={yScale}
-                        xDimension={'property_type'}
-                        yDimension={['supply', 'demand']}
+                        xColumn={'property_type'}
+                        yColumn={['supply', 'demand']}
                         data={chartData}
                         columnProps={[
                             {
@@ -176,7 +176,7 @@ class AxisExample extends React.Component {
                             }
                         ]}
                     />
-                </Canvas>
+                </Svg>
             </div>
             <div style={{
                 position: 'absolute',
@@ -184,7 +184,7 @@ class AxisExample extends React.Component {
                 left: '50px',
                 zIndex: 1
             }}>
-                <Canvas width={eqWidth} height={eqHeight}>
+                <Svg width={eqWidth} height={eqHeight}>
                     <Gridlines
                         width={this.props.eqWidth - 100}
                         height={this.props.eqHeight - 100}
@@ -202,7 +202,7 @@ class AxisExample extends React.Component {
                             return <rect x={coordinates.x1 - xScale.bandwidth() / 2} y={coordinates.y1} width={xScale.bandwidth()} height={coordinates.y2 - coordinates.y1} fill='rgba(0,0,0,0.1)'/>
                         }}
                     />
-                </Canvas>
+                </Svg>
             </div>
 
         </div>

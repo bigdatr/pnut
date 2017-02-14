@@ -4,7 +4,7 @@ import {shallow} from 'enzyme';
 import {spy} from 'sinon';
 
 import Chart from '../Chart';
-import Line from '../canvas/LineCanvas';
+import Line from '../canvas/LineRenderable';
 import ChartData from '../../chartdata/ChartData';
 
 const columns = [
@@ -39,8 +39,8 @@ const rows = [
 
 const data = new ChartData(rows, columns);
 
-test('Canvas.getCanvasSize props and padding default to 0', tt => {
-    const chart = shallow(<Chart width={0} height={0} data={data} xDimension="demand"><Line yDimension="supply"/></Chart>);
+test('Svg.getCanvasSize props and padding default to 0', tt => {
+    const chart = shallow(<Chart width={0} height={0} data={data} xColumn="demand"><Line yColumn="supply"/></Chart>);
 
     Object.values(chart.instance().getCanvasSize())
         .map(ii => {
@@ -48,8 +48,8 @@ test('Canvas.getCanvasSize props and padding default to 0', tt => {
         });
 });
 
-test('Canvas.getAxisSize returns correct padding for each combination', tt => {
-    const chart = shallow(<Chart width={0} height={0} padding={[1,1,1,1]} data={data} xDimension="demand"><Line yDimension="supply"/></Chart>);
+test('Svg.getAxisSize returns correct padding for each combination', tt => {
+    const chart = shallow(<Chart width={0} height={0} padding={[1,1,1,1]} data={data} xColumn="demand"><Line yColumn="supply"/></Chart>);
     tt.deepEqual(chart.instance().getAxisSize(), {});
     tt.is(chart.instance().getAxisSize('top').height, 1);
     tt.is(chart.instance().getAxisSize('bottom').height, 1);
@@ -57,14 +57,14 @@ test('Canvas.getAxisSize returns correct padding for each combination', tt => {
     tt.is(chart.instance().getAxisSize('right').width, 1);
 });
 
-test('Canvas.getDefaultScale will default to a linearScale with no range or domain', tt => {
-    const chart = shallow(<Chart width={0} height={0} data={data} xDimension="demand"><Line yDimension="supply"/></Chart>).instance();
+test('Svg.getDefaultScale will default to a linearScale with no range or domain', tt => {
+    const chart = shallow(<Chart width={0} height={0} data={data} xColumn="demand"><Line yColumn="supply"/></Chart>).instance();
     tt.is(chart.getDefaultScale({})({})(1), 1);
 });
 
 test('if a scale is given a function it will be called with the scale and props', tt => {
     const scale = spy(scale => scale);
-    shallow(<Chart width={0} height={0} data={data} xDimension="demand" xScale={scale}><Line yDimension="supply"/></Chart>).instance();
+    shallow(<Chart width={0} height={0} data={data} xColumn="demand" xScale={scale}><Line yColumn="supply"/></Chart>).instance();
     tt.true(typeof scale.firstCall.args[0] === 'function');
     tt.true(typeof scale.firstCall.args[1] === 'object');
 });
@@ -77,9 +77,9 @@ test('it puts axis types in thier spots', tt => {
     }
     Axis.chartType = 'axis';
 
-    const chart = shallow(<Chart width={0} height={0} data={data} xDimension="demand" xScale={scale}>
-        <Line yDimension="supply"/>
-        <Axis position="top" yDimension="supply" />
+    const chart = shallow(<Chart width={0} height={0} data={data} xColumn="demand" xScale={scale}>
+        <Line yColumn="supply"/>
+        <Axis position="top" yColumn="supply" />
     </Chart>);
 
     tt.is(chart.children().at(0).children().at(0).name(), 'Axis');
@@ -88,9 +88,9 @@ test('it puts axis types in thier spots', tt => {
 
 test('mixing continuous and discrete data in scales will thrown an error', tt => {
 
-    const chart = () => shallow(<Chart width={0} height={0} data={data} xDimension="demand">
-        <Line yDimension="supply"/>
-        <Line yDimension="month"/>
+    const chart = () => shallow(<Chart width={0} height={0} data={data} xColumn="demand">
+        <Line yColumn="supply"/>
+        <Line yColumn="month"/>
     </Chart>);
 
     tt.throws(chart);
@@ -99,7 +99,7 @@ test('mixing continuous and discrete data in scales will thrown an error', tt =>
 test('if the dimension is not provided the scales domain will be empty', tt => {
     const scale = scale => console.log(scale) || tt.is(scale.domain().length, 0);
 
-    const chart = shallow(<Chart width={0} height={0} data={data} xDimension="month">
+    const chart = shallow(<Chart width={0} height={0} data={data} xColumn="month">
         <Line />
     </Chart>);
 });
@@ -107,8 +107,8 @@ test('if the dimension is not provided the scales domain will be empty', tt => {
 test('discrete domains will be the length of the data inserted', tt => {
     const scale = scale => tt.is(scale.domain().length, 3);
 
-    shallow(<Chart width={0} height={0} data={data} xDimension="month" xScale={scale}>
-        <Line yDimension="supply"/>
+    shallow(<Chart width={0} height={0} data={data} xColumn="month" xScale={scale}>
+        <Line yColumn="supply"/>
     </Chart>);
 });
 

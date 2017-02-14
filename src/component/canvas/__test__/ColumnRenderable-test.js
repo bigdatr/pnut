@@ -3,7 +3,7 @@ import React from 'react';
 import {shallow} from 'enzyme';
 
 import {scaleLog, scaleBand} from 'd3-scale';
-import Column, {ColumnCanvas} from '../ColumnCanvas';
+import Column, {ColumnRenderable} from '../ColumnRenderable';
 import ChartData from '../../../chartdata/ChartData';
 
 const columns = [
@@ -74,36 +74,36 @@ const xScale = scaleBand()
     .domain(rows.map(row => row.property_type))
     .range([0, 100]);
 
-const canvas = shallow(<ColumnCanvas
+const canvas = shallow(<ColumnRenderable
     width={140}
     height={140}
     data={chartData}
     xScale={xScale}
     yScale={yScale}
-    xDimension={'property_type'}
-    yDimension={['supply', 'demand']}
+    xColumn={'property_type'}
+    yColumn={['supply', 'demand']}
     columnProps={{
         fill: 'blue'
     }}
 />);
 
-test('ColumnCanvas renders multiple columns', tt => {
+test('ColumnRenderable renders multiple columns', tt => {
     tt.is(canvas.children().length, rows.length * 2);
 });
 
-test('ColumnCanvas applies passed columnProps to columns', tt => {
+test('ColumnRenderable applies passed columnProps to columns', tt => {
     tt.is(canvas.children().at(0).prop('fill'), 'blue');
 });
 
-test('ColumnCanvas given a single yDimension as a string will divide the width by 1', tt => {
-    const canvas = shallow(<ColumnCanvas
+test('ColumnRenderable given a single yColumn as a string will divide the width by 1', tt => {
+    const canvas = shallow(<ColumnRenderable
         width={140}
         height={140}
         data={chartData}
         xScale={xScale}
         yScale={yScale}
-        xDimension={'property_type'}
-        yDimension={'supply'}
+        xColumn={'property_type'}
+        yColumn={'supply'}
         columnProps={{
             fill: 'blue'
         }}
@@ -115,7 +115,7 @@ test('Column has a static chartType of canvas', tt => {
     tt.is(Column.chartType, 'canvas');
 });
 
-test('Column renders a ColumnCanvas', tt => {
-    const canvas = shallow(<Column data={{}} xScale={() => undefined} yScale={() => undefined} xDimension="string" yDimension="string"/>);
-    tt.is(canvas.name(), 'ColumnCanvas');
+test('Column renders a ColumnRenderable', tt => {
+    const canvas = shallow(<Column data={{}} xScale={() => undefined} yScale={() => undefined} xColumn="string" yColumn="string"/>);
+    tt.is(canvas.name(), 'ColumnRenderable');
 });

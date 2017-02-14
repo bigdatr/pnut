@@ -1,9 +1,10 @@
-import {ScatterCanvas, ChartData, Canvas} from 'pnut';
+import test from 'ava';
 import React from 'react';
+import {shallow} from 'enzyme';
+
 import {scaleLinear, scalePoint} from 'd3-scale';
-import {interpolateRdBu} from 'd3-scale-chromatic';
-import {ElementQueryHock} from 'stampy';
-import {fromJS, Map, List} from 'immutable';
+import Line, {LineRenderable} from '../LineRenderable';
+import ChartData from '../../../chartdata/ChartData';
 
 
 const columns = [
@@ -209,56 +210,60 @@ const rows = [
 
 const chartData = new ChartData(rows, columns);
 
-class CanvasExample extends React.Component {
-    render() {
-        const yScale = scaleLinear()
-            .domain([chartData.min('supply'), chartData.max('supply')])
-            .range([0, this.props.eqHeight])
-            .nice();
+const yScale = scaleLinear()
+    .domain([chartData.min('supply'), chartData.max('supply')])
+    .range([0, 100])
+    .nice();
 
-        const xScale = scalePoint()
-            .domain(rows.map(row => row.month))
-            .range([0, this.props.eqWidth]);
+const xScale = scalePoint()
+    .domain(rows.map(row => row.month))
+    .range([0, 100]);
 
-        const scaleRadius = scaleLinear()
-            .domain([chartData.min('demand'), chartData.max('demand')])
-            .range([5, 30]);
+const canvas = shallow(<LineRenderable
+    width={200}
+    height={200}
+    data={chartData}
+    xScale={xScale}
+    yScale={yScale}
+    xColumn={'month'}
+    yColumn={'supply'}
+    data={chartData}
+    pathProps={{
+        strokeWidth: '2'
+    }}
+/>);
 
+test('LineRenderable renders a line', tt => {
+    tt.is(canvas.children().at(0).type(), 'path');
+});
 
-        return <div>
-            <div style={{position: 'absolute', top: 0, left: 0}}>
-                <Canvas width={this.props.eqWidth} height={this.props.eqHeight}>
-                    <ScatterCanvas
-                        width={this.props.eqWidth}
-                        height={this.props.eqHeight}
-                        xScale={xScale}
-                        yScale={yScale}
-                        xDimension={'month'}
-                        yDimension={'supply'}
-                        data={chartData}
-                        dot={({x, y, row}) => <circle
-                            cx={x}
-                            cy={y}
-                            r={scaleRadius(row.get('demand'))}
-                        />}
-                    />
-                </Canvas>
-            </div>
+test('LineRenderable applies passed lineProps to line', tt => {
+    tt.is(canvas.children().at(0).prop('strokeWidth'), '2');
+});
 
-        </div>
-    }
-}
+test('LineRenderable will offset the x position by half if the scale has a bandwidth', tt => {
+    const props = {
+        width: 140,
+        height: 140,
+        data: new ChartData([rows[0], rows[1]], [columns[0], columns[1]]),
+        xScale: xScale,
+        yScale: yScale,
+        xColumn: 'demand',
+        yColumn: 'supply'
+    };
+    const canvasLinear = shallow(<LineRenderable {...props} xScale={scaleLinear().domain(rows.map(row => row.demand)).range([0,100])}/>);
+    const canvasBandwidth = shallow(<LineRenderable {...props} xScale={scalePoint().domain(rows.map(row => row.demand)).range([0,100])} />);
 
-const HockedExample = ElementQueryHock([])(CanvasExample);
+    tt.is(canvasLinear.children().at(0).prop('d').split(' ')[4], '100');
+    tt.is(canvasBandwidth.children().at(0).prop('d').split(' ')[4], '3.225806451612903');
+});
 
-export default () => {
-    return <div
-        style={{
-            position: 'absolute',
-            top: '100px',
-            left: '100px',
-            bottom: '100px',
-            right: '100px'
-        }}
-    ><HockedExample/></div>
-};
+test('Line has a static chartType of canvas', tt => {
+    tt.is(Line.chartType, 'canvas');
+});
+
+test('Line renders a LineRenderable', tt => {
+    const canvas = shallow(<Line data={{}} xScale={() => undefined} yScale={() => undefined} xColumn="string" yColumn="string"/>);
+    tt.is(canvas.name(), 'LineRenderable');
+});
+
