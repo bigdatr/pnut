@@ -6,7 +6,7 @@ import type ChartRow from 'src/chartdata/ChartData';
 
 function DefaultLine(props: Object): React.Element<any> {
     return <path
-        {...props.svgProps}
+        {...props.pathProps}
         fill='none'
         stroke='black'
         strokeWidth='1'
@@ -79,6 +79,9 @@ export class LineRenderable extends React.PureComponent {
         /** custom line renderer */
         line: React.PropTypes.func,
 
+        /** Destructured onto the default line renderer's path. */
+        pathProps: React.PropTypes.object,
+
         /** {Scale} Any d3-scale for the x axis. */
         xScale: React.PropTypes.func.isRequired,
 
@@ -116,7 +119,10 @@ export class LineRenderable extends React.PureComponent {
         return <g>
             <Line
                 points={data.rows.map(row => [xScale(row.get(xColumn)), yScale(row.get(yColumn))]).toArray()}
-                svgProps={{d: this.buildPath()}}
+                pathProps={{
+                    d: this.buildPath(),
+                    ...this.props.pathProps
+                }}
             />
         </g>;
     }
