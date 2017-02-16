@@ -60,19 +60,6 @@ export class LineRenderable extends React.PureComponent {
     };
 
     static propTypes = {
-        //
-        // Props passed to canvas
-
-        /** The width of the canvas. This is just passed on to the Svg component. */
-        height: React.PropTypes.number,
-
-        /** The height of the canvas. This is just passed on to the Svg component. */
-        width: React.PropTypes.number,
-
-
-        //
-        // Own Props
-
         /** {ChartData} The `ChartData` Record used to contain the data for the chart. */
         data: React.PropTypes.object.isRequired,
 
