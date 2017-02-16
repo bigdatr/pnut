@@ -3,6 +3,7 @@ import React, {Component, Children, cloneElement, Element, PropTypes} from 'reac
 import {List, Map, Set} from 'immutable';
 import Svg from './Svg';
 import * as d3Scale from 'd3-scale';
+import {SpruceClassName} from 'stampy';
 
 
 /**
@@ -286,6 +287,12 @@ class Chart extends Component {
     render(): Element<any> {
         const {width, height, outerWidth, outerHeight, top, left} = this.getCanvasSize();
 
+        const {
+            className,
+            modifier,
+            spruceName: name = 'PnutChart'
+        } = this.props;
+
         const scaledChildren = List(Children.toArray(this.props.children))
             .map((child: Element<any>): Element<any> => {
                 const {chartType} = child.type;
@@ -323,6 +330,7 @@ class Chart extends Component {
         }
 
         return <Svg
+            className={SpruceClassName({name, modifier, className})}
             width={outerWidth}
             height={outerHeight}
         >

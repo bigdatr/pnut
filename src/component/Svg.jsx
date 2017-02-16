@@ -29,8 +29,11 @@ export default class Svg extends React.PureComponent {
          * If this is not provided then the component's children won't render.
          */
         width: React.PropTypes.number,
+
         /** An object of props that will be spread onto the svg element. */
         svgProps: React.PropTypes.object,
+
+        className: React.PropTypes.string,
 
         /** The x position of the canvas */
         x: React.PropTypes.number,
@@ -49,6 +52,7 @@ export default class Svg extends React.PureComponent {
         return <svg
             overflow='visible'
             display='block'
+            className={this.props.className}
             width={this.props.width}
             height={this.props.height}
             x={this.props.x}
