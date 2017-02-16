@@ -1,7 +1,29 @@
 // @flow
 
-import React from 'react';
+import React, {PropTypes} from 'react';
 import type ChartRow from 'src/chartdata/ChartData';
+
+
+function DefaultLine(props: Object): React.Element<any> {
+    return <path
+        {...props.svgProps}
+        fill='none'
+        stroke='black'
+        strokeWidth='1'
+    />;
+}
+
+DefaultLine.propTypes = {
+    /** Scaled xy points in array form */
+    points: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
+
+    /** An object containing the minimum data required to draw an svg path */
+    svgProps: PropTypes.shape({
+
+        /** Calculated d string */
+        d: PropTypes.string
+    })
+};
 
 /**
  *
@@ -28,65 +50,47 @@ import type ChartRow from 'src/chartdata/ChartData';
  *     xColumn={'month'}
  *     yColumn={'demand'}
  *     data={chartData}
- *     pathProps={{
- *         strokeWidth: '2'
- *     }}
  * />;
- *
  *
  */
 
 export class LineRenderable extends React.PureComponent {
     static defaultProps = {
-        pathProps: {}
+        line: DefaultLine
     };
 
     static propTypes = {
+        //
         // Props passed to canvas
 
-        /**
-         * The width of the canvas. This is just passed on to the Svg component.
-         */
+        /** The width of the canvas. This is just passed on to the Svg component. */
         height: React.PropTypes.number,
-        /**
-         * The height of the canvas. This is just passed on to the Svg component.
-         */
-        width: React.PropTypes.number,
-        /**
-         * An object of props that will be spread onto the svg element.
-         * This is just passed on to the Svg component.
-         */
-        svgProps: React.PropTypes.object,
 
+        /** The height of the canvas. This is just passed on to the Svg component. */
+        width: React.PropTypes.number,
+
+
+        //
         // Own Props
 
-        /**
-         * {ChartData} The `ChartData` Record used to contain the data for the chart.
-         */
+        /** {ChartData} The `ChartData` Record used to contain the data for the chart. */
         data: React.PropTypes.object.isRequired,
 
-        /**
-         * {Scale} Any d3-scale for the x axis.
-         */
+        /** custom line renderer */
+        line: React.PropTypes.func,
+
+        /** {Scale} Any d3-scale for the x axis. */
         xScale: React.PropTypes.func.isRequired,
-        /**
-         * {Scale} Any d3-scale for the y axis.
-         */
+
+        /** {Scale} Any d3-scale for the y axis. */
         yScale: React.PropTypes.func.isRequired,
-        /**
-         * The column key from `ChartData` to use for the x axis.
-         */
+
+        /** The column key from `ChartData` to use for the x axis. */
         xColumn: React.PropTypes.string.isRequired,
-        /**
-         * The column key from `ChartData` to use for the y axis.
-         */
-        yColumn: React.PropTypes.string.isRequired,
-        /**
-         * An object of props that will be spread onto the svg `path` element. Any valid
-         * [svg path attribute](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/path)
-         * is allowed.
-         */
-        pathProps: React.PropTypes.object
+
+        /** The column key from `ChartData` to use for the y axis. */
+        yColumn: React.PropTypes.string.isRequired
+
     };
 
     buildPath(): string {
@@ -100,13 +104,19 @@ export class LineRenderable extends React.PureComponent {
     }
 
     render(): React.Element<any> {
+        const {
+            data,
+            line: Line,
+            xColumn,
+            xScale,
+            yColumn,
+            yScale
+        } = this.props;
+
         return <g>
-            <path
-                fill='none'
-                stroke='black'
-                strokeWidth='1'
-                {...this.props.pathProps}
-                d={this.buildPath()}
+            <Line
+                points={data.rows.map(row => [xScale(row.get(xColumn)), yScale(row.get(yColumn))]).toArray()}
+                svgProps={{d: this.buildPath()}}
             />
         </g>;
     }
