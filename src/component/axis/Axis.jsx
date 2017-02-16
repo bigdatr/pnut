@@ -2,6 +2,29 @@
 
 import React from 'react';
 
+function DefaultAxisLine(props: Object): React.Element<any> {
+    return <line
+        {...props.svgProps}
+        stroke='black'
+    />;
+}
+
+function DefaultTick(props: Object): React.Element<any> {
+    return <line
+        {...props.svgProps}
+        stroke='black'
+    />;
+}
+
+function DefaultText(props: Object): React.Element<any> {
+    return <text
+        {...props.svgProps}
+        fontSize={12}
+        children={props.tick}
+    />;
+}
+
+
 /**
  *
  * @component
@@ -22,9 +45,12 @@ import React from 'react';
 export class AxisRenderable extends React.PureComponent {
 
     static defaultProps = {
-        lineProps: {},
-        tickProps: {},
-        textProps: {},
+        axisLine: DefaultAxisLine,
+        tick: DefaultTick,
+        text: DefaultText,
+        // lineProps: {},
+        // tickProps: {},
+        // textProps: {},
         textFormat: (text) => text,
         ticks: (scale) => scale.ticks ? scale.ticks() : scale.domain(),
         tickSize: 6,
@@ -136,62 +162,58 @@ export class AxisRenderable extends React.PureComponent {
 
 
     drawTicks(): Array<React.Element<any>> {
+        const {
+            tick: Tick,
+            text: Text
+        } = this.props;
         const axisPosition = this.props.position;
         const tickSize = this.props.tickSize;
-        const strokeWidth = this.props.lineProps.strokeWidth || this.defaultLineWidth;
+        const strokeWidth = this.props.strokeWidth || this.defaultLineWidth;
         const offset = this.props.scale.bandwidth ? this.props.scale.bandwidth() / 2 : 0;
 
-        return this.props.ticks(this.props.scale).map((tick: any, index: number): React.Element<any> => {
-            const distance = this.props.scale(tick) + offset;
+        return this.props
+            .ticks(this.props.scale)
+            .map((tick: any, index: number): React.Element<any> => {
+                const distance = this.props.scale(tick) + offset;
 
-            const [x1, y1] = this.getPointPosition(axisPosition, distance, strokeWidth / 2);
-            const [x2, y2] = this.getPointPosition(axisPosition, distance, strokeWidth / 2 + tickSize);
+                const [x1, y1] = this.getPointPosition(axisPosition, distance, strokeWidth / 2);
+                const [x2, y2] = this.getPointPosition(axisPosition, distance, strokeWidth / 2 + tickSize);
 
-            const [textX, textY] = this.getPointPosition(
-                axisPosition,
-                distance,
-                strokeWidth / 2 + tickSize + this.props.textPadding
-            );
+                const [textX, textY] = this.getPointPosition(
+                    axisPosition,
+                    distance,
+                    strokeWidth / 2 + tickSize + this.props.textPadding
+                );
 
-            return <g
-                key={tick}
-            >
-                <line
-                    x1={x1}
-                    y1={y1}
-                    x2={x2}
-                    y2={y2}
-                    stroke='black'
-                    strokeWidth={1}
-                    {...(
-                        typeof this.props.tickProps === 'function'
-                            ? this.props.tickProps(tick, index, x1, y1, this.props.scale)
-                            : this.props.tickProps
-                    )}
-                />
+                const tickSvgProps = {
+                    x1,
+                    y1,
+                    x2,
+                    y2,
+                    strokeWidth
+                };
 
-                <text
-                    x={textX}
-                    y={textY}
-                    textAnchor={this.getTextAnchorProp(axisPosition)}
-                    dominantBaseline={this.getAlignmentBaselineProp(axisPosition)}
-                    fontSize={12}
-                    {...(
-                        typeof this.props.textProps === 'function'
-                            ? this.props.textProps(tick, index, textX, textY, this.props.scale)
-                            : this.props.textProps
-                    )}
-                >
-                    {this.props.textFormat(tick)}
-                </text>
-            </g>;
-        });
+                const textSvgProps = {
+                    x: textX,
+                    y: textY,
+                    textAnchor: this.getTextAnchorProp(axisPosition),
+                    dominantBaseline: this.getAlignmentBaselineProp(axisPosition)
+                };
+
+                return <g key={tick}>
+                    <Tick svgProps={tickSvgProps} />
+                    <Text tick={this.props.textFormat(tick)} svgProps={textSvgProps} />
+                </g>;
+            });
     }
 
-    drawAxis(): React.Element<any> {
-        const position = this.props.position;
-        const strokeWidth = this.props.lineProps.strokeWidth || this.defaultLineWidth;
-        const overlap = this.props.overlap;
+    drawAxisLine(): React.Element<any> {
+        const {
+            axisLine: AxisLine,
+            overlap,
+            position,
+            strokeWidth,
+        } = this.props;
 
         const [x1, y1] = this.getPointPosition(
             position,
@@ -205,14 +227,16 @@ export class AxisRenderable extends React.PureComponent {
             0
         );
 
-        return <line
-            x1={x1}
-            y1={y1}
-            x2={x2}
-            y2={y2}
-            stroke='black'
-            strokeWidth={strokeWidth}
-            {...this.props.lineProps}
+        const svgProps = {
+            x1,
+            y1,
+            x2,
+            y2,
+            strokeWidth: strokeWidth || this.defaultLineWidth
+        };
+
+        return <AxisLine
+            svgProps={svgProps}
         />;
     }
 
@@ -270,7 +294,7 @@ export class AxisRenderable extends React.PureComponent {
     render(): React.Element<any> {
         return <g>
             <g>
-                {this.drawAxis()}
+                {this.drawAxisLine()}
             </g>
             <g>
                 {this.drawTicks()}
