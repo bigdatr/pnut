@@ -15,6 +15,8 @@ test('ChartData.isValueValid correctly identifies valid values', tt => {
     tt.true(ChartData.isValueValid("23"), 'string is valid');
     tt.true(ChartData.isValueValid(""), 'empty string is valid');
     tt.true(ChartData.isValueValid(null), 'null is valid');
+    tt.true(ChartData.isValueValid(new Date('2017-01-01')), 'date is valid');
+    tt.false(ChartData.isValueValid(new Date('invalid date')), 'invalid date is not valid');
     tt.false(ChartData.isValueValid(false), 'boolean (true) is not valid');
     tt.false(ChartData.isValueValid(true), 'boolean (false) is not valid');
     tt.false(ChartData.isValueValid(undefined), 'undefined is not valid');
@@ -26,6 +28,8 @@ test('ChartData.isValueContinuous correctly identifies continuous values', tt =>
     tt.true(ChartData.isValueContinuous(23), 'number is continuous');
     tt.true(ChartData.isValueContinuous(-123.234), 'negative number is continuous');
     tt.true(ChartData.isValueContinuous(0), 'zero number is continuous');
+    tt.true(ChartData.isValueContinuous(new Date('2017-01-01')), 'date is continuous');
+    tt.false(ChartData.isValueContinuous(new Date('invalid date')), 'invalid date is not continuous');
     tt.false(ChartData.isValueContinuous("23"), 'string is not continuous');
     tt.false(ChartData.isValueContinuous(""), 'empty string is not continuous');
     tt.false(ChartData.isValueContinuous(null), 'null is not continuous');
@@ -35,6 +39,7 @@ test('ChartData.isValueContinuous correctly identifies continuous values', tt =>
     tt.false(ChartData.isValueContinuous({}), 'object is not continuous');
     tt.false(ChartData.isValueContinuous(() => {}), 'function is not continuous');
 });
+
 
 test('ChartData.lerp correctly interpolates values', tt => {
     // boundaries
@@ -47,10 +52,13 @@ test('ChartData.lerp correctly interpolates values', tt => {
     tt.is(ChartData.lerp(null, 20, 0.5), null, 'valueA = null returns null');
     tt.is(ChartData.lerp(10, null, 0.5), null, 'valueB = null returns null');
     // in the cases below, the data is treated as discrete and should return the first value
-    tt.is(ChartData.lerp("abc", 20, 0.5), "abc", 'valueA is not a number returns valueA');
-    tt.is(ChartData.lerp(10, "def", 0.5), 10, 'valueB is not a number returns valueA');
+    tt.is(ChartData.lerp("abc", 20, 0.2), "abc", 'valueA is not continous and blend < 0.5 returns valueA');
+    tt.is(ChartData.lerp("abc", 20, 0.5), "abc", 'valueA is not continous and blend >= 0.5 returns valueA');
+    tt.is(ChartData.lerp(12, "def", 0.2), 12, 'valueB is not continous and blend < 0.5 returns valueA');
+    tt.is(ChartData.lerp(12, "def", 0.5), 12, 'valueB is not continous and blend >= 0.5 returns valueA');
     // interpolation
-    tt.is(ChartData.lerp(10, 20, 0.1), 11, 'lerping works');
-    tt.is(ChartData.lerp(10, 20, 0.5), 15, 'lerping works');
-    tt.is(ChartData.lerp(10, 20, 0.9), 19, 'lerping works');
+    tt.is(ChartData.lerp(10, 20, 0.1), 11, 'lerping works with numbers');
+    tt.is(ChartData.lerp(10, 20, 0.5), 15, 'lerping works with numbers');
+    tt.is(ChartData.lerp(10, 20, 0.9), 19, 'lerping works with numbers');
+    tt.is(ChartData.lerp(new Date('2017-01-01'), new Date('2017-01-03'), 0.5).getTime(), new Date('2017-01-02').getTime(), 'lerping works with dates');
 });

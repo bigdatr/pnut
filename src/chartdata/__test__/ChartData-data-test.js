@@ -65,6 +65,25 @@ const rowsWithNulls = [
     }
 ];
 
+const rowsWithDates = [
+    {
+        day: new Date("2016-01-30"),
+        hats: 12
+    },
+    {
+        day: new Date("2016-01-31"),
+        hats: 3
+    },
+    {
+        day: new Date("2016-02-01"),
+        hats: 7
+    },
+    {
+        day: new Date("2016-02-02"),
+        hats: 8
+    }
+];
+
 const columns = [
     {
         key: 'day',
@@ -142,6 +161,12 @@ test('ChartData converts all invalid values to null', tt => {
     const data = new ChartData(rowsWithBadData, columns);
     tt.deepEqual(data.rows, fromJS(rowsWithBadDataExpectedOutput));
 });
+
+test('ChartData Record can create rows with date values', tt => {
+    const data = new ChartData(rowsWithDates, columns);
+    tt.deepEqual(data.rows, fromJS(rowsWithDates));
+});
+
 
 //
 // columns

@@ -1,6 +1,7 @@
 // @flow
 
 import * as ImmutableMath from 'immutable-math';
+import {interpolate} from 'd3-interpolate';
 
 import {
     fromJS,
@@ -215,6 +216,7 @@ class ChartData extends Record({
     static isValueValid(value: *): boolean {
         return typeof value === "string"
             || typeof value === "number"
+            || (value instanceof Date && !isNaN(value.getTime())) // value is date, and date is not invalid
             || value === null;
     }
 
@@ -231,17 +233,20 @@ class ChartData extends Record({
      */
 
     static isValueContinuous(value: *): boolean {
-        return typeof value === "number";
+        return typeof value === "number"
+            || (value instanceof Date && !isNaN(value.getTime())); // value is date, and date is not invalid
     }
 
     /**
      * Lerp (short for linear interpolation) takes two `ChartScalar` values
-     * and attempts to interpolate them.
+     * and attempts to interpolate them. This uses [`d3-interpolate`](https://github.com/d3/d3-interpolate) internally,
+     * and follows the interpolation rules outlined by its [`interpolate`](https://github.com/d3/d3-interpolate#interpolate) method
+     * with the following exceptions:
      *
-     * - If `blend` is 0 or 1 it will return `valueA` or `valueB` respectively.
+     * - `blend` must be between 0 and 1 inclusive.
      * - If either value is `null` it will return `null`.
-     * - If either value is not a number, `valueA` will be returned.
-     * - If both values are numbers, the interpolated number will be returned.
+     * - If ether value is `false` according to `ChartData.isContinuous()` then `valueA` is returned.
+     * With strings this differs from d3's interpolation, which would return `valueB` when `blend` is 0.5 or greater.
      *
      * @example
      * return ChartData.lerp(10, 20, 0.5); // returns 15
@@ -274,10 +279,10 @@ class ChartData extends Record({
         if(valueA == null || valueB == null) {
             return null;
         }
-        if(typeof valueA != "number" || typeof valueB != "number") {
+        if(!ChartData.isValueContinuous(valueA) || !ChartData.isValueContinuous(valueB)) {
             return valueA;
         }
-        return (valueB - valueA) * blend + valueA;
+        return interpolate(valueA, valueB)(blend);
     }
 
     /*
