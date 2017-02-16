@@ -1,15 +1,18 @@
 // @flow
 
 import React, {PropTypes} from 'react';
+import type List from 'immutable';
+import ChartData from '../../chartdata/ChartData';
+
 import type ChartRow from 'src/chartdata/ChartData';
 
 
 function DefaultLine(props: Object): React.Element<any> {
     return <path
-        {...props.pathProps}
         fill='none'
         stroke='black'
         strokeWidth='1'
+        {...props.pathProps}
     />;
 }
 
@@ -18,7 +21,7 @@ DefaultLine.propTypes = {
     points: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
 
     /** An object containing the minimum data required to draw an svg path */
-    svgProps: PropTypes.shape({
+    pathProps: PropTypes.shape({
 
         /** Calculated d string */
         d: PropTypes.string
@@ -50,6 +53,10 @@ DefaultLine.propTypes = {
  *     xColumn={'month'}
  *     yColumn={'demand'}
  *     data={chartData}
+ *     pathProps={{
+ *          strokeWidth: '2'
+ *     }}
+ *     line={(props) => <path {...props.pathProps} stroke="red"/>}
  * />;
  *
  */
@@ -83,31 +90,43 @@ export class LineRenderable extends React.PureComponent {
 
     };
 
-    buildPath(): string {
-        const {data, xScale, yScale, xColumn, yColumn} = this.props;
-        return data.rows.map((row: ChartRow, index: number): string => {
-            const command = index === 0 || !data.rows.get(index - 1) ? 'M' : 'L';
-            const rangeY = yScale.range();
-            const offset = xScale.bandwidth ? xScale.bandwidth() / 2 : 0;
-            return `${command} ${xScale(row.get(xColumn)) + offset} ${rangeY[1] - yScale(row.get(yColumn))}`;
-        }).join(' ');
+    buildPoints(data: ChartData): List<number[]> {
+        const {xScale, yScale, xColumn, yColumn} = this.props;
+
+        return data.rows
+            .map((row: ChartRow): number[] => {
+                const rangeY = yScale.range();
+                const offset = xScale.bandwidth ? xScale.bandwidth() / 2 : 0;
+                return [
+                    xScale(row.get(xColumn)) + offset,
+                    rangeY[1] - yScale(row.get(yColumn))
+                ];
+            });
+    }
+
+    buildPath(points: List<number[]>): string {
+        return points
+            .map((coordinate: number[], index: number): string => {
+                const [x, y] = coordinate;
+                const command = index === 0 || !this.props.data.rows.get(index - 1) ? 'M' : 'L';
+                return `${command} ${x} ${y}`;
+            })
+            .join(' ');
     }
 
     render(): React.Element<any> {
         const {
             data,
-            line: Line,
-            xColumn,
-            xScale,
-            yColumn,
-            yScale
+            line: Line
         } = this.props;
+
+        const points = this.buildPoints(data);
 
         return <g>
             <Line
-                points={data.rows.map(row => [xScale(row.get(xColumn)), yScale(row.get(yColumn))]).toArray()}
+                points={points.toArray()}
                 pathProps={{
-                    d: this.buildPath(),
+                    d: this.buildPath(points),
                     ...this.props.pathProps
                 }}
             />
