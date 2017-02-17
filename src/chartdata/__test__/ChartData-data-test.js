@@ -1,5 +1,5 @@
 import test from 'ava';
-import {fromJS} from 'immutable';
+import {fromJS, List} from 'immutable';
 import ChartData from '../ChartData';
 
 // dont show console errors
@@ -186,6 +186,13 @@ test('ChartData Record should be able to take immutable columns', tt => {
     tt.deepEqual(data.columns.toList().map(ii => ii.isContinuous), fromJS(columns).map(ii => ii.get('isContinuous')));
 });
 
+test('ChartData Record should be able to take columns which are a List of objects', tt => {
+    const data = new ChartData(rows, List(columns));
+    tt.deepEqual(data.columns.toList().map(ii => ii.key), fromJS(columns).map(ii => ii.get('key')));
+    tt.deepEqual(data.columns.toList().map(ii => ii.label), fromJS(columns).map(ii => ii.get('label')));
+    tt.deepEqual(data.columns.toList().map(ii => ii.isContinuous), fromJS(columns).map(ii => ii.get('isContinuous')));
+});
+
 test('ChartData Record should be able to take an OrderedMap of ChartColumns as columns', tt => {
     const data = new ChartData(rows, fromJS(columns));
     const dataAgain = new ChartData(rows, data.columns);
@@ -193,7 +200,6 @@ test('ChartData Record should be able to take an OrderedMap of ChartColumns as c
     tt.deepEqual(dataAgain.columns.toList().map(ii => ii.label), fromJS(columns).map(ii => ii.get('label')));
     tt.deepEqual(dataAgain.columns.toList().map(ii => ii.isContinuous), fromJS(columns).map(ii => ii.get('isContinuous')));
 });
-
 
 test('ChartData should automatically determine if a column is continuous', tt => {
     const columnsWithoutContinuous = fromJS(columns).map(col => col.delete('isContinuous'));
@@ -209,3 +215,4 @@ test('ChartData should automatically determine if a column is not continuous', t
 
     tt.false(data.columns.get('fruit').isContinuous, 'column data is not continuous if first non-null item is not a number');
 });
+

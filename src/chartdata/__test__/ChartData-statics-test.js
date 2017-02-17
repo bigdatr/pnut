@@ -41,24 +41,53 @@ test('ChartData.isValueContinuous correctly identifies continuous values', tt =>
 });
 
 
-test('ChartData.lerp correctly interpolates values', tt => {
+test('ChartData.interpolate correctly interpolates values', tt => {
     // boundaries
-    tt.is(ChartData.lerp(10, 20, 0), 10, 'blend = 0 returns valueA');
-    tt.is(ChartData.lerp(10, 20, 1), 20, 'blend = 1 returns valueB');
+    tt.is(ChartData.interpolate(10, 20, 0), 10, 'blend = 0 returns valueA');
+    tt.is(ChartData.interpolate(10, 20, 1), 20, 'blend = 1 returns valueB');
     // invalid blends
-    tt.is(ChartData.lerp(10, 20, 2), null, 'blend > 1 returns null');
-    tt.is(ChartData.lerp(10, 20, -1), null, 'blend < 0 returns null');
+    tt.is(ChartData.interpolate(10, 20, 2), null, 'blend > 1 returns null');
+    tt.is(ChartData.interpolate(10, 20, -1), null, 'blend < 0 returns null');
     // nulls
-    tt.is(ChartData.lerp(null, 20, 0.5), null, 'valueA = null returns null');
-    tt.is(ChartData.lerp(10, null, 0.5), null, 'valueB = null returns null');
-    // in the cases below, the data is treated as discrete and should return the first value
-    tt.is(ChartData.lerp("abc", 20, 0.2), "abc", 'valueA is not continous and blend < 0.5 returns valueA');
-    tt.is(ChartData.lerp("abc", 20, 0.5), "abc", 'valueA is not continous and blend >= 0.5 returns valueA');
-    tt.is(ChartData.lerp(12, "def", 0.2), 12, 'valueB is not continous and blend < 0.5 returns valueA');
-    tt.is(ChartData.lerp(12, "def", 0.5), 12, 'valueB is not continous and blend >= 0.5 returns valueA');
+    tt.is(ChartData.interpolate(null, 20, 0.5), null, 'valueA = null returns null');
+    tt.is(ChartData.interpolate(10, null, 0.5), null, 'valueB = null returns null');
+    // in the cases below, the data is treated as discrete and should return the nearest value
+    tt.is(ChartData.interpolate("abc", 20, 0.2), "abc", 'valueA is not continous and blend < 0.5 returns valueA');
+    tt.is(ChartData.interpolate("abc", 20, 0.5), 20, 'valueA is not continous and blend >= 0.5 returns valueB');
+    tt.is(ChartData.interpolate(12, "def", 0.2), 12, 'valueB is not continous and blend < 0.5 returns valueA');
+    tt.is(ChartData.interpolate(12, "def", 0.5), "def", 'valueB is not continous and blend >= 0.5 returns valueB');
     // interpolation
-    tt.is(ChartData.lerp(10, 20, 0.1), 11, 'lerping works with numbers');
-    tt.is(ChartData.lerp(10, 20, 0.5), 15, 'lerping works with numbers');
-    tt.is(ChartData.lerp(10, 20, 0.9), 19, 'lerping works with numbers');
-    tt.is(ChartData.lerp(new Date('2017-01-01'), new Date('2017-01-03'), 0.5).getTime(), new Date('2017-01-02').getTime(), 'lerping works with dates');
+    tt.is(ChartData.interpolate(10, 20, 0.1), 11, 'interpolate works with numbers');
+    tt.is(ChartData.interpolate(10, 20, 0.5), 15, 'interpolate works with numbers');
+    tt.is(ChartData.interpolate(10, 20, 0.9), 19, 'interpolate works with numbers');
+    tt.is(
+        ChartData.interpolate(new Date('2017-01-01'), new Date('2017-01-03'), 0.5).getTime(),
+        new Date('2017-01-02').getTime(),
+        'interpolate works with dates'
+    );
+});
+
+test('ChartData.interpolateDiscrete correctly interpolates values', tt => {
+    // boundaries
+    tt.is(ChartData.interpolateDiscrete(10, 20, 0), 10, 'blend = 0 returns valueA');
+    tt.is(ChartData.interpolateDiscrete(10, 20, 1), 20, 'blend = 1 returns valueB');
+    // invalid blends
+    tt.is(ChartData.interpolateDiscrete(10, 20, 2), null, 'blend > 1 returns null');
+    tt.is(ChartData.interpolateDiscrete(10, 20, -1), null, 'blend < 0 returns null');
+    // in the cases below, the data is treated as discrete and should return the nearest value
+    tt.is(ChartData.interpolateDiscrete("a", "b", 0.4), "a", 'interpolateDiscrete works with strings');
+    tt.is(ChartData.interpolateDiscrete("a", "b", 0.5), "b", 'interpolateDiscrete works with strings');
+    tt.is(ChartData.interpolateDiscrete(10, 20, 0.4), 10, 'interpolateDiscrete works with numbers');
+    tt.is(ChartData.interpolateDiscrete(10, 20, 0.5), 20, 'interpolateDiscrete works with numbers');
+
+    tt.is(
+        ChartData.interpolateDiscrete(new Date('2017-01-01'), new Date('2017-01-03'), 0.2).getTime(),
+        new Date('2017-01-01').getTime(),
+        'interpolating works with dates'
+    );
+    tt.is(
+        ChartData.interpolateDiscrete(new Date('2017-01-01'), new Date('2017-01-03'), 0.8).getTime(),
+        new Date('2017-01-03').getTime(),
+        'interpolating works with dates'
+    );
 });
