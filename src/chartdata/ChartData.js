@@ -47,17 +47,23 @@ type RowMapper = (row: ChartRow) => ChartRow;
  */
 
 /**
- * This function is passed the `rows` of the current `ChartData`, and should return the new `List`
- * of rows to use in the new `ChartData` object.
+ * This function is passed the `rows` of the current `ChartData`,
+ * and should return the new rows to use in the new `ChartData` object.
+ *
+ * Like the `rows` argument in the `ChartData` constructor, rows can be a `List`
+ * or an `Array` of `Map`s or `Object`s.
  *
  * @callback RowUpdater
  * @param {List<ChartRow>} row The `rows` of the current `ChartData`.
- * @return {List<ChartRow>} The replacement `rows`.
+ * @return {Array<ChartRowDefinition>|List<ChartRowDefinition>} The replacement `rows`.
  */
 
 /**
  * This function is passed a `List` of `Map`s representing the columns in the current `ChartData`,
- * and should return a new column definition to use in the new `ChartData` object.
+ * and should return a new column definitions to use in the new `ChartData` object.
+ *
+ * Like the `columns` argument in the `ChartData` constructor, columns can be a `List`
+ * or an `Array` of `Map`s or `Object`s.
  *
  * @callback ColumnUpdater
  * @param {List<ChartColumnDefinition>} row A `List` of `Map`s representing the columns in the current `ChartData`.
@@ -69,10 +75,13 @@ type RowMapper = (row: ChartRow) => ChartRow;
  * A function called for every row in a `ChartData` object, whose results are used to
  * construct a new `ChartData`.
  *
+ * Like the individual rows passed to the `rows` argument in the `ChartData` constructor,
+ * each row can be a `Map`s or an `Object`.
+ *
  * @callback RowMapper
  * @param {ChartRow} row The current row.
  * @param {number} key The key of the current row.
- * @return {ChartRow} The replacement row.
+ * @return {ChartRowDefinition} The replacement row.
  */
 
 /**
