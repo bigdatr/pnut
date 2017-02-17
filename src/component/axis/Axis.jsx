@@ -146,10 +146,11 @@ export class AxisRenderable extends React.PureComponent {
                 );
 
                 const tickLineProps = {
+                    axisPosition: position,
+                    index,
+                    size: this.props.tickSize,
                     x: x1,
                     y: y1,
-                    size: this.props.tickSize,
-                    index,
                     tickLineProps: {
                         x1,
                         y1,
@@ -204,7 +205,7 @@ export class AxisRenderable extends React.PureComponent {
         const axisLineProps = {
             x: x1,
             y: y1,
-            length: this.props[this.getLengthProp(position)],
+            [this.getLengthProp(position)]: this.props[this.getLengthProp(position)],
             axisLineProps: {
                 x1,
                 y1,
