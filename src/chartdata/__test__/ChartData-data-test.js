@@ -201,6 +201,16 @@ test('ChartData Record should be able to take an OrderedMap of ChartColumns as c
     tt.deepEqual(dataAgain.columns.toList().map(ii => ii.isContinuous), fromJS(columns).map(ii => ii.get('isContinuous')));
 });
 
+test('ChartData should use column.isContinuous = true (when provided) to specify when a column contains continuous data', tt => {
+    const data = new ChartData(rowsWithNulls, columns);
+    tt.true(data.columns.get('day').isContinuous, 'column data is continuous if isContinuous is true');
+});
+
+test('ChartData should use column.isContinuous = false (when provided) to specify when a column doesnt contain continuous data', tt => {
+    const data = new ChartData(rowsWithNulls, fromJS(columns).update(0, ii => ii.set('isContinuous', false)));
+    tt.false(data.columns.get('day').isContinuous, 'column data is continuous if isContinuous is false');
+});
+
 test('ChartData should automatically determine if a column is continuous', tt => {
     const columnsWithoutContinuous = fromJS(columns).map(col => col.delete('isContinuous'));
     const data = new ChartData(rowsWithNulls, columnsWithoutContinuous);
@@ -215,4 +225,3 @@ test('ChartData should automatically determine if a column is not continuous', t
 
     tt.false(data.columns.get('fruit').isContinuous, 'column data is not continuous if first non-null item is not a number');
 });
-

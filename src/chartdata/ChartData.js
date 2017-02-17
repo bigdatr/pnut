@@ -207,7 +207,7 @@ class ChartData extends Record({
     }
 
     static _addContinuous(col: Map<string,*>, rows: List<ChartRow>): Map<string,*> {
-        if(col.get('isContinuous') || !rows) {
+        if(col.has('isContinuous') || !rows) {
             return col;
         }
         const key = col.get('key');
