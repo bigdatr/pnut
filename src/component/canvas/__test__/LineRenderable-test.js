@@ -234,11 +234,23 @@ const canvas = shallow(<LineRenderable
 />);
 
 test('LineRenderable renders a line', tt => {
-    tt.is(canvas.children().at(0).type(), 'path');
+    tt.is(canvas.childAt(0).shallow().name(), 'path');
 });
 
-test('LineRenderable applies passed lineProps to line', tt => {
-    tt.is(canvas.children().at(0).prop('strokeWidth'), '2');
+test('LineRenderable will use props.line instead of DefaultLine', tt => {
+    const canvas = shallow(<LineRenderable
+        width={200}
+        height={200}
+        data={chartData}
+        xScale={xScale}
+        yScale={yScale}
+        xColumn={'month'}
+        yColumn={'supply'}
+        data={chartData}
+        line={() => <div/>}
+    />);
+
+    tt.is(canvas.childAt(0).shallow().name(), 'div');
 });
 
 test('LineRenderable will offset the x position by half if the scale has a bandwidth', tt => {
@@ -253,9 +265,14 @@ test('LineRenderable will offset the x position by half if the scale has a bandw
     };
     const canvasLinear = shallow(<LineRenderable {...props} xScale={scaleLinear().domain(rows.map(row => row.demand)).range([0,100])}/>);
     const canvasBandwidth = shallow(<LineRenderable {...props} xScale={scalePoint().domain(rows.map(row => row.demand)).range([0,100])} />);
+    const getD = (cc) => cc
+        .childAt(0)
+        .shallow()
+        .prop('d')
+        .split(' ')[4];
 
-    tt.is(canvasLinear.children().at(0).prop('d').split(' ')[4], '100');
-    tt.is(canvasBandwidth.children().at(0).prop('d').split(' ')[4], '3.225806451612903');
+    tt.is(getD(canvasLinear), '100');
+    tt.is(getD(canvasBandwidth), '3.225806451612903');
 });
 
 test('Line has a static chartType of canvas', tt => {
