@@ -155,29 +155,47 @@ const scaleBandAxis = shallow(<AxisRenderable
 
 
 test('Axis places ticks in middle of bandwidth', tt => {
-    tt.is(scaleBandAxis.childAt(1).childAt(0).childAt(0).prop('x1'), width / 4);
+    tt.is(scaleBandAxis.childAt(1).childAt(0).childAt(0).shallow().prop('x1'), width / 4);
 });
+
+const customTick = (props) => <line {...props.tickLineProps} stroke={props.index === 0 ? 'red': 'blue'} />;
+const customAxisLine = (props) => <line {...props.axisLineProps} stroke="red" />;
+const customText = (props) => <text {...props.textProps} color={props.index === 0 ? 'red': 'blue'} />;
 
 
 const axisWithCustomTicks = shallow(<AxisRenderable
     position={'bottom'}
     scale={scaleBandScale}
     ticks={() => ['category1', 'category2']}
-    tickProps={(tick, index, x1, y1, scale) => (index === 0 ? {stroke: 'red'} : {stroke: 'blue'})}
-    textProps={(tick, index, x1, y1, scale) => (index === 0 ? {color: 'red'} : {color: 'blue'})}
+    tickLine={customTick}
+    text={customText}
+    axisLine={customAxisLine}
     width={width}
     height={100}
 />);
 
 
 test('Axis allows custom tick props', tt => {
-    tt.is(axisWithCustomTicks.childAt(1).childAt(0).childAt(0).prop('stroke'), 'red');
-    tt.is(axisWithCustomTicks.childAt(1).childAt(1).childAt(0).prop('stroke'), 'blue');
+    tt.is(scaleBandAxis.childAt(1).childAt(0).childAt(0).shallow().prop('stroke'), 'black');
+    tt.is(axisWithCustomTicks.childAt(1).childAt(0).childAt(0).shallow().prop('stroke'), 'red');
+    tt.is(axisWithCustomTicks.childAt(1).childAt(1).childAt(0).shallow().prop('stroke'), 'blue');
 });
 
 test('Axis allows custom text props', tt => {
-    tt.is(axisWithCustomTicks.childAt(1).childAt(0).childAt(1).prop('color'), 'red');
-    tt.is(axisWithCustomTicks.childAt(1).childAt(1).childAt(1).prop('color'), 'blue');
+    tt.is(scaleBandAxis.childAt(1).childAt(0).childAt(1).shallow().prop('fontSize'), 12);
+    tt.is(axisWithCustomTicks.childAt(1).childAt(0).childAt(1).shallow().prop('color'), 'red');
+    tt.is(axisWithCustomTicks.childAt(1).childAt(1).childAt(1).shallow().prop('color'), 'blue');
+});
+
+
+test('Axis allows custom axisLine props', tt => {
+    const getAxisStroke = (scale) => scale
+        .childAt(0)
+        .childAt(0)
+        .shallow()
+        .prop('stroke');
+    tt.is(getAxisStroke(scaleBandAxis), 'black');
+    tt.is(getAxisStroke(axisWithCustomTicks), 'red');
 });
 
 

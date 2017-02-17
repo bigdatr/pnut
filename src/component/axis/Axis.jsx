@@ -132,8 +132,9 @@ export class AxisRenderable extends React.PureComponent {
 
         return this.props
             .ticks(scale)
-            .map((tick: any): React.Element<any> => {
+            .map((tick: any, index: number): React.Element<any> => {
                 const distance = scale(tick) + offset;
+                const formattedTick = this.props.textFormat(tick);
 
                 const [x1, y1] = this.getPointPosition(position, distance, axisLineWidth / 2);
                 const [x2, y2] = this.getPointPosition(position, distance, axisLineWidth / 2 + tickSize);
@@ -145,25 +146,37 @@ export class AxisRenderable extends React.PureComponent {
                 );
 
                 const tickLineProps = {
-                    x1,
-                    y1,
-                    x2,
-                    y2,
-                    axisLineWidth,
-                    ...this.props.tickLineProps
+                    x: x1,
+                    y: y1,
+                    size: this.props.tickSize,
+                    index,
+                    tickLineProps: {
+                        x1,
+                        y1,
+                        x2,
+                        y2,
+                        axisLineWidth,
+                        ...this.props.tickLineProps
+                    }
                 };
 
                 const textProps = {
+                    index,
+                    position,
                     x: textX,
                     y: textY,
-                    textAnchor: this.getTextAnchorProp(position),
-                    dominantBaseline: this.getAlignmentBaselineProp(position),
-                    ...this.props.textProps
+                    textProps: {
+                        x: textX,
+                        y: textY,
+                        textAnchor: this.getTextAnchorProp(position),
+                        dominantBaseline: this.getAlignmentBaselineProp(position),
+                        ...this.props.textProps
+                    }
                 };
 
                 return <g key={tick}>
-                    <TickLine tickLineProps={tickLineProps} />
-                    <Text tick={this.props.textFormat(tick)} textProps={textProps} />
+                    <TickLine {...tickLineProps} />
+                    <Text  {...textProps} tick={formattedTick} textProps={textProps} />
                 </g>;
             });
     }
@@ -189,17 +202,20 @@ export class AxisRenderable extends React.PureComponent {
         );
 
         const axisLineProps = {
-            x1,
-            y1,
-            x2,
-            y2,
-            strokeWidth: axisLineWidth,
-            ...this.props.axisLineProps
+            x: x1,
+            y: y1,
+            length: this.props[this.getLengthProp(position)],
+            axisLineProps: {
+                x1,
+                y1,
+                x2,
+                y2,
+                strokeWidth: axisLineWidth,
+                ...this.props.axisLineProps
+            }
         };
 
-        return <AxisLine
-            axisLineProps={axisLineProps}
-        />;
+        return <AxisLine {...axisLineProps} />;
     }
 
     getAlignmentBaselineProp(position: 'top'|'right'|'bottom'|'left'): string {
