@@ -164,6 +164,7 @@ export class AxisRenderable extends React.PureComponent {
                 const textProps = {
                     index,
                     position,
+                    tick: formattedTick,
                     x: textX,
                     y: textY,
                     textProps: {
@@ -177,7 +178,7 @@ export class AxisRenderable extends React.PureComponent {
 
                 return <g key={tick}>
                     <TickLine {...tickLineProps} />
-                    <Text  {...textProps} tick={formattedTick} textProps={textProps} />
+                    <Text {...textProps} />
                 </g>;
             });
     }
