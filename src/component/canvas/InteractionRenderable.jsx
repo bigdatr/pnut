@@ -1,7 +1,6 @@
 // @flow
 
 import React from 'react';
-import {scaleSequential, interpolateInferno} from 'd3-scale';
 import {Map, List, Record} from 'immutable';
 
 const Pointer = Record({
@@ -284,6 +283,7 @@ export class InteractionRenderable extends React.PureComponent {
 
 
     render(): React.Element<any> {
+        console.log(this.props);
         return <g
             ref={(elem) => this.box = elem}
             onMouseMove={this.handlePointerMove}
@@ -300,7 +300,14 @@ export class InteractionRenderable extends React.PureComponent {
             onKeyDown={this.handleKeyDown}
             onKeyUp={this.handleKeyUp}
         >
-            <rect x={0} y={0} width={this.props.width} height={this.props.height} fill='rgba(0,0,0,0)'></rect>
+            <rect
+                x={0}
+                y={0}
+                width={this.props.width}
+                height={this.props.height}
+                stroke='none'
+                fill='rgba(0,0,0,0)'
+            ></rect>
         </g>;
     }
 }
@@ -308,7 +315,7 @@ export class InteractionRenderable extends React.PureComponent {
 export default class Interaction extends React.Component {
     static chartType = 'interactive';
     render(): React.Element<any> {
-        return <InteractionnRenderable {...this.props} />;
+        return <InteractionRenderable {...this.props} />;
     }
 }
 

@@ -149,7 +149,7 @@ export class ScatterRenderable extends React.PureComponent {
  */
 
 export default class Scatter extends React.Component {
-    static chartType = 'canvas';
+    static chartType = 'renderable';
 
     static propTypes = {
         /**

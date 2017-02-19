@@ -313,7 +313,7 @@ export class AxisRenderable extends React.PureComponent {
 
 
 export default class Axis extends React.Component {
-    static chartType = 'axis';
+    static chartType = 'renderable';
     static propTypes = {
         /**
          * The dimension to base this axis off. Probably x or y

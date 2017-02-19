@@ -199,7 +199,7 @@ export class HistogramRenderable extends React.PureComponent {
  */
 
 export default class Histogram extends React.Component {
-    static chartType = 'canvas';
+    static chartType = 'renderable';
 
     static propTypes = {
         /**

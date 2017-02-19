@@ -217,7 +217,7 @@ export class ColumnRenderable extends React.PureComponent {
  */
 
 export default class Column extends React.Component {
-    static chartType = 'canvas';
+    static chartType = 'renderable';
 
     static propTypes = {
         /**

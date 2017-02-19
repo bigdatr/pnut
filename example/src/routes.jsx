@@ -9,7 +9,7 @@ import AreaExample from 'examples/AreaExample';
 import ColumnExample from 'examples/ColumnExample';
 import BarExample from 'examples/BarExample';
 import ScatterExample from 'examples/ScatterExample';
-import InteractionRenderableExample from 'examples/InteractionRenderableExample';
+import InteractionExample from 'examples/InteractionExample';
 import HistogramExample from 'examples/HistogramExample';
 import AxisExample from 'examples/AxisExample';
 import Plane2dExample from 'examples/Plane2dExample';
@@ -29,7 +29,7 @@ const routes = <Route component={AppHandler} path="/">
         <Route path="Scatter" component={ScatterExample}/>
         <Route path="Histogram" component={HistogramExample}/>
         <Route path="Axis" component={AxisExample}/>
-        <Route path="Interaction" component={InteractionRenderableExample}/>
+        <Route path="Interaction" component={InteractionExample}/>
     </Route>}
 
 

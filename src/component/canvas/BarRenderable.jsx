@@ -19,7 +19,7 @@ export {ColumnRenderable as BarRenderable};
  * />
  */
 export default class Bar extends React.Component {
-    static chartType = 'canvas';
+    static chartType = 'renderable';
 
     render(): React.Element<any> {
         return <ColumnRenderable

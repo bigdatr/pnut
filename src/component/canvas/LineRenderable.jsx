@@ -185,7 +185,7 @@ export class LineRenderable extends React.PureComponent {
  */
 
 class Line extends React.Component {
-    static chartType = 'canvas';
+    static chartType = 'renderable';
 
     static propTypes = {
         /**

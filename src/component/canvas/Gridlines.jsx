@@ -175,7 +175,7 @@ export class GridlinesRenderable extends React.PureComponent {
 }
 
 export default class Gridlines extends React.Component {
-    static chartType = 'canvas';
+    static chartType = 'renderable';
     render(): React.Element<any> {
         return <GridlinesRenderable {...this.props} />;
     }
