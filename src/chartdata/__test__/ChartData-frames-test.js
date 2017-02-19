@@ -267,19 +267,19 @@ test('ChartData.frameAtIndexInterpolated should return a ChartData containing in
     const data = new ChartData(frameableRows, columns);
     const answer = fromJS([
         {
-            day: 1.5,
+            day: 1.4,
             fruit: "apple",
-            amount: 2.5,
+            amount: 2.6,
             color: "blue"
         },
         {
-            day: 1.5,
+            day: 1.4,
             fruit: "banana",
-            amount: 4.5,
+            amount: 4.4,
             color: "blue"
         },
         {
-            day: 1.5,
+            day: 1.4,
             fruit: "fudge",
             amount: 5,
             color: "blue"
@@ -287,8 +287,34 @@ test('ChartData.frameAtIndexInterpolated should return a ChartData containing in
     ]);
 
     tt.true(is(
-        data.frameAtIndexInterpolated('day', 'fruit', 0.5).rows,
+        data.frameAtIndexInterpolated('day', 'fruit', 0.4).rows,
         answer
+    ));
+
+    const answer2 = fromJS([
+        {
+            day: 1.5,
+            fruit: "apple",
+            amount: 2.5,
+            color: "green"
+        },
+        {
+            day: 1.5,
+            fruit: "banana",
+            amount: 4.5,
+            color: "green"
+        },
+        {
+            day: 1.5,
+            fruit: "fudge",
+            amount: 5,
+            color: "green"
+        }
+    ]);
+
+    tt.true(is(
+        data.frameAtIndexInterpolated('day', 'fruit', 0.5).rows,
+        answer2
     ));
 });
 
@@ -299,13 +325,13 @@ test('ChartData.frameAtIndexInterpolated should cope with missing data points', 
             day: 2.5,
             fruit: "apple",
             amount: 1,
-            color: "green"
+            color: "yellow"
         },
         {
             day: 2.5,
             fruit: "fudge",
             amount: 52.5,
-            color: "green"
+            color: "yellow"
         }
     ]);
 
@@ -329,13 +355,13 @@ test('ChartData.frameAtIndexInterpolated should still work when data points are 
             day: 2.5,
             fruit: "apple",
             amount: 1,
-            color: "green"
+            color: "yellow"
         },
         {
             day: 2.5,
             fruit: "fudge",
             amount: 52.5,
-            color: "green"
+            color: "yellow"
         }
     ]);
 

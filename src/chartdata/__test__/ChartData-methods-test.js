@@ -1,5 +1,5 @@
 import test from 'ava';
-import {is, List, fromJS} from 'immutable';
+import {is, List, Map, fromJS} from 'immutable';
 import ChartData from '../ChartData';
 
 // dont show console errors
@@ -150,6 +150,39 @@ test('ChartData.updateRows should retain columns', tt => {
         return rows.map(row => row.set('fruit', 'no fruit'))
     });
     tt.deepEqual(newData.columns, data.columns);
+});
+
+// updateColumns
+
+test('ChartData.updateColumns should return an updated ChartData', tt => {
+    const data = new ChartData(rows, columns);
+    const answer = data.columns.set('month', fromJS({
+        key: 'month',
+        label: 'month',
+        isContinuous: false
+    }));
+
+    const newData = data.updateColumns(cols => {
+        return cols.push(Map({
+            key: 'month',
+            label: 'month',
+            isContinuous: false
+        }));
+    });
+
+    tt.true(is(newData.columns, answer));
+});
+
+test('ChartData.updateColumns should retain rows', tt => {
+    const data = new ChartData(rows, columns);
+    const newData = data.updateColumns(cols => {
+        return cols.push(Map({
+            key: 'month',
+            label: 'month',
+            isContinuous: false
+        }));
+    });
+    tt.true(is(newData.rows, data.rows));
 });
 
 // mapRows

@@ -1,6 +1,7 @@
 // @flow
 
 import * as ImmutableMath from 'immutable-math';
+import {interpolate} from 'd3-interpolate';
 
 import {
     fromJS,
@@ -19,6 +20,7 @@ export type ChartRow = Map<string,ChartScalar>;
 export type ChartColumnArg = string|Array<string>|List<string>;
 
 type RowUpdater = (rows: List<ChartRow>) => List<ChartRow>;
+type ColumnUpdater = (columns: List<ChartColumn>) => List<ChartColumn>;
 type RowMapper = (row: ChartRow) => ChartRow;
 
 /**
@@ -45,22 +47,41 @@ type RowMapper = (row: ChartRow) => ChartRow;
  */
 
 /**
- * This function is passed the `rows` of the current `ChartData`, and should return the new `List`
- * of rows to use in the new `ChartData` object.
+ * This function is passed the `rows` of the current `ChartData`,
+ * and should return the new rows to use in the new `ChartData` object.
+ *
+ * Like the `rows` argument of the `ChartData` constructor, rows can be either a `List`
+ * or an `Array` of either `Map`s or `Object`s.
  *
  * @callback RowUpdater
  * @param {List<ChartRow>} row The `rows` of the current `ChartData`.
- * @return {List<ChartRow>} The replacement `rows`.
+ * @return {Array<ChartRowDefinition>|List<ChartRowDefinition>} The replacement `rows`.
  */
+
+/**
+ * This function is passed a `List` of `Map`s representing the columns in the current `ChartData`,
+ * and should return a new column definitions to use in the new `ChartData` object.
+ *
+ * Like the `columns` argument of the `ChartData` constructor, columns can be either a `List`
+ * or an `Array` of either `Map`s or `Object`s.
+ *
+ * @callback ColumnUpdater
+ * @param {List<ChartColumnDefinition>} row A `List` of `Map`s representing the columns in the current `ChartData`.
+ * @return {List<ChartColumnDefinition>} The replacement columns.
+ */
+
 
 /**
  * A function called for every row in a `ChartData` object, whose results are used to
  * construct a new `ChartData`.
  *
+ * Like the individual rows passed to the `rows` argument of the `ChartData` constructor,
+ * each row can be either a `Map` or an `Object`.
+ *
  * @callback RowMapper
  * @param {ChartRow} row The current row.
  * @param {number} key The key of the current row.
- * @return {ChartRow} The replacement row.
+ * @return {ChartRowDefinition} The replacement row.
  */
 
 /**
@@ -141,7 +162,7 @@ class ChartData extends Record({
 
     constructor(
         rows: Array<ChartRowDefinition>|List<ChartRowDefinition>,
-        columns: Array<ChartColumnDefinition>|List<ChartColumnDefinition>
+        columns: Array<ChartColumnDefinition>|List<ChartColumnDefinition>|OrderedMap<string,ChartColumn>
     ) {
         const chartDataRows: List<ChartRow> = ChartData._createRows(rows);
         const chartDataColumns: OrderedMap<string,ChartColumn> = ChartData._createColumns(
@@ -171,10 +192,12 @@ class ChartData extends Record({
     }
 
     static _createColumns(
-        columns: Array<ChartColumnDefinition>|List<ChartColumnDefinition>,
+        columns: Array<ChartColumnDefinition>|List<ChartColumnDefinition>|OrderedMap<string,ChartColumn>,
         chartDataRows: List<ChartRow>
     ): OrderedMap<string,ChartColumn> {
+
         return fromJS(columns)
+            .map(ii => Map(ii)) // required to convert objects to Maps within Lists
             .reduce((map: OrderedMap<string,ChartColumn>, col: Map<string,*>): OrderedMap => {
                 return map.set(
                     col.get('key'),
@@ -184,7 +207,7 @@ class ChartData extends Record({
     }
 
     static _addContinuous(col: Map<string,*>, rows: List<ChartRow>): Map<string,*> {
-        if(col.get('isContinuous') || !rows) {
+        if(col.has('isContinuous') || !rows) {
             return col;
         }
         const key = col.get('key');
@@ -215,6 +238,7 @@ class ChartData extends Record({
     static isValueValid(value: *): boolean {
         return typeof value === "string"
             || typeof value === "number"
+            || (value instanceof Date && !isNaN(value.getTime())) // value is date, and date is not invalid
             || value === null;
     }
 
@@ -231,20 +255,23 @@ class ChartData extends Record({
      */
 
     static isValueContinuous(value: *): boolean {
-        return typeof value === "number";
+        return typeof value === "number"
+            || (value instanceof Date && !isNaN(value.getTime())); // value is date, and date is not invalid
     }
 
     /**
-     * Lerp (short for linear interpolation) takes two `ChartScalar` values
-     * and attempts to interpolate them.
+     * Interpolate takes two `ChartScalar` values and attempts to interpolate between them linearly.
+     * It uses [`d3-interpolate`](https://github.com/d3/d3-interpolate) internally,
+     * and follows the interpolation rules outlined by its [`interpolate`](https://github.com/d3/d3-interpolate#interpolate) method
+     * with the following exceptions:
      *
-     * - If `blend` is 0 or 1 it will return `valueA` or `valueB` respectively.
+     * - `blend` must be between 0 and 1 inclusive.
      * - If either value is `null` it will return `null`.
-     * - If either value is not a number, `valueA` will be returned.
-     * - If both values are numbers, the interpolated number will be returned.
+     * - If ether value is `false` according to `ChartData.isContinuous()` then `interpolateDiscrete` is used instead.
      *
      * @example
-     * return ChartData.lerp(10, 20, 0.5); // returns 15
+     * return ChartData.interpolate(10, 20, 0.2); // returns 12
+     * return ChartData.interpolate(10, 20, 0.5); // returns 15
      *
      * @param {ChartScalar} valueA The first value.
      * @param {ChartScalar} valueB The second value.
@@ -254,13 +281,13 @@ class ChartData extends Record({
      *
      * @return {ChartScalar} The interpolated value.
      *
-     * @name lerp
+     * @name interpolate
      * @kind function
      * @memberof ChartData
      * @static
      */
 
-    static lerp(valueA: ChartScalar, valueB: ChartScalar, blend: number): ChartScalar {
+    static interpolate(valueA: ChartScalar, valueB: ChartScalar, blend: number): ChartScalar {
         if(blend == 0) {
             return valueA;
         }
@@ -274,10 +301,41 @@ class ChartData extends Record({
         if(valueA == null || valueB == null) {
             return null;
         }
-        if(typeof valueA != "number" || typeof valueB != "number") {
-            return valueA;
+        if(!ChartData.isValueContinuous(valueA) || !ChartData.isValueContinuous(valueB)) {
+            return ChartData.interpolateDiscrete(valueA, valueB, blend);
         }
-        return (valueB - valueA) * blend + valueA;
+        return interpolate(valueA, valueB)(blend);
+    }
+
+    /**
+     * Interpolate discrete takes two `ChartScalar` values and returns `valueA`
+     * when `blend` is less than 0.5, or `valueB` otherwise. It always treats the values as discrete,
+     * even when they are continuous data types such as numbers. It's primarily used for generating
+     * "interpolated" values for non-interpolatable data such as strings.
+     *
+     * @example
+     * return ChartData.interpolateDiscrete(10, 20, 0.1); // returns 10
+     * return ChartData.interpolateDiscrete(10, 20, 0.5); // returns 20
+     *
+     * @param {ChartScalar} valueA The first value.
+     * @param {ChartScalar} valueB The second value.
+     * @param {number} blend
+     * A number from 0 to 1 indicating how much influence each value has on the result.
+     *
+     * @return {ChartScalar} The interpolated value.
+     *
+     * @name interpolate
+     * @kind function
+     * @memberof ChartData
+     * @static
+     */
+
+    static interpolateDiscrete(valueA: ChartScalar, valueB: ChartScalar, blend: number): ChartScalar {
+        if(blend < 0 || blend > 1) {
+            console.error(`ChartData: blend must be from 0 to 1 inclusive`);
+            return null;
+        }
+        return blend < 0.5 ? valueA : valueB;
     }
 
     /*
@@ -398,6 +456,40 @@ class ChartData extends Record({
 
     updateRows(updater: RowUpdater): ChartData {
         return new ChartData(updater(this.rows), this.columns);
+    }
+
+    /**
+     * Returns a new `ChartData` with updated `columns`.
+     *
+     * @param {ColumnUpdater} updater
+     * @return {ChartData} A new `ChartData` containing the updated columns.
+     *
+     * @example
+     * const chartData = new ChartData(rows, columns);
+     * const newColumn = {
+     *   key: 'month',
+     *   label: 'Month'
+     * };
+     * return chartData.update(col => col.set('month', newColumn));
+     *
+     * @name updateColumns
+     * @kind function
+     * @inner
+     * @memberof ChartData
+     */
+
+    updateColumns(updater: ColumnUpdater): ChartData {
+        // interally columns are stored as an OrderedMap of ColumnData records because it's useful
+        // but for any user facing stuff it's better to let them define columns as Lists of Maps
+        // or Arrays of Objects (a.k.a. ChartColumnDefinitions),
+        // so here we convert the interal data structure back to the user facing one
+        // for use in the updater().
+
+        const columnDefinitions: List<Map> = this.columns
+            .toList()
+            .map(col => col.toMap());
+
+        return new ChartData(this.rows, updater(columnDefinitions));
     }
 
     /**
@@ -731,10 +823,11 @@ class ChartData extends Record({
                 // for each column, try to interpolate values
                 return this.columns.reduce((map: ChartRow, column: ChartColumn): ChartRow => {
                     const {key, isContinuous} = column;
-                    // only try to interpolate continuous non-primary columns
+                    // use interpolate on continuous non-primary columns
+                    // or else keep the data discrete while interpolating
                     const value: ChartScalar = isContinuous && key != primaryColumn
-                        ? ChartData.lerp(rowA.get(key), rowB.get(key), blend)
-                        : rowA.get(key);
+                        ? ChartData.interpolate(rowA.get(key), rowB.get(key), blend)
+                        : ChartData.interpolateDiscrete(rowA.get(key), rowB.get(key), blend);
 
                     return map.set(key, value);
                 }, Map());

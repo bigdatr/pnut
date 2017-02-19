@@ -1,5 +1,5 @@
 import test from 'ava';
-import {fromJS} from 'immutable';
+import {fromJS, List} from 'immutable';
 import ChartData from '../ChartData';
 
 // dont show console errors
@@ -62,6 +62,25 @@ const rowsWithNulls = [
         supply: null,
         demand: 77,
         fruit: "peach"
+    }
+];
+
+const rowsWithDates = [
+    {
+        day: new Date("2016-01-30"),
+        hats: 12
+    },
+    {
+        day: new Date("2016-01-31"),
+        hats: 3
+    },
+    {
+        day: new Date("2016-02-01"),
+        hats: 7
+    },
+    {
+        day: new Date("2016-02-02"),
+        hats: 8
     }
 ];
 
@@ -143,6 +162,12 @@ test('ChartData converts all invalid values to null', tt => {
     tt.deepEqual(data.rows, fromJS(rowsWithBadDataExpectedOutput));
 });
 
+test('ChartData Record can create rows with date values', tt => {
+    const data = new ChartData(rowsWithDates, columns);
+    tt.deepEqual(data.rows, fromJS(rowsWithDates));
+});
+
+
 //
 // columns
 //
@@ -161,6 +186,13 @@ test('ChartData Record should be able to take immutable columns', tt => {
     tt.deepEqual(data.columns.toList().map(ii => ii.isContinuous), fromJS(columns).map(ii => ii.get('isContinuous')));
 });
 
+test('ChartData Record should be able to take columns which are a List of objects', tt => {
+    const data = new ChartData(rows, List(columns));
+    tt.deepEqual(data.columns.toList().map(ii => ii.key), fromJS(columns).map(ii => ii.get('key')));
+    tt.deepEqual(data.columns.toList().map(ii => ii.label), fromJS(columns).map(ii => ii.get('label')));
+    tt.deepEqual(data.columns.toList().map(ii => ii.isContinuous), fromJS(columns).map(ii => ii.get('isContinuous')));
+});
+
 test('ChartData Record should be able to take an OrderedMap of ChartColumns as columns', tt => {
     const data = new ChartData(rows, fromJS(columns));
     const dataAgain = new ChartData(rows, data.columns);
@@ -169,6 +201,15 @@ test('ChartData Record should be able to take an OrderedMap of ChartColumns as c
     tt.deepEqual(dataAgain.columns.toList().map(ii => ii.isContinuous), fromJS(columns).map(ii => ii.get('isContinuous')));
 });
 
+test('ChartData should use column.isContinuous = true (when provided) to specify when a column contains continuous data', tt => {
+    const data = new ChartData(rowsWithNulls, columns);
+    tt.true(data.columns.get('day').isContinuous, 'column data is continuous if isContinuous is true');
+});
+
+test('ChartData should use column.isContinuous = false (when provided) to specify when a column doesnt contain continuous data', tt => {
+    const data = new ChartData(rowsWithNulls, fromJS(columns).update(0, ii => ii.set('isContinuous', false)));
+    tt.false(data.columns.get('day').isContinuous, 'column data is continuous if isContinuous is false');
+});
 
 test('ChartData should automatically determine if a column is continuous', tt => {
     const columnsWithoutContinuous = fromJS(columns).map(col => col.delete('isContinuous'));
