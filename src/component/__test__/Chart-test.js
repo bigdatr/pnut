@@ -1,5 +1,6 @@
 import test from 'ava';
 import React from 'react';
+import {Map} from 'immutable';
 import {shallow} from 'enzyme';
 import {spy} from 'sinon';
 
@@ -48,7 +49,7 @@ test('Svg.getCanvasSize props and padding default to 0', tt => {
         });
 });
 
-test('Svg.getAxisSize returns correct padding for each combination', tt => {
+test('Chart.getAxisSize returns correct padding for each combination', tt => {
     const chart = shallow(<Chart width={0} height={0} padding={[1,1,1,1]} data={data} xColumn="demand"><Line yColumn="supply"/></Chart>);
     tt.deepEqual(chart.instance().getAxisSize(), {});
     tt.is(chart.instance().getAxisSize('top').height, 1);
@@ -57,9 +58,15 @@ test('Svg.getAxisSize returns correct padding for each combination', tt => {
     tt.is(chart.instance().getAxisSize('right').width, 1);
 });
 
-test('Svg.getDefaultScale will default to a linearScale with no range or domain', tt => {
-    const chart = shallow(<Chart width={0} height={0} data={data} xColumn="demand"><Line yColumn="supply"/></Chart>).instance();
-    tt.is(chart.getDefaultScale({})({})(1), 1);
+test('Chart.getDefaultScale will default to a linearScale with no range or domain', tt => {
+    const testScale = (scale) => {
+        tt.is(scale.domain().length, 0);
+        tt.is(scale.range()[0], 0);
+        tt.is(scale.range()[1], 1);
+    };
+    const chart = shallow(<Chart dimensions={['x', 'y', 'custom']} width={0} height={0} data={data} xColumn="demand">
+        <Line yColumn="supply" customScale={testScale}/>
+    </Chart>);
 });
 
 test('if a scale is given a function it will be called with the scale and props', tt => {

@@ -133,7 +133,7 @@ class Chart extends Component {
 
         const canvas = List(childrenProps)
             .groupBy(ii => ii.chartType)
-            .get('canvas');
+            .get('canvas', List());
 
         this.state = {
             dimensions: props.dimensions
@@ -228,6 +228,7 @@ class Chart extends Component {
         return (pp: Object): Function => {
 
             const currentDimension = List().concat(pp[columnKey]);
+
             const continuous = isContinuousSet(currentDimension, pp.data).get(true);
             // Make the current dimension always a list
             const columns = groups.get(pp[scaleGroupKey] || dimensionName);
@@ -250,7 +251,7 @@ class Chart extends Component {
                 case 'y':
 
                     // choose the max value of range based on x/width y/height
-                    const bound = (dimensionName === 'x') ? pp.width : pp.height;
+                    var bound = (dimensionName === 'x') ? pp.width : pp.height;
 
                     return d3Scale[scaleName]()
                         .domain(domainArray)
@@ -277,7 +278,7 @@ class Chart extends Component {
                     .set(columnKey, chartProps[columnKey]);
 
             }, Map())
-            .set('data', chartProps.data)
+            .set('data', props.frame || chartProps.data)
             .set('width', chartProps.width)
             .set('height', chartProps.height)
             .toObject();
