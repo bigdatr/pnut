@@ -133,7 +133,7 @@ class Chart extends Component {
 
         const canvas = List(childrenProps)
             .groupBy(ii => ii.chartType)
-            .get('canvas');
+            .get('canvas', List());
 
         this.state = {
             dimensions: props.dimensions
@@ -218,51 +218,50 @@ class Chart extends Component {
     getDefaultScale(dimension: Object): Function {
         const {dimensionName, scaleTypeKey, scaleGroupKey, columnKey, groups} = dimension;
 
-        switch(dimensionName) {
-            case 'x':
-            case 'y':
-                return (pp: Object): Function => {
+        // create a set of booleans to check if a group is mixing dimension types
+        function isContinuousSet(list: List, data: Object): Set {
+            return list
+                .map(dd => data.columns.getIn([dd, 'isContinuous']))
+                .toSet();
+        }
+
+        return (pp: Object): Function => {
+
+            const currentDimension = List().concat(pp[columnKey]);
+
+            const continuous = isContinuousSet(currentDimension, pp.data).get(true);
+            // Make the current dimension always a list
+            const columns = groups.get(pp[scaleGroupKey] || dimensionName);
+
+            const scaleName = pp[scaleTypeKey] || (continuous ? 'scaleLinear' : 'scaleBand');
+
+            // if the size is greater than one we have multiple data types
+            if(isContinuousSet(List(columns), pp.data).size > 1) {
+                throw new Error(`${columnKey} cannot share continuous and non continuous data: ${groups.get(scaleGroupKey).join(', ')}`);
+            }
+
+            const domainArray = continuous
+                ? [pp.data.min(columns), pp.data.max(columns)]
+                : pp[columnKey]
+                    ? pp.data.getColumnData(currentDimension.get(0)).toArray()
+                    : [];
+
+            switch(dimensionName) {
+                case 'x':
+                case 'y':
 
                     // choose the max value of range based on x/width y/height
-                    const bound = (dimensionName === 'x') ? pp.width : pp.height;
-                    // Make the current dimension always a list
-                    const currentDimension = List().concat(pp[columnKey]);
-                    const columns = groups.get(pp[scaleGroupKey] || dimensionName);
+                    var bound = (dimensionName === 'x') ? pp.width : pp.height;
 
-                    // create a set of booleans to check if a group is mixing dimension types
-                    function isContinuous(list: List): Set {
-                        return list
-                            .map(dd => pp.data.columns.getIn([dd, 'isContinuous']))
-                            .toSet();
-                    }
+                    return d3Scale[scaleName]()
+                        .domain(domainArray)
+                        .range([0, bound]);
 
-                    // if the size is greater than one we have multiple data types
-                    if(isContinuous(List(columns)).size > 1) {
-                        throw new Error(`${columnKey} cannot share continuous and non continuous data: ${groups.get(scaleGroupKey).join(', ')}`);
-                    }
-
-                    // continuous data domain array is just [min,max]
-                    // non continuous domain array has one item for each discrete point
-                    if(isContinuous(currentDimension).get(true)) {
-                        return d3Scale[pp[scaleTypeKey] || 'scaleLinear']()
-                            .domain([pp.data.min(columns), pp.data.max(columns)])
-                            .range([0, bound]);
-
-
-                    } else {
-                        return d3Scale[pp[scaleTypeKey] || 'scaleBand']()
-                            // only fetch the data if is going to exist. Otherwise send and empty array
-                            .domain(pp[columnKey] ? pp.data.getColumnData(currentDimension.get(0)).toArray() : [])
-                            .range([0, bound]);
-                    }
-
-                };
-
-            default:
-                return (pp: Object): Function => {
-                    return d3Scale[pp[scaleTypeKey] || 'scaleLinear']();
-                };
-        }
+                default:
+                    return d3Scale[scaleName]()
+                        .domain(domainArray);
+            }
+        };
     }
     getChildProps(props: Object): Object {
         const {dimensions} = this.state;
@@ -279,7 +278,7 @@ class Chart extends Component {
                     .set(columnKey, chartProps[columnKey]);
 
             }, Map())
-            .set('data', chartProps.data)
+            .set('data', props.frame || chartProps.data)
             .set('width', chartProps.width)
             .set('height', chartProps.height)
             .toObject();
