@@ -2,6 +2,29 @@
 
 import React from 'react';
 
+function DefaultAxisLine(props: Object): React.Element<any> {
+    return <line
+        stroke='black'
+        {...props.axisLineProps}
+    />;
+}
+
+function DefaultTick(props: Object): React.Element<any> {
+    return <line
+        stroke='black'
+        {...props.tickLineProps}
+    />;
+}
+
+function DefaultText(props: Object): React.Element<any> {
+    return <text
+        fontSize={12}
+        children={props.tick}
+        {...props.textProps}
+    />;
+}
+
+
 /**
  *
  * @component
@@ -22,71 +45,43 @@ import React from 'react';
 export class AxisRenderable extends React.PureComponent {
 
     static defaultProps = {
-        lineProps: {},
-        tickProps: {},
-        textProps: {},
+        axisLine: DefaultAxisLine,
+        axisLineProps: {},
+        axisLineWidth: 1,
+        overlap: 0,
+        text: DefaultText,
         textFormat: (text) => text,
-        ticks: (scale) => scale.ticks ? scale.ticks() : scale.domain(),
-        tickSize: 6,
         textPadding: 6,
-        overlap: 0
+        textProps: {},
+        tickLine: DefaultTick,
+        tickLineProps: {},
+        ticks: (scale) => scale.ticks ? scale.ticks() : scale.domain(),
+        tickSize: 6
     };
 
     static propTypes = {
-        /**
-         * {'top'|'right'|'bottom'|'left'} The position of the axis
-         */
+        /** {'top'|'right'|'bottom'|'left'} The position of the axis */
         position: React.PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
 
-        /**
-         * {Object} An object of props that are passed to the axis line - the line that sits
-         * against the chart edge.
-         */
-        lineProps: React.PropTypes.object,
+        /** Custom axisLine renderer */
+        axisLine: React.PropTypes.func,
 
+        /** {Object} An object of props that are passed to the axis line - the line that sits against the chart edge. */
+        axisLineProps: React.PropTypes.object,
 
-        /**
-         * @typedef TickPropsFunction
-         * @callback
-         *
-         * @param {*} tick - The value for this tick
-         * @param {number} index - This tick's index in the ticks array
-         * @param {number} x - The calculated x position for this tick
-         * @param {number} y - The calculated y position for this tick
-         * @param {Scale} scale - The scale for this axis
-         */
+        axisLineWidth: React.PropTypes.number,
 
-        /**
-         * {Object|TickPropsFunction} Either an object of props or a function that returns an object of props
-         * to be spread onto the `<line/>` element that is used to draw the tick. This can be used
-         * to customise the look of the ticks.
-         */
-        tickProps: React.PropTypes.oneOfType([
-            React.PropTypes.object,
-            React.PropTypes.func
-        ]),
+        /** Custom tickLine renderer */
+        tickLine: React.PropTypes.func,
 
-        /**
-         * @typedef TextPropsFunction
-         * @callback
-         *
-         * @param {*} tick - The value for this tick
-         * @param {number} index - This tick's index in the ticks array
-         * @param {number} x - The calculated x position for the text displaying the tick's value
-         * @param {number} y - The calculated y position for the text displaying the tick's value
-         * @param {Scale} scale - The scale for this axis
-         */
+        /** {Object} An object of props that are passed to the each tick */
+        tickLineProps: React.PropTypes.object,
 
-        /**
-         * {Object|TextPropsFunction} Either an object of props or a function that returns an object of props
-         * to be spread onto the `<text/>` element that is used to draw the text relating to this
-         * tick. This can be used to customise the look of the tick's text. To customise the text
-         * string see `textFormat`
-         */
-        textProps: React.PropTypes.oneOfType([
-            React.PropTypes.object,
-            React.PropTypes.func
-        ]),
+        /** Custom text renderer */
+        text: React.PropTypes.func,
+
+        /** {Object} An object of props that are passed to the each text node */
+        textProps: React.PropTypes.object,
 
         /**
          * {Function} a function that is called for each tick and is passed the tick value. This can
@@ -94,14 +89,10 @@ export class AxisRenderable extends React.PureComponent {
          */
         textFormat: React.PropTypes.func,
 
-        /**
-         * The length of the tick line.
-         */
+        /** The length of the tick line. */
         tickSize: React.PropTypes.number,
 
-        /**
-         * The padding between a tick line and the tick text
-         */
+        /** The padding between a tick line and the tick text */
         textPadding: React.PropTypes.number,
 
         /**
@@ -110,9 +101,7 @@ export class AxisRenderable extends React.PureComponent {
          */
         overlap: React.PropTypes.number,
 
-        /**
-         * {Scale} The [d3-scale](https://github.com/d3/d3-scale) for the axis
-         */
+        /** {Scale} The [d3-scale](https://github.com/d3/d3-scale) for the axis */
         scale: React.PropTypes.func.isRequired,
 
         /**
@@ -121,77 +110,86 @@ export class AxisRenderable extends React.PureComponent {
          */
         ticks: React.PropTypes.func,
 
-        /**
-         * The width of the axis
-         */
+        /** The width of the axis */
         width: React.PropTypes.number.isRequired,
 
-        /**
-         * The height of the axis
-         */
+        /** The height of the axis */
         height: React.PropTypes.number.isRequired
     };
 
-    defaultLineWidth = 1;
-
-
     drawTicks(): Array<React.Element<any>> {
-        const axisPosition = this.props.position;
-        const tickSize = this.props.tickSize;
-        const strokeWidth = this.props.lineProps.strokeWidth || this.defaultLineWidth;
+        const {
+            axisLineWidth,
+            text: Text,
+            tickLine: TickLine,
+            tickSize,
+            textPadding,
+            scale,
+            position
+        } = this.props;
+
         const offset = this.props.scale.bandwidth ? this.props.scale.bandwidth() / 2 : 0;
 
-        return this.props.ticks(this.props.scale).map((tick: any, index: number): React.Element<any> => {
-            const distance = this.props.scale(tick) + offset;
+        return this.props
+            .ticks(scale)
+            .map((tick: any, index: number): React.Element<any> => {
+                const distance = scale(tick) + offset;
+                const formattedTick = this.props.textFormat(tick);
 
-            const [x1, y1] = this.getPointPosition(axisPosition, distance, strokeWidth / 2);
-            const [x2, y2] = this.getPointPosition(axisPosition, distance, strokeWidth / 2 + tickSize);
+                const [x1, y1] = this.getPointPosition(position, distance, axisLineWidth / 2);
+                const [x2, y2] = this.getPointPosition(position, distance, axisLineWidth / 2 + tickSize);
 
-            const [textX, textY] = this.getPointPosition(
-                axisPosition,
-                distance,
-                strokeWidth / 2 + tickSize + this.props.textPadding
-            );
+                const [textX, textY] = this.getPointPosition(
+                    position,
+                    distance,
+                    axisLineWidth / 2 + tickSize + textPadding
+                );
 
-            return <g
-                key={tick}
-            >
-                <line
-                    x1={x1}
-                    y1={y1}
-                    x2={x2}
-                    y2={y2}
-                    stroke='black'
-                    strokeWidth={1}
-                    {...(
-                        typeof this.props.tickProps === 'function'
-                            ? this.props.tickProps(tick, index, x1, y1, this.props.scale)
-                            : this.props.tickProps
-                    )}
-                />
+                const tickLineProps = {
+                    axisPosition: position,
+                    index,
+                    size: this.props.tickSize,
+                    x: x1,
+                    y: y1,
+                    tickLineProps: {
+                        x1,
+                        y1,
+                        x2,
+                        y2,
+                        axisLineWidth,
+                        ...this.props.tickLineProps
+                    }
+                };
 
-                <text
-                    x={textX}
-                    y={textY}
-                    textAnchor={this.getTextAnchorProp(axisPosition)}
-                    dominantBaseline={this.getAlignmentBaselineProp(axisPosition)}
-                    fontSize={12}
-                    {...(
-                        typeof this.props.textProps === 'function'
-                            ? this.props.textProps(tick, index, textX, textY, this.props.scale)
-                            : this.props.textProps
-                    )}
-                >
-                    {this.props.textFormat(tick)}
-                </text>
-            </g>;
-        });
+                const textProps = {
+                    index,
+                    position,
+                    tick: formattedTick,
+                    x: textX,
+                    y: textY,
+                    textProps: {
+                        x: textX,
+                        y: textY,
+                        textAnchor: this.getTextAnchorProp(position),
+                        dominantBaseline: this.getAlignmentBaselineProp(position),
+                        ...this.props.textProps
+                    }
+                };
+
+                return <g key={tick}>
+                    <TickLine {...tickLineProps} />
+                    <Text {...textProps} />
+                </g>;
+            });
     }
 
-    drawAxis(): React.Element<any> {
-        const position = this.props.position;
-        const strokeWidth = this.props.lineProps.strokeWidth || this.defaultLineWidth;
-        const overlap = this.props.overlap;
+    drawAxisLine(): React.Element<any> {
+        const {
+            axisLine: AxisLine,
+            overlap,
+            position,
+            axisLineWidth
+        } = this.props;
 
         const [x1, y1] = this.getPointPosition(
             position,
@@ -205,15 +203,21 @@ export class AxisRenderable extends React.PureComponent {
             0
         );
 
-        return <line
-            x1={x1}
-            y1={y1}
-            x2={x2}
-            y2={y2}
-            stroke='black'
-            strokeWidth={strokeWidth}
-            {...this.props.lineProps}
-        />;
+        const axisLineProps = {
+            x: x1,
+            y: y1,
+            [this.getLengthProp(position)]: this.props[this.getLengthProp(position)],
+            axisLineProps: {
+                x1,
+                y1,
+                x2,
+                y2,
+                strokeWidth: axisLineWidth,
+                ...this.props.axisLineProps
+            }
+        };
+
+        return <AxisLine {...axisLineProps} />;
     }
 
     getAlignmentBaselineProp(position: 'top'|'right'|'bottom'|'left'): string {
@@ -270,7 +274,7 @@ export class AxisRenderable extends React.PureComponent {
     render(): React.Element<any> {
         return <g>
             <g>
-                {this.drawAxis()}
+                {this.drawAxisLine()}
             </g>
             <g>
                 {this.drawTicks()}
