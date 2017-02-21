@@ -9,7 +9,7 @@ import type ChartRow from 'src/chartdata/ChartData';
 
 function DefaultLine(props: Object): React.Element<any> {
     return <path
-        {...props.pathProps}
+        {...props.lineProps}
     />;
 }
 
@@ -18,7 +18,7 @@ DefaultLine.propTypes = {
     points: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
 
     /** An object containing the minimum data required to draw an svg path */
-    pathProps: PropTypes.shape({
+    lineProps: PropTypes.shape({
 
         /** Calculated d string */
         d: PropTypes.string
@@ -50,10 +50,10 @@ DefaultLine.propTypes = {
  *     xColumn={'month'}
  *     yColumn={'demand'}
  *     data={chartData}
- *     pathProps={{
+ *     lineProps={{
  *          strokeWidth: '2'
  *     }}
- *     line={(props) => <path {...props.pathProps} stroke="red"/>}
+ *     line={(props) => <path {...props.lineProps} stroke="red"/>}
  * />;
  *
  */
@@ -71,7 +71,7 @@ export class LineRenderable extends React.PureComponent {
         line: React.PropTypes.func,
 
         /** Destructured onto the default line renderer's path. */
-        pathProps: React.PropTypes.object
+        lineProps: React.PropTypes.object
     };
 
     lineGenerator = d3Shape.line()
@@ -113,11 +113,11 @@ export class LineRenderable extends React.PureComponent {
                 pathGenerator={pathGenerator}
                 data={this.props.data}
                 scaledData={this.props.scaledData}
-                pathProps={{
+                lineProps={{
                     fill: this.props.area ? 'black' : 'none',
                     stroke: this.props.area ? 'none' : 'black',
                     d: pathGenerator(this.props.scaledData),
-                    ...this.props.pathProps
+                    ...this.props.lineProps
                 }}
             />
         </g>;
