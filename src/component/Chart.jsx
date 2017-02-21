@@ -1,10 +1,15 @@
 // @flow
 import React, {Component, Children, cloneElement, Element, PropTypes} from 'react';
-import {List, Map, Set} from 'immutable';
+import {List, Map} from 'immutable';
 import Svg from './Svg';
-import * as d3Scale from 'd3-scale';
+import ChartData from '../chartdata/ChartData';
+import applyDimension from '../util/applyDimension';
+import defaultScale from '../util/defaultScale';
+import scaleChartRow from '../util/scaleChartRow';
+import memoize from '../util/memoize';
 import {SpruceClassName} from 'stampy';
 
+import type ChartRow from 'src/chartdata/ChartData';
 
 /**
  * @component
@@ -85,10 +90,13 @@ import {SpruceClassName} from 'stampy';
  * </Chart>
  */
 class Chart extends Component {
-    state: Object;
-    getChildProps: Function;
-    getCanvasSize: Function;
     getAxisSize: Function;
+    getCanvasSize: Function;
+    getChildProps: Function;
+    withScaledData: Function;
+    memoize: Function;
+    memos: Object;
+    state: Object;
 
     static propTypes = {
         data: PropTypes.object.isRequired,
@@ -131,10 +139,7 @@ class Chart extends Component {
                 };
             });
 
-        const canvas = List(childrenProps)
-            .groupBy(ii => ii.chartType)
-            .get('canvas', List());
-
+        this.memos = {};
         this.state = {
             dimensions: props.dimensions
                 .map((dimensionName: string): Object => {
@@ -149,7 +154,7 @@ class Chart extends Component {
                         scaleKey,
                         scaleTypeKey,
                         scaleGroupKey,
-                        groups: canvas
+                        groups: List(childrenProps)
                             .groupBy(ii => ii[scaleGroupKey] || dimensionName)
                             .map((groupList: List): string[] => {
                                 return groupList
@@ -163,9 +168,19 @@ class Chart extends Component {
                 })
         };
 
-        this.getChildProps = this.getChildProps.bind(this);
-        this.getCanvasSize = this.getCanvasSize.bind(this);
         this.getAxisSize = this.getAxisSize.bind(this);
+        this.getCanvasSize = this.getCanvasSize.bind(this);
+        this.getChildProps = this.getChildProps.bind(this);
+        this.withScaledData = this.withScaledData.bind(this);
+        this.memoize = memoize(this.memos);
+    }
+    memoize(key: String, fn: Function): Object[] {
+        if(this.memos.has(key)) {
+            return this.memos.get(key);
+        }
+        const value = fn();
+        this.memos = this.memos.set(key, value);
+        return value;
     }
     getCanvasSize(): Object {
         const {width, height, padding = []} = this.props;
@@ -215,52 +230,25 @@ class Chart extends Component {
 
         }
     }
-    getDefaultScale(dimension: Object): Function {
-        const {dimensionName, scaleTypeKey, scaleGroupKey, columnKey, groups} = dimension;
+    withScaledData(dimension: Object, chartProps: Object): Function {
+        const {columnName, dimensionName} = applyDimension(dimension, chartProps.toObject());
+        return (newProps: Map): Map => {
+            // scaled data is calculated halfway through the newProps construction
+            // we must merge the current newProps and chartProps to have access to all data.
+            const props = chartProps.merge(newProps);
 
-        // create a set of booleans to check if a group is mixing dimension types
-        function isContinuousSet(list: List, data: Object): Set {
-            return list
-                .map(dd => data.columns.getIn([dd, 'isContinuous']))
-                .toSet();
-        }
+            //ignore inherited columns we aren't up to yet. (They have no value for this dimension)
+            if(columnName) {
 
-        return (pp: Object): Function => {
-
-            const currentDimension = List().concat(pp[columnKey]);
-
-            const continuous = isContinuousSet(currentDimension, pp.data).get(true);
-            // Make the current dimension always a list
-            const columns = groups.get(pp[scaleGroupKey] || dimensionName);
-
-            const scaleName = pp[scaleTypeKey] || (continuous ? 'scaleLinear' : 'scaleBand');
-
-            // if the size is greater than one we have multiple data types
-            if(isContinuousSet(List(columns), pp.data).size > 1) {
-                throw new Error(`${columnKey} cannot share continuous and non continuous data: ${groups.get(scaleGroupKey).join(', ')}`);
+                // memoize the calculation of data by dimension & columnName.
+                return newProps.setIn(['scaledData', dimensionName], this.memoize(`${dimensionName}${columnName}`, (): Array<any> => {
+                    return chartProps.get('data').rows
+                        // iterate and scale
+                        .map(scaleChartRow(dimension, props.toObject()))
+                        .toArray();
+                }));
             }
-
-            const domainArray = continuous
-                ? [pp.data.min(columns), pp.data.max(columns)]
-                : pp[columnKey]
-                    ? pp.data.getColumnData(currentDimension.get(0)).toArray()
-                    : [];
-
-            switch(dimensionName) {
-                case 'x':
-                case 'y':
-
-                    // choose the max value of range based on x/width y/height
-                    var bound = (dimensionName === 'x') ? pp.width : pp.height;
-
-                    return d3Scale[scaleName]()
-                        .domain(domainArray)
-                        .range([0, bound]);
-
-                default:
-                    return d3Scale[scaleName]()
-                        .domain(domainArray);
-            }
+            return newProps;
         };
     }
     getChildProps(props: Object): Object {
@@ -268,14 +256,15 @@ class Chart extends Component {
         const chartProps = Object.assign({}, this.state, this.props, this.getCanvasSize(), props);
 
         return List(dimensions)
-            .reduce((props: Map, dimension: Object): Map => {
+            .reduce((newProps: Map, dimension: Object): Map => {
                 const {scaleKey, columnKey} = dimension;
-                const scale = this.getDefaultScale(dimension)(chartProps);
-                const editScale = chartProps[scaleKey];
+                const {scaleName, columnName} = applyDimension(dimension, chartProps);
+                const scale = defaultScale(dimension, chartProps);
 
-                return props
-                    .set(scaleKey, typeof editScale === 'function' ? editScale(scale.copy(), chartProps) : scale)
-                    .set(columnKey, chartProps[columnKey]);
+                return newProps
+                    .set(columnKey, columnName)
+                    .set(scaleKey, typeof scaleName === 'function' ? scaleName(scale.copy(), chartProps) : scale)
+                    .update(this.withScaledData(dimension, Map(chartProps)));
 
             }, Map())
             .set('data', props.frame || chartProps.data)

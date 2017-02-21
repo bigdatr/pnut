@@ -221,11 +221,6 @@ class Plane2dExample extends React.Component {
                 .set('benchmark', 1300000);
         });
 
-        const props = {
-            dimensions: ['x', 'y'],
-            xColumn: "month",
-        }
-
         const path = ({d}) => <path d={d} stroke="red"/>;
 
         return <div>
@@ -235,11 +230,14 @@ class Plane2dExample extends React.Component {
                     data={chartData}
                     width={this.props.eqWidth || 0}
                     height={this.props.eqHeight || 0}
-                    {...props}
+                    dimensions: ['x', 'y'],
+                    xColumn: "month",
                 >
 
                     <Line yScaleGroup="y1" yColumn="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
                     <Line yScaleGroup="y2" yColumn="demand" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
+
+
                     <Axis
                         position='bottom'
                         dimension="x"
@@ -247,13 +245,13 @@ class Plane2dExample extends React.Component {
                     <Axis
                         position='left'
                         dimension="y"
-                        yColumn="demand"
+                        yColumn="supply"
                         yScaleGroup="y1"
                     />
                     <Axis
                         position='right'
                         dimension="y"
-                        yColumn="supply"
+                        yColumn="fooBar"
                         yScaleGroup="y2"
                     />
 
