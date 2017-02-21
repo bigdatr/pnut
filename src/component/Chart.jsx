@@ -263,16 +263,16 @@ class Chart extends Component {
 
                 return newProps
                     .set(columnKey, columnName)
-                    .set(scaleKey, typeof scaleName === 'function' ? scaleName(scale.copy(), chartProps) : scale)
-                    .update(this.withScaledData(dimension, Map(chartProps)));
-
+                    .set(scaleKey, typeof scaleName === 'function' ? scaleName(scale.copy(), chartProps) : scale);
             }, Map())
             .set('data', props.frame || chartProps.data)
             .set('width', chartProps.width)
             .set('height', chartProps.height)
+            .update(scaleChartRow(dimensions))
             .toObject();
     }
     render(): Element<any> {
+        console.log(this.state);
         const {width, height, outerWidth, outerHeight, top, left} = this.getCanvasSize();
 
         const {

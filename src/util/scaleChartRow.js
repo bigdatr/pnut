@@ -9,25 +9,39 @@ function halfBandwidth(scale: Function): number {
     return 0;
 }
 
-export default function scaleChartRow(dimension: Object, chartProps: Object): Function {
-    const {columnName, dimensionName} = applyDimension(dimension, chartProps);
+function getScaledValue(dimensionName, scale, value, chartProps) {
+    // const scale = newProps.get(dimension.scaleKey);
 
-    return (row: ChartRow): * => {
-        const scale = chartProps[dimension.scaleKey];
-        const columnValue = row.get(columnName);
+    switch (dimensionName) {
+        case 'x':
+            return scale(value) + halfBandwidth(scale);
 
+        case 'y':
+            return chartProps.get('height') - (scale(value) + halfBandwidth(scale));
 
+        default:
+            // the default behavior is to apply current column through current scale
+            return scale(value);
+    }
+}
 
-        switch (dimensionName) {
-            case 'x':
-                return scale(columnValue + halfBandwidth(scale));
+export default function scaleChartRow(dimensions: Array<Object>): Function {
 
-            case 'y':
-                return chartProps.height - scale(columnValue + halfBandwidth(scale));
+    return (newProps: Map): * => {
+        function withNewRows(row: ChartRow): Object {
+            return dimensions
+                .reduce((newRow: Object, dimension: Object): Object => {
+                    const {columnName} = applyDimension(dimension, newProps.toObject());
+                    const {dimensionName, scaleKey} = dimension;
+                    const scale = newProps.get(scaleKey);
+                    const value = row.get(columnName);
+                    // console.log(dimension);
 
-            default:
-                // the default behavior is to apply current column through current scale
-                return scale(columnValue);
+                    newRow[dimension.dimensionName] = getScaledValue(dimensionName, scale, value, newProps);
+                    return newRow;
+                }, {});
         }
+
+        return newProps.set('scaledData', newProps.get('data').rows.map(withNewRows));
     };
 }
