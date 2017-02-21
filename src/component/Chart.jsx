@@ -272,7 +272,6 @@ class Chart extends Component {
             .toObject();
     }
     render(): Element<any> {
-        console.log(this.state);
         const {width, height, outerWidth, outerHeight, top, left} = this.getCanvasSize();
 
         const {
