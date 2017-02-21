@@ -134,7 +134,7 @@ export class ColumnRenderable extends React.PureComponent {
                 x, y, width, height,
                 ...this.props.rectProps
             }}
-            row={row}
+            dimensions={row}
             index={index}
             data={this.props.data}
             scaledData={this.props.scaledData}
