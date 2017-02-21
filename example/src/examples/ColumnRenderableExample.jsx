@@ -91,7 +91,7 @@ class CanvasExample extends React.Component {
                 xColumn={'property_type'}
                 yColumn={'supply'}
                 data={chartData}
-                columnProps={{fill: 'blue'}}
+                rectProps={{fill: 'blue'}}
             />;
         </Svg>
     }

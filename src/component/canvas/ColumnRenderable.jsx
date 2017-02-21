@@ -133,7 +133,7 @@ export class ColumnRenderable extends React.PureComponent {
             }
             rectProps={{
                 x, y, width, height,
-                ...this.props.columnProps
+                ...this.props.rectProps
             }}
             row={row}
             index={index}
