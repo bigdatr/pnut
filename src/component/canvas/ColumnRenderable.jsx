@@ -3,6 +3,15 @@
 import React from 'react';
 import type ChartRow from 'src/chartdata/ChartData';
 
+
+function DefaultColumn(props: Object): React.Element<any> {
+    return <rect
+        fill='black'
+        {...props.rectProps}
+    />;
+}
+
+
 /**
  *
  * @component
@@ -57,11 +66,6 @@ export class ColumnRenderable extends React.PureComponent {
          * The height of the canvas. This is just passed on to the Svg component.
          */
         width: React.PropTypes.number,
-        /**
-         * An object of props that will be spread onto the svg element.
-         * This is just passed on to the Svg component.
-         */
-        svgProps: React.PropTypes.object,
 
 
         /**
@@ -85,10 +89,7 @@ export class ColumnRenderable extends React.PureComponent {
          * The column key(s) from `ChartData` to use for the y axis.
          * If multiple column keys are provided then a grouped column chart will be rendered.
          */
-        yColumn: React.PropTypes.oneOfType([
-            React.PropTypes.string,
-            React.PropTypes.arrayOf(React.PropTypes.string)
-        ]).isRequired,
+        yColumn: React.PropTypes.string.isRequired,
         /**
          * One or more prop objects that are to be passed to the svg
          * [`rect`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/rect) element.
@@ -96,51 +97,68 @@ export class ColumnRenderable extends React.PureComponent {
          * If an array of objects is passed here then it should be the same length
          * as the columnY array.
          */
-        columnProps: React.PropTypes.oneOfType([
-            React.PropTypes.object,
-            React.PropTypes.arrayOf(React.PropTypes.object)
-        ])
+        columnProps: React.PropTypes.object,
+
     };
 
     static defaultProps = {
-        columnProps: []
+        columnProps: {},
+        column: DefaultColumn
+
     };
 
-    buildColumns(): Array<React.Element<any>> {
-        return this.props.data.rows.reduce((
-            columns: Array<React.Element<any>>,
-            row: ChartRow
-        ): Array<React.Element<any>> => {
+    buildColumn(row, orientation, bandwidth, index) {
+        const {column: Column} = this.props;
 
-            const {xScale, yScale, xColumn, yColumn, columnProps} = this.props;
-            const rangeY = this.props.yScale.range();
+        let x, y, width, height;
 
-            const yColumnList = [].concat(yColumn);
-            const columnPropsList = [].concat(columnProps);
-            const columnWidth = xScale.bandwidth() / ((typeof yColumn === 'string') ? 1 : yColumn.length);
+        if(orientation === 'vertical') {
+            x = row.x - bandwidth / 2;
+            y = row.y;
+            width = bandwidth;
+            height = this.props.height - row.y;
+        } else {
+            x = 0;
+            y = row.y - bandwidth / 2;
+            width = row.x;
+            height = bandwidth;
+        }
+        console.log(row, x, y, width, height, bandwidth, orientation);
 
-            const newColumns = yColumnList.map((
-                yColumn: string,
-                index: number
-            ): React.Element<any> => {
-                return <rect
-                    key={`${row.get(xColumn)}-${yColumn}`}
-                    fill='black'
-                    {...columnPropsList[index]}
-                    x={xScale(row.get(xColumn)) + columnWidth * index}
-                    y={rangeY[1] - yScale(row.get(yColumn))}
-                    width={columnWidth}
-                    height={yScale(row.get(yColumn))}
-                />;
-            });
-
-            return columns.concat(newColumns);
-        }, []);
+        return <Column
+            key={
+                orientation === 'vertical'
+                    ? this.props.xScale.domain()[index]
+                    : this.props.yScale.domain()[index]
+            }
+            rectProps={{
+                x, y, width, height,
+                ...this.props.columnProps
+            }}
+            row={row}
+            index={index}
+            data={this.props.data}
+            scaledData={this.props.scaledData}
+        />
     }
 
     render(): React.Element<any> {
+
+        const {xScale, yScale, columnProps} = this.props;
+        const orientation = this.props.orientation || xScale.bandwidth
+            ? 'vertical'
+            :  yScale.bandwidth
+                ? 'horizontal'
+                : console.error('Column chart must have at least one band scale');
+
+        if(!orientation) return null;
+
+        const bandwidth = orientation === 'vertical' ? xScale.bandwidth() : yScale.bandwidth();
+
         return <g>
-            {this.buildColumns()}
+            {this.props.scaledData.map(
+                (row, index) => this.buildColumn(row, orientation, bandwidth, index)
+            )}
         </g>;
     }
 }

@@ -231,7 +231,6 @@ class CanvasExample extends React.Component {
                     <LineRenderable
                         scaledData={scaledData}
                         height={this.props.eqHeight}
-                        area={false}
                         data={chartData}
                     />
                 </Svg>

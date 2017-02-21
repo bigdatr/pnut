@@ -75,23 +75,23 @@ class CanvasExample extends React.Component {
             .range([0, this.props.eqWidth])
             .padding(0.1);
 
+
+        const scaledData = chartData.rows.map(row => ({
+            x: row.get('property_type') != null ? xScale(row.get('property_type')) + xScale.bandwidth() / 2 : null,
+            y: row.get('supply') != null ? this.props.eqHeight - yScale(row.get('supply')) : null
+        })).toArray();
+
         return <Svg width={this.props.eqWidth} height={this.props.eqHeight}>
             <ColumnRenderable
                 width={this.props.eqWidth}
                 height={this.props.eqHeight}
                 xScale={xScale}
                 yScale={yScale}
+                scaledData={scaledData}
                 xColumn={'property_type'}
-                yColumn={['supply', 'demand']}
+                yColumn={'supply'}
                 data={chartData}
-                columnProps={[
-                    {
-                        fill: 'blue'
-                    },
-                    {
-                        fill: 'red'
-                    }
-                ]}
+                columnProps={{fill: 'blue'}}
             />;
         </Svg>
     }

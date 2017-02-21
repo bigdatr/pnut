@@ -104,19 +104,19 @@ export class LineRenderable extends React.PureComponent {
             ? this.props.curve(d3Shape)
             : d3Shape.curveLinear;
 
-        const lineGenerator = this.props.area
+        const pathGenerator = this.props.area
             ? this.areaGenerator.curve(curve)
             : this.lineGenerator.curve(curve);
 
         return <g>
             <Line
-                lineGenerator={lineGenerator}
+                pathGenerator={pathGenerator}
                 data={this.props.data}
                 scaledData={this.props.scaledData}
                 pathProps={{
                     fill: this.props.area ? 'black' : 'none',
                     stroke: this.props.area ? 'none' : 'black',
-                    d: lineGenerator(this.props.scaledData),
+                    d: pathGenerator(this.props.scaledData),
                     ...this.props.pathProps
                 }}
             />
