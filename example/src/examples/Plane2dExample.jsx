@@ -230,8 +230,8 @@ class Plane2dExample extends React.Component {
                     data={chartData}
                     width={this.props.eqWidth || 0}
                     height={this.props.eqHeight || 0}
-                    dimensions: ['x', 'y'],
-                    xColumn: "month",
+                    dimensions={['x', 'y']}
+                    xColumn="month"
                 >
 
                     <Line yScaleGroup="y1" yColumn="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
