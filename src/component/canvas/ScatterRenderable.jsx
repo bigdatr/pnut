@@ -24,9 +24,8 @@ type DotProps = {
  * @prop {ChartRow} row - The `ChartRow` corresponding to this dot.
  */
 
-const defaultDot = (dotProps: DotProps): React.Element<any> => {
-    const {x, y} = dotProps;
-    return <circle fill='black' cx={x} cy={y} r={3}/>;
+const defaultDot = (props: DotProps): React.Element<any> => {
+    return <circle fill='black' r={3} {...props.dotProps}/>;
 };
 
 
@@ -120,29 +119,29 @@ export class ScatterRenderable extends React.PureComponent {
         dot: React.PropTypes.func
     };
 
-    buildDots(): Array<React.Element<any>> {
-        const {data, xScale, yScale, xColumn, yColumn, dot} = this.props;
-        const Dot = dot;
-        const rangeY = yScale.range();
-        const offset = xScale.bandwidth ? xScale.bandwidth() / 2 : 0;
-
-        return data.rows.map((row: ChartRow, index: number): React.Element<any> => {
-            const dataX = row.get(xColumn);
-            const dataY = row.get(yColumn);
-            return <Dot
-                key={index}
-                x={xScale(dataX) + offset}
-                y={rangeY[1] - yScale(dataY)}
-                dataX={dataX}
-                dataY={dataY}
-                row={row}
-            />;
-        });
+    buildDot(row, index) {
+        const {dot: Dot, dotProps} = this.props;
+        return <Dot
+            key={index}
+            dotProps={{
+                cx: row.x,
+                cy: row.y,
+                ...dotProps
+            }}
+            dimensions={row}
+            index={index}
+            data={this.props.data}
+            scaledData={this.props.scaledData}
+        />
     }
 
     render(): React.Element<any> {
+        const {scaledData} = this.props;
+
         return <g>
-            {this.buildDots()}
+            {scaledData.map((row, index) => {
+                return this.buildDot(row, index);
+            })}
         </g>;
     }
 }

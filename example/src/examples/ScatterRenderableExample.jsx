@@ -224,6 +224,12 @@ class CanvasExample extends React.Component {
             .domain([chartData.min('demand'), chartData.max('demand')])
             .range([5, 30]);
 
+        const scaledData = chartData.rows.map(row => ({
+            x: row.get('month') != null ? xScale(row.get('month')) : null,
+            y: row.get('supply') != null ? this.props.eqHeight - yScale(row.get('supply')) : null,
+            radius: row.get('demand') != null ? scaleRadius(row.get('demand')) : null
+        })).toArray();
+
 
         return <div>
             <div style={{position: 'absolute', top: 0, left: 0}}>
@@ -235,12 +241,9 @@ class CanvasExample extends React.Component {
                         yScale={yScale}
                         xColumn={'month'}
                         yColumn={'supply'}
+                        scaledData={scaledData}
                         data={chartData}
-                        dot={({x, y, row}) => <circle
-                            cx={x}
-                            cy={y}
-                            r={scaleRadius(row.get('demand'))}
-                        />}
+                        dot={(props) => <circle {...props.dotProps} r={props.dimensions.radius}/>}
                     />
                 </Svg>
             </div>

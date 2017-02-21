@@ -7,7 +7,7 @@ import type ChartRow from 'src/chartdata/ChartData';
 function DefaultColumn(props: Object): React.Element<any> {
     return <rect
         fill='black'
-        {...props.rectProps}
+        {...props.columnProps}
     />;
 }
 
@@ -107,7 +107,7 @@ export class ColumnRenderable extends React.PureComponent {
 
     };
 
-    buildColumn(row, orientation, bandwidth, index) {
+    buildColumn(row, index, orientation, bandwidth) {
         const {column: Column} = this.props;
 
         let x, y, width, height;
@@ -130,9 +130,9 @@ export class ColumnRenderable extends React.PureComponent {
                     ? this.props.xScale.domain()[index]
                     : this.props.yScale.domain()[index]
             }
-            rectProps={{
+            columnProps={{
                 x, y, width, height,
-                ...this.props.rectProps
+                ...this.props.columnProps
             }}
             dimensions={row}
             index={index}
@@ -155,9 +155,9 @@ export class ColumnRenderable extends React.PureComponent {
         const bandwidth = orientation === 'vertical' ? xScale.bandwidth() : yScale.bandwidth();
 
         return <g>
-            {this.props.scaledData.map(
-                (row, index) => this.buildColumn(row, orientation, bandwidth, index)
-            )}
+            {this.props.scaledData.map((row, index) => {
+                return this.buildColumn(row, index, orientation, bandwidth);
+            })}
         </g>;
     }
 }
