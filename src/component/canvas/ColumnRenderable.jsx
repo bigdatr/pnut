@@ -123,7 +123,6 @@ export class ColumnRenderable extends React.PureComponent {
             width = row.x;
             height = bandwidth;
         }
-        console.log(row, x, y, width, height, bandwidth, orientation);
 
         return <Column
             key={
