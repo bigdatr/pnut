@@ -134,7 +134,7 @@ const rows = [
     },
     {
         month: "2015-11-01",
-        supply: 1236615,
+        supply: 135844,
         demand: 1700000
     },
     {
@@ -189,12 +189,12 @@ const rows = [
     },
     {
         month: "2016-10-01",
-        supply: 1810362,
+        supply: null,
         demand: 2270000
     },
     {
         month: "2016-11-01",
-        supply: 1877047,
+        supply: 1896226,
         demand: 2470000
     },
     {
@@ -219,24 +219,20 @@ class CanvasExample extends React.Component {
             .domain(rows.map(row => row.month))
             .range([0, this.props.eqWidth]);
 
+        const scaledData = chartData.rows.map(row => ({
+            x: row.get('month') != null ? xScale(row.get('month')) : null,
+            y: row.get('supply') != null ? this.props.eqHeight - yScale(row.get('supply')) : null
+        })).toArray();
+
+
         return <div>
             <div style={{position: 'absolute', top: 0, left: 0}}>
                 <Svg width={this.props.eqWidth} height={this.props.eqHeight}>
                     <LineRenderable
-                        width={this.props.eqWidth}
+                        scaledData={scaledData}
                         height={this.props.eqHeight}
-                        xScale={xScale}
-                        yScale={yScale}
-                        xColumn={'month'}
-                        yColumn={'supply'}
+                        area={false}
                         data={chartData}
-                        svgProps={{
-                            strokeWidth: '2'
-                        }}
-                        pathProps={{
-                            strokeWidth: '2',
-                            stroke: "#000"
-                        }}
                     />
                 </Svg>
             </div>

@@ -3,15 +3,12 @@
 import React, {PropTypes} from 'react';
 import type List from 'immutable';
 import ChartData from '../../chartdata/ChartData';
+import * as d3Shape from 'd3-shape';
 
 import type ChartRow from 'src/chartdata/ChartData';
 
-
 function DefaultLine(props: Object): React.Element<any> {
     return <path
-        fill='none'
-        stroke='black'
-        strokeWidth='1'
         {...props.pathProps}
     />;
 }
@@ -74,45 +71,28 @@ export class LineRenderable extends React.PureComponent {
         line: React.PropTypes.func,
 
         /** Destructured onto the default line renderer's path. */
-        pathProps: React.PropTypes.object,
-
-        /** {Scale} Any d3-scale for the x axis. */
-        xScale: React.PropTypes.func.isRequired,
-
-        /** {Scale} Any d3-scale for the y axis. */
-        yScale: React.PropTypes.func.isRequired,
-
-        /** The column key from `ChartData` to use for the x axis. */
-        xColumn: React.PropTypes.string.isRequired,
-
-        /** The column key from `ChartData` to use for the y axis. */
-        yColumn: React.PropTypes.string.isRequired
-
+        pathProps: React.PropTypes.object
     };
 
-    buildPoints(data: ChartData): List<number[]> {
-        const {xScale, yScale, xColumn, yColumn} = this.props;
+    lineGenerator = d3Shape.line()
+        .x((ii) => ii.x)
+        .y((ii) => ii.y)
+        .defined(ii => typeof ii.x === 'number' &&
+                       typeof ii.y === 'number' &&
+                       !isNaN(ii.x) &&
+                       !isNaN(ii.y)
+        );
 
-        return data.rows
-            .map((row: ChartRow): number[] => {
-                const rangeY = yScale.range();
-                const offset = xScale.bandwidth ? xScale.bandwidth() / 2 : 0;
-                return [
-                    xScale(row.get(xColumn)) + offset,
-                    rangeY[1] - yScale(row.get(yColumn))
-                ];
-            });
-    }
+    areaGenerator = d3Shape.area()
+        .x((ii) => ii.x)
+        .y1((ii) => ii.y)
+        .y0((ii) => this.props.height)
+        .defined(ii => typeof ii.x === 'number' &&
+                       typeof ii.y === 'number' &&
+                       !isNaN(ii.x) &&
+                       !isNaN(ii.y)
+        );
 
-    buildPath(points: List<number[]>): string {
-        return points
-            .map((coordinate: number[], index: number): string => {
-                const [x, y] = coordinate;
-                const command = index === 0 || !this.props.data.rows.get(index - 1) ? 'M' : 'L';
-                return `${command} ${x} ${y}`;
-            })
-            .join(' ');
-    }
 
     render(): React.Element<any> {
         const {
@@ -120,13 +100,23 @@ export class LineRenderable extends React.PureComponent {
             line: Line
         } = this.props;
 
-        const points = this.buildPoints(data);
+        const curve = this.props.curve
+            ? this.props.curve(d3Shape)
+            : d3Shape.curveLinear;
+
+        const lineGenerator = this.props.area
+            ? this.areaGenerator.curve(curve)
+            : this.lineGenerator.curve(curve);
 
         return <g>
             <Line
-                points={points.toArray()}
+                lineGenerator={lineGenerator}
+                data={this.props.data}
+                scaledData={this.props.scaledData}
                 pathProps={{
-                    d: this.buildPath(points),
+                    fill: this.props.area ? 'black' : 'none',
+                    stroke: this.props.area ? 'none' : 'black',
+                    d: lineGenerator(this.props.scaledData),
                     ...this.props.pathProps
                 }}
             />
