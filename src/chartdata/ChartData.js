@@ -518,7 +518,7 @@ class ChartData extends Record({
     /**
      * Returns all the data in a single column.
      *
-     * @param {string} columns The name of the column.
+     * @param {string} column The name of the column.
      * @return {?List<ChartScalar>} A list of the data, or null if columns have been set but the
      * column could not be found.
      *
@@ -543,12 +543,13 @@ class ChartData extends Record({
     }
 
     /**
-     * For a given column, this returns a `List` of unique values in that column, in the order that
+     * For a given column, or `Array` or `List` of columns, this returns a `List` of unique values in those columns, in the order that
      * each unique value first appears in `rows`.
      *
      * You can also return the number of unique values by calling `getUniqueValues().size`.
      *
-     * @param {string} column The name of the column.
+     * @param {string|Array<string>|List<string>} columns
+     * The names of one or more columns to perform the operation on.
      *
      * @return {List<ChartScalar>|null}
      * A `List` of unique values in the order they appear in `rows`, or null if columns have been
@@ -560,13 +561,16 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    getUniqueValues(column: string): ?List<ChartScalar> {
-        if(this._columnError(column)) {
+    getUniqueValues(columns: ChartColumnArg): ?List<ChartScalar> {
+        const columnList: List<string> = this._columnArgList(columns);
+        if(this._columnListError(columnList)) {
             return null;
         }
-        return this._memoize(`getUniqueValues.${column}`, (): ?List<ChartScalar> => {
+        return this._memoize(`getUniqueValues.${columnList.join(',')}`, (): ?List<ChartScalar> => {
             return this.rows
-                .map(ii => ii.get(column))
+                .reduce((list: List<ChartScalar>, ii: ChartRow): List<ChartScalar> => {
+                    return list.concat(columnList.map(column => ii.get(column)));
+                }, List())
                 .toOrderedSet()
                 .toList();
         });
@@ -838,7 +842,7 @@ class ChartData extends Record({
     }
 
     /**
-     * Get the minimum non-null value in a column.
+     * Get the minimum non-null value in a column, or `Array` or `List`, of columns.
      *
      * @param {string|Array<string>|List<string>} columns
      * The names of one or more columns to perform the operation on.
@@ -856,7 +860,7 @@ class ChartData extends Record({
     }
 
     /**
-     * Get the maximum value in a column.
+     * Get the maximum value in a column, or `Array` or `List`, of columns.
      *
      * @param {string|Array<string>|List<string>} columns
      * The names of one or more columns to perform the operation on.
@@ -874,7 +878,7 @@ class ChartData extends Record({
     }
 
     /**
-     * Get the sum of the values in a column.
+     * Get the sum of the values in a column, or `Array` or `List`, of columns.
      *
      * @param {string|Array<string>|List<string>} columns
      * The names of one or more columns to perform the operation on.
@@ -887,12 +891,12 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    sum(columns: string): ?ChartScalar {
+    sum(columns: ChartColumnArg): ?ChartScalar {
         return this._aggregation("sum", columns);
     }
 
     /**
-     * Get the average of the values in a column.
+     * Get the average of the values in a column, or `Array` or `List`, of columns.
      *
      * @param {string|Array<string>|List<string>} columns
      * The names of one or more columns to perform the operation on.
@@ -910,7 +914,7 @@ class ChartData extends Record({
     }
 
     /**
-     * Get the median of the values in a column.
+     * Get the median of the values in a column, or `Array` or `List`, of columns.
      *
      * @param {string|Array<string>|List<string>} columns
      * The names of one or more columns to perform the operation on.
