@@ -221,7 +221,30 @@ class Plane2dExample extends React.Component {
                 .set('benchmark', 1300000);
         });
 
+
+        const data = new ChartData([{x: 1, y: 1},{x: 2, y: 2},{x: 3, y: 3},{x: 4, y: 4},{x: 5, y: 5}], [{key: 'x', isContinuous: false}, {key: 'y', isContinuous: false}]);
+
         const path = ({d}) => <path d={d} stroke="red"/>;
+
+        return <Chart
+            padding={[32,32,32,32]}
+            data={data}
+            width={500}
+            height={500}
+            xColumn="x"
+            yColumn="y"
+        >
+            <Scatter pathProps={{stroke: 'red', strokeWidth: 2}}/>
+            <Gridlines/>
+            <Axis
+                position='bottom'
+                dimension="x"
+            />
+            <Axis
+                position='left'
+                dimension="y"
+            />
+        </Chart>;
 
         return <div>
             <div style={{position: 'absolute', top: 0, left: 0}}>

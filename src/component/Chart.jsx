@@ -3,6 +3,7 @@ import React, {Component, Children, cloneElement, Element, PropTypes} from 'reac
 import {List, Map, Set} from 'immutable';
 import Svg from './Svg';
 import applyDimension from '../util/applyDimension';
+import applyScaledValue from '../util/applyScaledValue';
 import applyPrimitiveDimensionProps from '../util/applyPrimitiveDimensionProps';
 import defaultScale from '../util/defaultScale';
 import memoize from '../util/memoize';
@@ -92,7 +93,7 @@ import type ChartRow from 'src/chartdata/ChartData';
 class Chart extends Component {
     chartType: string;
     getAxisSize: Function;
-    getCanvasSize: Function;
+    applyCanvasSize: Function;
     getChildProps: Function;
     memoize: Function;
     memos: Object;
@@ -143,7 +144,7 @@ class Chart extends Component {
         // console.log(this.scaledData);
 
         this.getAxisSize = this.getAxisSize.bind(this);
-        this.getCanvasSize = this.getCanvasSize.bind(this);
+        this.applyCanvasSize = this.applyCanvasSize.bind(this);
         this.getChildProps = this.getChildProps.bind(this);
         this.memoize = memoize(this.memos);
     }
@@ -191,19 +192,20 @@ class Chart extends Component {
                     scaleGroupKey,
                     columns,
                     scales: columns.reduce((scales: Map, column: string, key: string, columns: Set): Map => {
+                        const customScale = typeof props[scaleKey] === 'function' ? props[scaleKey] : scale => scale;
                         // to calculate the scale you need
                         // primitiveDimension (range)
                         // columns (domain)
                         // scaleType
                         // primitiveDimensionProps (range)
                         // data (domain)
-                        return scales.set(column, defaultScale({
+                        return scales.set(column, customScale(defaultScale({
                             primitiveDimension: dimensionName,
                             columns: columns,
                             scaleType: props[scaleTypeKey],
-                            primitiveDimensionProps: applyPrimitiveDimensionProps(dimensionName, props),
+                            primitiveDimensionProps: applyPrimitiveDimensionProps(dimensionName, this.applyCanvasSize(props)),
                             data: props.data
-                        }));
+                        })));
                     }, Map())
                 });
 
@@ -212,22 +214,24 @@ class Chart extends Component {
             }, Map());
     }
     getScaledData(props: Object): List {
-        return props.data.rows.map((row: ChartRow): Map => {
-            return this.dimensions.map((dimension: Map): Map => {
+        const data = props.frame || props.data;
+        return data.rows.map((row: ChartRow): Map => {
+            return this.dimensions.map((dimension: Map, dimensionName: string): Map => {
                 return dimension
                     .get('scales')
                     .map((scale: Function, value: string): * => {
-                        return scale(row.get(value));
+                        return applyScaledValue(dimensionName, scale, row.get(value), this.applyCanvasSize(props));
                     });
-            })
+            });
         });
     }
-    getCanvasSize(): Object {
-        const {width, height, padding = []} = this.props;
+    applyCanvasSize(props: Object): Object {
+        const {width, height, padding = []} = props;
         // $FlowBug: flow cant handle default assignment on array destructuring
         const [top = 0, right = 0, bottom = 0, left = 0] = padding;
 
         return {
+            ...props,
             width: Math.max(width - left - right, 0), // clamp negatives
             height: Math.max(height - top - bottom, 0), // clamp negatives
             outerWidth: width,
@@ -239,7 +243,7 @@ class Chart extends Component {
         };
     }
     getAxisSize(axisType: string): Object {
-        const {top, right, bottom, left, width, height} = this.getCanvasSize();
+        const {top, right, bottom, left, width, height} = this.applyCanvasSize(this.props);
         switch(axisType) {
             case 'top':
                 return {
@@ -271,11 +275,11 @@ class Chart extends Component {
         }
     }
     getChildProps(props: Object): Object {
-        const inheritedProps = Map({
+        const inheritedProps = Map(this.applyCanvasSize({
             ...this.props,
-            ...this.getCanvasSize(),
             ...props
-        });
+        }));
+
         const getters = this.dimensions
             .map((dimension: Map, dimensionName: string): Map => {
 
@@ -293,12 +297,19 @@ class Chart extends Component {
                         data: inheritedProps.get('data')
                     });
 
-                    // if custom scale is a function apply pass the default scale through it.
-                    const customScale = typeof scaleName === 'function' ? scaleName(scale.copy(), inheritedProps.toObject()) : scale;
-                    return (index: number, key: string) => customScale(inheritedProps.getIn(['data', 'rows', index, key]));
+
+                    return (index: number, key: string): * => {
+                        const value = inheritedProps.getIn(['data', 'rows', index, key]);
+
+                        // if custom scale is a function apply pass the default scale through it.
+                        const customScale = typeof scaleName === 'function' ? scaleName(scale.copy(), inheritedProps.toObject()) : scale;
+
+                        return applyScaledValue(dimensionName, customScale, value, inheritedProps.toObject());
+                    };
                 }
 
                 // defualt getter just gets from scaledData via a index => dimensionName => key
+                // the primitive dimension quirks have already been applied via applyScaledValue
                 return (index: number, key: string): * => this.scaledData.getIn([index, dimensionName, key]);
             });
 
@@ -310,8 +321,10 @@ class Chart extends Component {
                     .map((dimension: Map, dimensionName: string): Map => {
                         const appliedDimension = applyDimension(dimension, inheritedProps);
                         return getters.get(dimensionName)(index, appliedDimension.get('columnName'));
-                    });
-            });
+                    })
+                    .toObject();
+            })
+            .toArray();
 
         return this.dimensions
             .mapEntries((entries: Array<any>): Array<any> => {
@@ -319,13 +332,13 @@ class Chart extends Component {
                 return [`${dimensionName}Scale`, dimension.get('scales').first()];
             })
             .set('scaledData', scaledData)
-            .set('data', props.frame || inheritedProps.get('data'))
+            .set('data', inheritedProps.get('frame', inheritedProps.get('data')))
             .set('width', inheritedProps.get('width'))
             .set('height', inheritedProps.get('height'))
             .toObject();
     }
     render(): Element<any> {
-        const {width, height, outerWidth, outerHeight, top, left} = this.getCanvasSize();
+        const {width, height, outerWidth, outerHeight, top, left} = this.applyCanvasSize(this.props);
 
         const {
             className,
