@@ -97,6 +97,74 @@ const columns = [
     }
 ];
 
+
+const rowsWithLoadsOfFruit = [
+    {
+        day: 1,
+        supply: 34,
+        demand: 99,
+        fruit: "apple",
+        fruit2: "fish"
+    },
+    {
+        day: 2,
+        supply: 32,
+        demand: 88,
+        fruit: "apple",
+        fruit2: "pumpkin"
+    },
+    {
+        day: 3,
+        supply: 13,
+        demand: 55,
+        fruit: "orange",
+        fruit2: "orange"
+    },
+    {
+        day: 8,
+        supply: 22,
+        demand: 56,
+        fruit: "peach",
+        fruit2: "pear"
+    },
+    {
+        day: 19,
+        supply:  12,
+        demand:  4,
+        fruit: "pear",
+        fruit2: "pear"
+    }
+];
+
+const columnsWithLoadsOfFruit = [
+    {
+        key: 'day',
+        label: 'Day',
+        isContinuous: true
+    },
+    {
+        key: 'supply',
+        label: 'Supply (houses)',
+        isContinuous: true
+    },
+    {
+        key: 'demand',
+        label: 'Demand (houses)',
+        isContinuous: true
+    },
+    {
+        key: 'fruit',
+        label: 'Random fruit',
+        isContinuous: false
+    },
+    {
+        key: 'fruit2',
+        label: 'Random fruit',
+        isContinuous: false
+    }
+];
+
+
 //
 // methods
 //
@@ -282,4 +350,29 @@ test('ChartData.getUniqueValues should memoize per column', tt => {
     const data = new ChartData(rows, columns);
     data.getUniqueValues('demand');
     tt.deepEqual(data.getUniqueValues('fruit'), List(["apple", "orange", "peach", "pear"]));
+});
+
+
+test('ChartData.getUniqueValues should return a list of unique values from mutiple columns', tt => {
+    const data = new ChartData(rowsWithLoadsOfFruit, columnsWithLoadsOfFruit);
+    tt.true(is(
+        data.getUniqueValues(['fruit', 'fruit2']),
+        List(["apple", "fish", "pumpkin", "orange", "peach", "pear"])
+    ));
+});
+
+test('ChartData.getUniqueValues should return null when provided mutiple columns and a column doesnt exist', tt => {
+    const data = new ChartData(rowsWithLoadsOfFruit, columnsWithLoadsOfFruit);
+    tt.is(data.getUniqueValues(['fruit2', 'not here']), null);
+});
+
+test('ChartData.getUniqueValues should use memoization with multiple columns', tt => {
+    const data = new ChartData(rowsWithLoadsOfFruit, columnsWithLoadsOfFruit);
+    tt.true(data.getUniqueValues(['fruit', 'fruit2']) === data.getUniqueValues(['fruit', 'fruit2']));
+});
+
+test('ChartData.getUniqueValues should memoize per column with multiple columns', tt => {
+    const data = new ChartData(rowsWithLoadsOfFruit, columnsWithLoadsOfFruit);
+    data.getUniqueValues(['fruit', 'demand']);
+    tt.deepEqual(data.getUniqueValues(['fruit', 'fruit2']), List(["apple", "fish", "pumpkin", "orange", "peach", "pear"]));
 });
