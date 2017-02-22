@@ -156,7 +156,7 @@ export class AxisRenderable extends React.PureComponent {
                         y1,
                         x2,
                         y2,
-                        axisLineWidth,
+                        strokeWidth: axisLineWidth,
                         ...this.props.tickLineProps
                     }
                 };

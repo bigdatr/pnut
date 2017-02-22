@@ -2,43 +2,49 @@ import * as d3Scale from 'd3-scale';
 import {List, Set} from 'immutable';
 
 // create a set of booleans to check if a group is mixing dimension types
-function isContinuousSet(list: List, data: Object): Set {
-    return list
+function isContinuous(columns: Set, data: Object): Set {
+    return columns
         .map(dd => data.columns.getIn([dd, 'isContinuous']))
         .toSet();
 }
 
-export default function defaultScale(dimension: Object, props: Object): Function {
-    const {dimensionName, scaleTypeKey, scaleGroupKey, columnKey, groups} = dimension;
+export default function defaultScale(scaleProps: Object): Function {
+    const {
+        primitiveDimension,
+        columns,
+        scaleType,
+        primitiveDimensionProps,
+        data
+    } = scaleProps;
 
-    // columnKey should only ever be singular.
-    // Make it a list of one to reuse isContinuousSet logic
-    const continuous = isContinuousSet(List.of(props[columnKey]), props.data).get(true);
 
-    // Make the current dimension always a list
-    const columns = groups.get(props[scaleGroupKey] || dimensionName);
+    // are any of the columns continuous.
+    const continuous = isContinuous(columns, data).get(true);
 
-    const scaleName = props[scaleTypeKey] || (continuous ? 'scaleLinear' : 'scaleBand');
+    const scaleName = scaleType || (continuous ? 'scaleLinear' : 'scaleBand');
 
     // if the size is greater than one we have multiple data types
-    if(isContinuousSet(List(columns), props.data).size > 1) {
-        throw new Error(`${columnKey} cannot share continuous and non continuous data: ${groups.get(props[scaleGroupKey]).join(', ')}`);
+    if(isContinuous(columns, data).size > 1) {
+        throw new Error(`A scale cannot share continuous and non continuous data: ${columns.join(', ')}`);
     }
 
     const domainArray = continuous
-        ? [props.data.min(columns), props.data.max(columns)]
-        : props[columnKey]
-            ? props.data.getColumnData(props[columnKey]).toArray()
-            : [];
+        // the domain of continuous data can be a plain min max of columns
+        ? [data.min(columns), data.max(columns)]
+        // the domain of non-continuous data has to be an array of all unique values of columns
+        : columns
+            .reduce((mergedColumns: *[], column: string): List => {
+                return mergedColumns.concat(data.getUniqueValues(column));
+            }, List())
+            .toArray();
 
 
-
-    switch(dimensionName) {
+    switch(primitiveDimension) {
         case 'x':
         case 'y':
 
             // choose the max value of range based on x/width y/height
-            var bound = (dimensionName === 'x') ? props.width : props.height;
+            var bound = (primitiveDimension === 'x') ? primitiveDimensionProps.width : primitiveDimensionProps.height;
 
             return d3Scale[scaleName]()
                 .domain(domainArray)
