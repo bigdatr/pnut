@@ -1,4 +1,4 @@
-import {ColumnRenderable, ChartData, Svg} from 'pnut';
+import {BarRenderable, ChartData, Svg} from 'pnut';
 import React from 'react';
 import {scaleLog, scaleBand} from 'd3-scale';
 import {ElementQueryHock} from 'stampy';
@@ -82,7 +82,7 @@ class CanvasExample extends React.Component {
         })).toArray();
 
         return <Svg width={this.props.eqWidth} height={this.props.eqHeight}>
-            <ColumnRenderable
+            <BarRenderable
                 width={this.props.eqWidth}
                 height={this.props.eqHeight}
                 xScale={xScale}
