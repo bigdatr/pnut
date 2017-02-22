@@ -518,7 +518,7 @@ class ChartData extends Record({
     /**
      * Returns all the data in a single column.
      *
-     * @param {string} columns The name of the column.
+     * @param {string} column The name of the column.
      * @return {?List<ChartScalar>} A list of the data, or null if columns have been set but the
      * column could not be found.
      *
@@ -842,7 +842,7 @@ class ChartData extends Record({
     }
 
     /**
-     * Get the minimum non-null value in a column or `Array` or `List` of columns.
+     * Get the minimum non-null value in a column, or `Array` or `List`, of columns.
      *
      * @param {string|Array<string>|List<string>} columns
      * The names of one or more columns to perform the operation on.
@@ -860,7 +860,7 @@ class ChartData extends Record({
     }
 
     /**
-     * Get the maximum value in a column or `Array` or `List` of columns.
+     * Get the maximum value in a column, or `Array` or `List`, of columns.
      *
      * @param {string|Array<string>|List<string>} columns
      * The names of one or more columns to perform the operation on.
@@ -878,7 +878,7 @@ class ChartData extends Record({
     }
 
     /**
-     * Get the sum of the values in a column or `Array` or `List` of columns.
+     * Get the sum of the values in a column, or `Array` or `List`, of columns.
      *
      * @param {string|Array<string>|List<string>} columns
      * The names of one or more columns to perform the operation on.
@@ -891,12 +891,12 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    sum(columns: string): ?ChartScalar {
+    sum(columns: ChartColumnArg): ?ChartScalar {
         return this._aggregation("sum", columns);
     }
 
     /**
-     * Get the average of the values in a column or `Array` or `List` of columns.
+     * Get the average of the values in a column, or `Array` or `List`, of columns.
      *
      * @param {string|Array<string>|List<string>} columns
      * The names of one or more columns to perform the operation on.
@@ -914,7 +914,7 @@ class ChartData extends Record({
     }
 
     /**
-     * Get the median of the values in a column or `Array` or `List` of columns.
+     * Get the median of the values in a column, or `Array` or `List`, of columns.
      *
      * @param {string|Array<string>|List<string>} columns
      * The names of one or more columns to perform the operation on.
