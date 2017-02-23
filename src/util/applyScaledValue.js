@@ -20,8 +20,11 @@ function halfBandwidth(scale: Function): number {
  * @param      {object}    props     A chart elements inherited props
  * @return     {any}
  */
-export default function applyScaledValue(dimensionName: sting, scale: Function, value: *, props: Object): * {
-    // console.log(dimensionName, typeof scale, value);
+export default function applyScaledValue(dimensionName: string, scale: Function, value: *, props: Object): * {
+    if(value === null) {
+        return value;
+    }
+
     switch (dimensionName) {
         case 'x':
             return scale(value) + halfBandwidth(scale);
