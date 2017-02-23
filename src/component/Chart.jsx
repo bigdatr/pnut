@@ -91,7 +91,6 @@ import type ChartRow from 'src/chartdata/ChartData';
  */
 class Chart extends Component {
     chartType: string;
-    getAxisSize: Function;
     applyCanvasSize: Function;
     getChildProps: Function;
     memoize: Function;
@@ -139,10 +138,6 @@ class Chart extends Component {
         this.dimensions = this.getDimensions(props);
         this.scaledData = this.getScaledData(props);
 
-        // console.log(this.dimensions);
-        // console.log(this.scaledData);
-
-        this.getAxisSize = this.getAxisSize.bind(this);
         this.applyCanvasSize = this.applyCanvasSize.bind(this);
         this.getChildProps = this.getChildProps.bind(this);
         this.memoize = memoize(this.memos);
@@ -193,20 +188,28 @@ class Chart extends Component {
                     scaleTypeKey,
                     scaleUpdateKey,
                     scales: columns.reduce((scales: Map, column: string, key: string, columns: Set): Map => {
-                        const customScale = typeof props[scaleUpdateKey] === 'function' ? props[scaleUpdateKey] : scale => scale;
+                        const scaleUpdate = typeof props[scaleUpdateKey] === 'function' ? props[scaleUpdateKey] : scale => scale;
                         // to calculate the scale you need
                         // primitiveDimension (range)
                         // columns (domain)
                         // scaleType
                         // primitiveDimensionProps (range)
                         // data (domain)
-                        return scales.set(column, customScale(defaultScale({
-                            primitiveDimension: dimensionName,
-                            columns: columns,
-                            scaleType: props[scaleTypeKey],
-                            primitiveDimensionProps: applyPrimitiveDimensionProps(dimensionName, this.applyCanvasSize(props)),
-                            data: props.data
-                        })));
+
+                        // set(scaleUpdate(defaultScale, props))
+                        return scales.set(
+                            column,
+                            scaleUpdate(
+                                defaultScale({
+                                    primitiveDimension: dimensionName,
+                                    columns: columns,
+                                    scaleType: props[scaleTypeKey],
+                                    primitiveDimensionProps: applyPrimitiveDimensionProps(dimensionName, this.applyCanvasSize(props)),
+                                    data: props.data
+                                }),
+                                props
+                            )
+                        );
                     }, Map())
                 });
 
@@ -254,38 +257,6 @@ class Chart extends Component {
             bottom,
             left
         };
-    }
-    getAxisSize(axisType: string): Object {
-        const {top, right, bottom, left, width, height} = this.applyCanvasSize(this.props);
-        switch(axisType) {
-            case 'top':
-                return {
-                    width,
-                    height: top
-                };
-
-            case 'right':
-                return {
-                    width: right,
-                    height
-                };
-
-            case 'bottom':
-                return {
-                    width,
-                    height: bottom
-                };
-
-            case 'left':
-                return {
-                    width: left,
-                    height
-                };
-
-            default:
-                return {};
-
-        }
     }
     getChildProps(props: Object): Object {
         const inheritedProps = Map(this.applyCanvasSize({
