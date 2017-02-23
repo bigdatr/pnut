@@ -4,14 +4,14 @@ import React from 'react';
 
 function DefaultAxisLine(props: Object): React.Element<any> {
     return <line
-        stroke='black'
+        stroke='inherit'
         {...props.axisLineProps}
     />;
 }
 
 function DefaultTick(props: Object): React.Element<any> {
     return <line
-        stroke='black'
+        stroke='inherit'
         {...props.tickLineProps}
     />;
 }
@@ -20,6 +20,7 @@ function DefaultText(props: Object): React.Element<any> {
     return <text
         fontSize={12}
         children={props.tick}
+        stroke="none"
         {...props.textProps}
     />;
 }
@@ -103,6 +104,12 @@ export class AxisRenderable extends React.PureComponent {
 
         /** {Scale} The [d3-scale](https://github.com/d3/d3-scale) for the axis */
         scale: React.PropTypes.func.isRequired,
+
+        /** {Scale} The [d3-scale](https://github.com/d3/d3-scale) for the axis */
+        xScale: React.PropTypes.func,
+
+        /** {Scale} The [d3-scale](https://github.com/d3/d3-scale) for the axis */
+        yScale: React.PropTypes.func,
 
         /**
          * An array of ticks to display on the axis. In most cases this can be constructed by
@@ -257,15 +264,28 @@ export class AxisRenderable extends React.PureComponent {
         distance: number,
         offset: number
     ): Array<number> {
+        var location = 0;
+        var {yScale, xScale} = this.props;
+        if(this.props.location != undefined) {
+            if(position === 'top' || position === 'bottom') {
+                location = yScale(this.props.location);
+            } else {
+                location = xScale(this.props.location);
+            }
+        }
         switch(position) {
             case 'top':
-                return [distance,  -offset];
-            case 'right':
-                return [this.props.width + offset, this.props.height - distance];
+                return [distance, location - offset];
             case 'bottom':
-                return [distance, this.props.height + offset];
+                location = location || this.props.height;
+                return [distance, location + offset];
+
             case 'left':
-                return [-offset, this.props.height - distance];
+                return [location - offset, this.props.height - distance];
+            case 'right':
+                location = location || this.props.width;
+                return [location + offset, this.props.height - distance];
+
             default:
                 throw new Error(`unknown position: ${position}`);
         }

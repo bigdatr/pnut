@@ -214,7 +214,7 @@ const rows = [
 
 const lightLine = (props: LineProps): React.Element<any> => {
     const {coordinates} = props;
-    return <line {...coordinates} strokeWidth="1" stroke="#ccc"/>;
+    return <line {...coordinates} strokeWidth="1" stroke="#eee"/>;
 };
 
 class Plane2dExample extends React.Component {
@@ -230,34 +230,57 @@ class Plane2dExample extends React.Component {
             height: 500,
             padding: [64,64,64,80],
             xColumn: "month",
-            data: chartData
+            data: chartData,
+            xScaleType: 'scalePoint'
         }
+
+        const xScaleTicks = scale => scale.domain().filter((ii, key) => key % 4 === 0);
+
+        const gridlines = <Gridlines lineHorizontal={lightLine} lineVertical={lightLine}/>;
 
         return <div>
             <div style={{position: 'absolute', top: 0, left: 0}}>
 
-                <Chart {...chartProps}>
-                    <Gridlines/>
-                    <Axis position='bottom' dimension="x"/>
-                    <Axis position='left' dimension="y" yColumn="supply"/>
+                <Chart {...chartProps} stroke="#555"
+                    padding={[]}
+                    yScaleUpdate={scale => scale.domain([-chartData.max('supply'), chartData.max('supply')])}
+                >
+                    {gridlines}
+                    <Axis location={0} ticks={xScaleTicks} position='top' dimension="x" />
+                    <Axis location={'2015-05-01'} position='left' dimension="y" yColumn="supply"/>
                     <Line yColumn="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
                 </Chart>
 
                 <Chart {...chartProps}>
-                    <Axis position='bottom' dimension="x"/>
-                    <Axis position='top' dimension="x"/>
+                    {gridlines}
+                    <Axis ticks={xScaleTicks} position='bottom' dimension="x" location={chartData.median('supply')} />
+                    <Axis position='left' dimension="y" yColumn="supply"/>
+                    <Line yColumn="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
+                </Chart>
+
+                <Chart {...chartProps} stroke="#aaa">
 
                     <Chart>
-                        <Gridlines/>
+                        <Gridlines yColumn="supply" lineHorizontal={lightLine} lineVertical={lightLine}/>
+                    </Chart>
+
+
+                    <Chart>
+                        <Gridlines yColumn="demand" lineHorizontal={lightLine} lineVertical={lightLine}/>
+                    </Chart>
+
+                    <Chart stroke="#aaa">
                         <Axis position='left' dimension="y" yColumn="supply"/>
                         <Line yColumn="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
                     </Chart>
 
-                    <Chart>
-                        <Gridlines lineHorizontal={lightLine} lineVertical={lightLine}/>
+                    <Chart stroke="#aaa">
                         <Axis position='right' dimension="y" yColumn="demand"/>
                         <Line yColumn="demand" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
                     </Chart>
+
+                    <Axis ticks={xScaleTicks} position='bottom' dimension="x"/>
+                    <Axis ticks={xScaleTicks} position='top' dimension="x"/>
                 </Chart>
             </div>
         </div>

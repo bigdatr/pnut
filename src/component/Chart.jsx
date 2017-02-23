@@ -9,7 +9,6 @@ import defaultScale from '../util/defaultScale';
 import memoize from '../util/memoize';
 import {SpruceClassName} from 'stampy';
 
-import ChartData from '../chartdata/ChartData';
 import type ChartRow from 'src/chartdata/ChartData';
 
 /**
@@ -349,7 +348,7 @@ class Chart extends Component {
             .toObject();
     }
     render(): Element<any> {
-        const {width, height, outerWidth, outerHeight, top, left} = this.applyCanvasSize(this.props);
+        const {width, height, outerWidth, outerHeight, top, left, stroke = 'black'} = this.applyCanvasSize(this.props);
 
         const {
             className,
@@ -377,6 +376,7 @@ class Chart extends Component {
         }
 
         return <Svg
+            stroke={stroke}
             className={SpruceClassName({name, modifier, className})}
             width={outerWidth}
             height={outerHeight}

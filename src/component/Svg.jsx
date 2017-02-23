@@ -52,6 +52,7 @@ export default class Svg extends React.PureComponent {
         return <svg
             overflow='visible'
             display='block'
+            stroke={this.props.stroke}
             className={this.props.className}
             width={this.props.width}
             height={this.props.height}

@@ -157,8 +157,8 @@ export class LineRenderable extends React.PureComponent {
                 data={data}
                 scaledData={scaledData}
                 lineProps={{
-                    fill: area ? 'black' : 'none',
-                    stroke: area ? 'none' : 'black',
+                    fill: area ? 'inherit' : 'none',
+                    stroke: area ? 'none' : 'inherit',
                     d: pathGenerator(scaledData),
                     ...lineProps
                 }}
