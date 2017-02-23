@@ -2,7 +2,7 @@ import React from 'react';
 import {shallow} from 'enzyme';
 import test from 'ava';
 import {scaleLinear, scalePoint} from 'd3-scale';
-import Line, {LineRenderable} from '../LineRenderable';
+import Area from '../AreaRenderable';
 import ChartData from '../../../chartdata/ChartData';
 
 
@@ -224,7 +224,7 @@ const scaledData = chartData.rows.map(row => ({
 })).toArray();
 
 
-const LineElement = shallow(<LineRenderable
+const AreaElement = shallow(<Area
     width={200}
     height={200}
     data={chartData}
@@ -236,90 +236,14 @@ const LineElement = shallow(<LineRenderable
     }}
 />);
 
-test('LineRenderable renders a svg path element', tt => {
-    tt.is(LineElement.childAt(0).shallow().name(), 'path');
+test('Area renders a LineRenderable', tt => {
+    tt.is(AreaElement.name(), 'LineRenderable');
 });
 
-test('LineRenderable will use props.line instead of DefaultLine', tt => {
-    const LineElement = shallow(<LineRenderable
-        width={200}
-        height={200}
-        data={chartData}
-        scaledData={scaledData}
-        xScale={xScale}
-        yScale={yScale}
-        lineProps={{
-            strokeWidth: '2'
-        }}
-        line={() => <div/>}
-    />);
-
-    tt.is(LineElement.childAt(0).shallow().name(), 'div');
-});
-
-test('LineRenderable allows custom curves', tt => {
-    const LinearLineElement = shallow(<LineRenderable
-        width={200}
-        height={200}
-        data={chartData}
-        scaledData={scaledData}
-        xScale={xScale}
-        yScale={yScale}
-        lineProps={{
-            strokeWidth: '2'
-        }}
-    />);
-
-    const MonotoneLineElement = shallow(<LineRenderable
-        width={200}
-        height={200}
-        data={chartData}
-        scaledData={scaledData}
-        xScale={xScale}
-        yScale={yScale}
-        lineProps={{
-            strokeWidth: '2'
-        }}
-        curveSelector={curves => curves.curveMonotoneX}
-    />);
-
-    tt.true(LinearLineElement.childAt(0).prop('lineProps').d !== MonotoneLineElement.childAt(0).prop('lineProps').d);
-});
-
-
-
-test('LineRenderable can also render area charts', tt => {
-    const AreaElement = shallow(<LineRenderable
-        width={200}
-        height={200}
-        data={chartData}
-        scaledData={scaledData}
-        xScale={xScale}
-        yScale={yScale}
-        area={true}
-        lineProps={{
-            strokeWidth: '2'
-        }}
-    />);
-
-    const areaPath = AreaElement.childAt(0).prop('lineProps').d;
-
+test('Area LineRenderable is a closed path', tt => {
+    // console.log(AreaElement.at(0).shallow().props());
+    const areaPath = AreaElement.at(0).shallow().childAt(0).prop('lineProps').d;
+    // console.log('afdsdfa', areaPath);
     tt.is(areaPath[areaPath.length - 1], 'Z')
-});
-
-test('Line has a static chartType of canvas', tt => {
-    tt.is(Line.chartType, 'canvas');
-});
-
-test('Line renders a LineRenderable', tt => {
-    const canvas = shallow(<Line
-            data={{}}
-            xScale={() => undefined}
-            scaledData={scaledData}
-            yScale={() => undefined}
-            height={100}
-            width={100}
-        />);
-    tt.is(canvas.name(), 'LineRenderable');
 });
 
