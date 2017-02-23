@@ -232,6 +232,18 @@ class Chart extends Component {
         // $FlowBug: flow cant handle default assignment on array destructuring
         const [top = 0, right = 0, bottom = 0, left = 0] = padding;
 
+        if(props.childChart) {
+            return {
+                ...props,
+                width,
+                height,
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0
+            };
+        }
+
         return {
             ...props,
             width: Math.max(width - left - right, 0), // clamp negatives
@@ -329,13 +341,11 @@ class Chart extends Component {
 
         return inheritedProps
             .set('scaledData', scaledData)
+            .set('childChart', true)
             .merge(this.dimensions.mapEntries((entries: Array<any>): Array<any> => {
                 const [dimensionName, dimension] = entries;
                 return [`${dimensionName}Scale`, dimension.get('scales').first()];
             }))
-            // .set('data', inheritedProps.get('frame', inheritedProps.get('data')))
-            // .set('width', inheritedProps.get('width'))
-            // .set('height', inheritedProps.get('height'))
             .toObject();
     }
     render(): Element<any> {
@@ -347,57 +357,31 @@ class Chart extends Component {
             spruceName: name = 'PnutChart'
         } = this.props;
 
-        const childList = List(Children.toArray(this.props.children));
 
-        const scaledChildren = childList
+        const scaledChildren = List(Children.toArray(this.props.children))
             .map((child: Element<any>): Element<any> => {
-                const {chartType} = child.type;
-                const childProps = {
+                return cloneElement(child, this.getChildProps({
                     ...child.props,
-                    chartType
-                };
-                switch(chartType) {
-                    case 'axis':
-                        return cloneElement(child, {
-                            ...this.getChildProps(childProps),
-                            ...this.getAxisSize(childProps.position)
-                        });
-
-                    case 'canvas':
-                    default:
-                        return cloneElement(child, this.getChildProps(childProps));
-                }
+                    chartType: child.type.chartType
+                }));
             })
-            .groupBy(child => child.type.chartType)
-            .updateIn(['axis'], (ii: ?List): ?Map => {
-                if(ii) {
-                    return ii.groupBy(aa => aa.props.position);
-                }
-            });
+            .toArray();
+
+        const chart = <Svg x={left} y={top} width={width} height={height}>
+            {scaledChildren}
+        </Svg>;
 
 
-        function getAxis(key: string, x: number, y: number): ?Element<any> {
-            const axis = scaledChildren.getIn(['axis', key, 0]);
-            if(axis) {
-                return <Svg x={x} y={y} height={axis.props.height} width={axis.props.width}>
-                    {scaledChildren.getIn(['axis', key]).toArray()}
-                </Svg>;
-            }
+        if(this.props.childChart) {
+            return chart;
         }
 
         return <Svg
             className={SpruceClassName({name, modifier, className})}
             width={outerWidth}
             height={outerHeight}
-        >
-            {getAxis('top', left, 0)}
-            {getAxis('right', left + width, top)}
-            {getAxis('bottom', left, height + top)}
-            {getAxis('left', 0, top)}
-            <Svg x={left} y={top} width={width} height={height}>
-                {scaledChildren.get('canvas')}
-            </Svg>
-        </Svg>;
+            children={chart}
+        />;
     }
 }
 

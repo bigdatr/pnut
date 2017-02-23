@@ -212,6 +212,10 @@ const rows = [
     }
 ];
 
+const lightLine = (props: LineProps): React.Element<any> => {
+    const {coordinates} = props;
+    return <line {...coordinates} strokeWidth="1" stroke="#ccc"/>;
+};
 
 class Plane2dExample extends React.Component {
     render() {
@@ -222,7 +226,7 @@ class Plane2dExample extends React.Component {
         });
 
         const chartProps = {
-            width: 500,
+            width: 800,
             height: 500,
             padding: [64,64,64,64],
             xColumn: "month",
@@ -233,6 +237,7 @@ class Plane2dExample extends React.Component {
             <div style={{position: 'absolute', top: 0, left: 0}}>
 
                 <Chart {...chartProps}>
+                    <Gridlines/>
                     <Axis position='bottom' dimension="x"/>
                     <Axis position='left' dimension="y" yColumn="supply"/>
                     <Line yColumn="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
@@ -242,11 +247,13 @@ class Plane2dExample extends React.Component {
                     <Axis position='bottom' dimension="x"/>
 
                     <Chart>
+                        <Gridlines/>
                         <Axis position='left' dimension="y" yColumn="supply"/>
                         <Line yColumn="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
                     </Chart>
 
                     <Chart>
+                        <Gridlines lineHorizontal={lightLine} lineVertical={lightLine}/>
                         <Axis position='right' dimension="y" yColumn="demand"/>
                         <Line yColumn="demand" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
                     </Chart>
