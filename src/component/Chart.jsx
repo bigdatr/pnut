@@ -107,17 +107,17 @@ class Chart extends Component {
         /**
          * Dimensions to construct scales off
          */
-        dimensions: PropTypes.arrayOf(PropTypes.string).isRequired,
+        dimensions: PropTypes.arrayOf(PropTypes.string),
 
         /**
          * Total height of the chart.
          */
-        height: PropTypes.number.isRequired,
+        height: PropTypes.number,
 
         /**
          * Total width of the chart
          */
-        width: PropTypes.number.isRequired,
+        width: PropTypes.number,
 
         /**
          * [top, right, bottom, left] Padding for axis and things.
@@ -170,9 +170,10 @@ class Chart extends Component {
             // turn dimension array into dimension map
             .reduce((groups: Map, dimensionName: string): Object => {
                 const columnKey = `${dimensionName}Column`;
+                const scaleGroupKey = `${dimensionName}ScaleGroup`;
                 const scaleKey = `${dimensionName}Scale`;
                 const scaleTypeKey = `${dimensionName}ScaleType`;
-                const scaleGroupKey = `${dimensionName}ScaleGroup`;
+                const scaleUpdateKey = `${dimensionName}ScaleUpdate`;
 
                 const columns = List(childrenProps)
                     // concat default columns onto child columns
@@ -187,12 +188,13 @@ class Chart extends Component {
 
                 const dimension = Map({
                     columnKey,
+                    columns,
+                    scaleGroupKey,
                     scaleKey,
                     scaleTypeKey,
-                    scaleGroupKey,
-                    columns,
+                    scaleUpdateKey,
                     scales: columns.reduce((scales: Map, column: string, key: string, columns: Set): Map => {
-                        const customScale = typeof props[scaleKey] === 'function' ? props[scaleKey] : scale => scale;
+                        const customScale = typeof props[scaleUpdateKey] === 'function' ? props[scaleUpdateKey] : scale => scale;
                         // to calculate the scale you need
                         // primitiveDimension (range)
                         // columns (domain)
@@ -283,12 +285,11 @@ class Chart extends Component {
         const getters = this.dimensions
             .map((dimension: Map, dimensionName: string): Map => {
 
-                const {scaleName, scaleTypeName} = applyDimension(dimension, Map(props)).toObject();
+                const {scaleUpdate, scaleTypeName} = applyDimension(dimension, Map(props)).toObject();
 
                 // if child has defined either a custom scale or scaleType
                 // the getter needs to recreate the scaledValue based on the custom props
-                if(scaleName || scaleTypeName) {
-                    // console.log('custom getter', dimensionName, scaleName, scaleTypeName);
+                if(scaleUpdate || scaleTypeName) {
                     const scale = defaultScale({
                         primitiveDimension: dimensionName,
                         columns: this.dimensions.getIn([dimensionName, 'columns']),
@@ -299,10 +300,10 @@ class Chart extends Component {
 
 
                     return (index: number, key: string): * => {
-                        const value = inheritedProps.getIn(['data', 'rows', index, key]);
+                        const value = inheritedProps.get('frame', inheritedProps.get('data')).getIn(['rows', index, key]);
 
                         // if custom scale is a function apply pass the default scale through it.
-                        const customScale = typeof scaleName === 'function' ? scaleName(scale.copy(), inheritedProps.toObject()) : scale;
+                        const customScale = typeof scaleUpdate === 'function' ? scaleUpdate(scale.copy(), inheritedProps.toObject()) : scale;
 
                         return applyScaledValue(dimensionName, customScale, value, inheritedProps.toObject());
                     };
@@ -313,7 +314,7 @@ class Chart extends Component {
                 return (index: number, key: string): * => this.scaledData.getIn([index, dimensionName, key]);
             });
 
-        const scaledData = inheritedProps.getIn(['data', 'rows'])
+        const scaledData = inheritedProps.get('frame', inheritedProps.get('data')).rows
             // map rows
             .map((row: ChartRow, index: number): List<Object> => {
                 // then dimensions
@@ -326,15 +327,15 @@ class Chart extends Component {
             })
             .toArray();
 
-        return this.dimensions
-            .mapEntries((entries: Array<any>): Array<any> => {
+        return inheritedProps
+            .set('scaledData', scaledData)
+            .merge(this.dimensions.mapEntries((entries: Array<any>): Array<any> => {
                 const [dimensionName, dimension] = entries;
                 return [`${dimensionName}Scale`, dimension.get('scales').first()];
-            })
-            .set('scaledData', scaledData)
-            .set('data', inheritedProps.get('frame', inheritedProps.get('data')))
-            .set('width', inheritedProps.get('width'))
-            .set('height', inheritedProps.get('height'))
+            }))
+            // .set('data', inheritedProps.get('frame', inheritedProps.get('data')))
+            // .set('width', inheritedProps.get('width'))
+            // .set('height', inheritedProps.get('height'))
             .toObject();
     }
     render(): Element<any> {

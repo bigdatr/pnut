@@ -221,64 +221,35 @@ class Plane2dExample extends React.Component {
                 .set('benchmark', 1300000);
         });
 
-
-        const data = new ChartData([{x: 1, y: 1},{x: 2, y: 2},{x: 3, y: 3},{x: 4, y: 4},{x: 5, y: 5}], [{key: 'x', isContinuous: false}, {key: 'y', isContinuous: false}]);
-
-        const path = ({d}) => <path d={d} stroke="red"/>;
-
-        return <Chart
-            padding={[32,32,32,32]}
-            data={data}
-            width={500}
-            height={500}
-            xColumn="x"
-            yColumn="y"
-        >
-            <Scatter pathProps={{stroke: 'red', strokeWidth: 2}}/>
-            <Gridlines/>
-            <Axis
-                position='bottom'
-                dimension="x"
-            />
-            <Axis
-                position='left'
-                dimension="y"
-            />
-        </Chart>;
+        const chartProps = {
+            width: 500,
+            height: 500,
+            padding: [64,64,64,64],
+            xColumn: "month",
+            data: chartData
+        }
 
         return <div>
             <div style={{position: 'absolute', top: 0, left: 0}}>
-                <Chart
-                    padding={[64,64,64,90]}
-                    data={chartData}
-                    width={this.props.eqWidth || 0}
-                    height={this.props.eqHeight || 0}
-                    dimensions={['x', 'y']}
-                    xColumn="month"
-                >
 
-                    <Line yScaleGroup="y1" yColumn="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
-                    <Line yScaleGroup="y2" yColumn="demand" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
+                <Chart {...chartProps}>
+                    <Axis position='bottom' dimension="x"/>
+                    <Axis position='left' dimension="y" yColumn="supply"/>
+                    <Line yColumn="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
+                </Chart>
 
+                <Chart {...chartProps}>
+                    <Axis position='bottom' dimension="x"/>
 
-                    <Axis
-                        position='bottom'
-                        dimension="x"
-                    />
-                    <Axis
-                        position='left'
-                        dimension="y"
-                        yColumn="supply"
-                        yScaleGroup="y1"
-                    />
-                    <Axis
-                        position='right'
-                        dimension="y"
-                        yColumn="fooBar"
-                        yScaleGroup="y2"
-                    />
+                    <Chart>
+                        <Axis position='left' dimension="y" yColumn="supply"/>
+                        <Line yColumn="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
+                    </Chart>
 
-
+                    <Chart>
+                        <Axis position='right' dimension="y" yColumn="demand"/>
+                        <Line yColumn="demand" pathProps={{stroke: 'blue', strokeWidth: 2}}/>
+                    </Chart>
                 </Chart>
             </div>
         </div>

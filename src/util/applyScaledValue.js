@@ -21,6 +21,7 @@ function halfBandwidth(scale: Function): number {
  * @return     {any}
  */
 export default function applyScaledValue(dimensionName: sting, scale: Function, value: *, props: Object): * {
+    // console.log(dimensionName, typeof scale, value);
     switch (dimensionName) {
         case 'x':
             return scale(value) + halfBandwidth(scale);
