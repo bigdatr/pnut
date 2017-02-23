@@ -180,7 +180,6 @@ export class LineRenderable extends React.PureComponent {
  * <Line
  *     line={(props) => <path {...props.lineProps} strokeWidth={3}/>}
  *     curve={(curves) => curves.curveMonotoneX}
- *     area={true}
  * />
  *
  */

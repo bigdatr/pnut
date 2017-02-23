@@ -1,7 +1,4 @@
-import {LineRenderable, ChartData, Svg} from 'pnut';
-import React from 'react';
-import {scaleLinear, scalePoint} from 'd3-scale';
-import {ElementQueryHock} from 'stampy';
+import {ChartData} from 'pnut';
 
 const columns = [
     {
@@ -205,50 +202,4 @@ const rows = [
 ];
 
 
-const chartData = new ChartData(rows, columns);
-
-
-class CanvasExample extends React.Component {
-    render() {
-        const yScale = scaleLinear()
-            .domain([chartData.min('supply'), chartData.max('supply')])
-            .range([0, this.props.eqHeight])
-            .nice();
-
-        const xScale = scalePoint()
-            .domain(rows.map(row => row.month))
-            .range([0, this.props.eqWidth]);
-
-        const scaledData = chartData.rows.map(row => ({
-            x: row.get('month') != null ? xScale(row.get('month')) : null,
-            y: row.get('supply') != null ? this.props.eqHeight - yScale(row.get('supply')) : null
-        })).toArray();
-
-
-        return <div>
-            <div style={{position: 'absolute', top: 0, left: 0}}>
-                <Svg width={this.props.eqWidth} height={this.props.eqHeight}>
-                    <LineRenderable
-                        scaledData={scaledData}
-                        height={this.props.eqHeight}
-                        data={chartData}
-                    />
-                </Svg>
-            </div>
-        </div>
-    }
-}
-
-const HockedExample = ElementQueryHock([])(CanvasExample);
-
-export default () => {
-    return <div
-        style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            top: 0,
-            left: 0
-        }}
-    ><HockedExample/></div>
-};
+export default new ChartData(rows, columns);
