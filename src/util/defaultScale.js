@@ -1,5 +1,7 @@
+// @flow
+
 import * as d3Scale from 'd3-scale';
-import {List, Set} from 'immutable';
+import {Set} from 'immutable';
 
 // create a set of booleans to check if a group is mixing dimension types
 function isContinuous(columns: Set, data: Object): Set {
@@ -32,7 +34,7 @@ export default function defaultScale(scaleProps: Object): Function {
         // the domain of continuous data can be a plain min max of columns
         ? [0, data.max(columns)]
         // the domain of non-continuous data has to be an array of all unique values of columns
-        : data.getUniqueValues(columns).toArray()
+        : data.getUniqueValues(columns).toArray();
 
 
     switch(primitiveDimension) {

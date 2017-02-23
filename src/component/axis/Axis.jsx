@@ -64,6 +64,9 @@ export class AxisRenderable extends React.PureComponent {
         /** {'top'|'right'|'bottom'|'left'} The position of the axis */
         position: React.PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
 
+        /** Domain value of opposite scale at which to render the axis */
+        location: React.PropTypes.number,
+
         /** Custom axisLine renderer */
         axisLine: React.PropTypes.func,
 

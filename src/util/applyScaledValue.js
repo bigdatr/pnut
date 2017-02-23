@@ -1,3 +1,5 @@
+// @flow
+
 function halfBandwidth(scale: Function): number {
     if(scale.bandwidth) {
         return scale.bandwidth() / 2;

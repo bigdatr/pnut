@@ -20,13 +20,13 @@ import type ChartRow from 'src/chartdata/ChartData';
  * Each scale creates 4 dynamic props on the Chart and each of it's children.
  *  * &lt;dimensionName&gt;Column
  *  * &lt;dimensionName&gt;ScaleType
- *  * &lt;dimensionName&gt;ScaleGroup
- *  * &lt;dimensionName&gt;Scale
+ *  * &lt;dimensionName&gt;ScaleUpdate
  *
  * Each child will inherit any of these dimension props from the Chart component.
  * While declaring them on the child will override the parent value. This lets you declare common axis on the
  * Chart component and specific axis on the relevant child. This flexibility makes chart construction
  * expressive and highly customizable.
+ *
  *
  * ```
  * <Chart data={data} xColumn="time">
@@ -46,13 +46,9 @@ import type ChartRow from 'src/chartdata/ChartData';
  * Picks the starting D3 scale
  * e.g. `<Chart xScaleType="scalePoint" yScaleType="scaleLinear" />`
  *
- * @prop {function} [<dimensionName>Scale]
+ * @prop {function} [<dimensionName>ScaleUpdate]
  * Called with scale and props after the default scale has been constructed
- * e.g. `<Chart xScaleType={scale => scale.padding(.1)} />`
- *
- * @prop {function} [<dimensionName>ScaleGroup]
- * Sometimes a dimension might have multiple scales. Scale groups isolate columns into different scales.
- * Usage examples might be a correlation graph with independent y axes.
+ * e.g. `<Chart xScaleUpdate={scale => scale.padding(.1)} />`
  *
  *
  * @example
@@ -88,6 +84,20 @@ import type ChartRow from 'src/chartdata/ChartData';
  * <Chart data={data} xColumn="time" yScale={customScale}>
  *     <Line yColumn="distance"/>
  * </Chart>
+ *
+ *
+ * // Correlated Scales
+ * <Chart xColumn="days">
+ *    <Axis dimension="x"/>
+ *    <Chart yColumn="piracy">
+ *        <Line/>
+ *        <Axis dimension="y"/>
+ *    </Chart>
+ *    <Chart yColumn="lemonImports">
+ *        <Line/>
+ *        <Axis dimension="y"/>
+ *    </Chart>
+ * </Chart>
  */
 class Chart extends Component {
     chartType: string;
@@ -100,8 +110,6 @@ class Chart extends Component {
     state: Object;
 
     static propTypes = {
-        // data: PropTypes.object.isRequired,
-
         /**
          * Dimensions to construct scales off
          */
@@ -164,7 +172,6 @@ class Chart extends Component {
             // turn dimension array into dimension map
             .reduce((groups: Map, dimensionName: string): Object => {
                 const columnKey = `${dimensionName}Column`;
-                const scaleGroupKey = `${dimensionName}ScaleGroup`;
                 const scaleKey = `${dimensionName}Scale`;
                 const scaleTypeKey = `${dimensionName}ScaleType`;
                 const scaleUpdateKey = `${dimensionName}ScaleUpdate`;
@@ -183,7 +190,6 @@ class Chart extends Component {
                 const dimension = Map({
                     columnKey,
                     columns,
-                    scaleGroupKey,
                     scaleKey,
                     scaleTypeKey,
                     scaleUpdateKey,
