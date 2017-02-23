@@ -1,7 +1,4 @@
-import {LineRenderable, ChartData, Svg} from 'pnut';
-import React from 'react';
-import {scaleLinear, scalePoint} from 'd3-scale';
-import {ElementQueryHock} from 'stampy';
+import {ChartData} from 'pnut';
 
 const columns = [
     {
@@ -134,7 +131,7 @@ const rows = [
     },
     {
         month: "2015-11-01",
-        supply: 1236615,
+        supply: 135844,
         demand: 1700000
     },
     {
@@ -189,12 +186,12 @@ const rows = [
     },
     {
         month: "2016-10-01",
-        supply: 1810362,
+        supply: null,
         demand: 2270000
     },
     {
         month: "2016-11-01",
-        supply: 1877047,
+        supply: 1896226,
         demand: 2470000
     },
     {
@@ -205,55 +202,4 @@ const rows = [
 ];
 
 
-const chartData = new ChartData(rows, columns);
-
-
-class CanvasExample extends React.Component {
-    render() {
-        const yScale = scaleLinear()
-            .domain([chartData.min('supply'), chartData.max('supply')])
-            .range([0, this.props.eqHeight])
-            .nice();
-
-        const xScale = scalePoint()
-            .domain(rows.map(row => row.month))
-            .range([0, this.props.eqWidth]);
-
-        return <div>
-            <div style={{position: 'absolute', top: 0, left: 0}}>
-                <Svg width={this.props.eqWidth} height={this.props.eqHeight}>
-                    <LineRenderable
-                        width={this.props.eqWidth}
-                        height={this.props.eqHeight}
-                        xScale={xScale}
-                        yScale={yScale}
-                        xColumn={'month'}
-                        yColumn={'supply'}
-                        data={chartData}
-                        svgProps={{
-                            strokeWidth: '2'
-                        }}
-                        pathProps={{
-                            strokeWidth: '2',
-                            stroke: "#000"
-                        }}
-                    />
-                </Svg>
-            </div>
-        </div>
-    }
-}
-
-const HockedExample = ElementQueryHock([])(CanvasExample);
-
-export default () => {
-    return <div
-        style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            top: 0,
-            left: 0
-        }}
-    ><HockedExample/></div>
-};
+export default new ChartData(rows, columns);

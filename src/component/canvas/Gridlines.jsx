@@ -36,7 +36,7 @@ type LineProps = {
 
 const defaultLine = (props: LineProps): React.Element<any> => {
     const {coordinates} = props;
-    return <line {...coordinates} strokeWidth="1" stroke="grey"/>;
+    return <line {...coordinates} strokeWidth="1" stroke="inherit"/>;
 };
 
 

@@ -1,7 +1,7 @@
 import test from 'ava';
 import React from 'react';
 import {shallow} from 'enzyme';
-
+import sinon from 'sinon';
 import {scaleLog, scaleBand} from 'd3-scale';
 import Column, {ColumnRenderable} from '../ColumnRenderable';
 import ChartData from '../../../chartdata/ChartData';
@@ -66,7 +66,7 @@ const rows = [
 const chartData = new ChartData(rows, columns);
 
 const yScale = scaleLog()
-    .domain([chartData.min(['supply', 'demand']), chartData.max(['supply', 'demand'])])
+    .domain([chartData.min('supply'), chartData.max('supply')])
     .range([0, 100])
     .nice();
 
@@ -74,48 +74,88 @@ const xScale = scaleBand()
     .domain(rows.map(row => row.property_type))
     .range([0, 100]);
 
-const canvas = shallow(<ColumnRenderable
+const scaledData = chartData.rows.map(row => ({
+    x: row.get('property_type') != null ? xScale(row.get('property_type')) + xScale.bandwidth() / 2 : null,
+    y: row.get('supply') != null ? 140 - yScale(row.get('supply')) : null
+})).toArray();
+
+const ColumnRenderableElement = shallow(<ColumnRenderable
     width={140}
     height={140}
     data={chartData}
+    scaledData={scaledData}
     xScale={xScale}
     yScale={yScale}
-    xColumn={'property_type'}
-    yColumn={['supply', 'demand']}
     columnProps={{
         fill: 'blue'
     }}
 />);
 
-test('ColumnRenderable renders multiple columns', tt => {
-    tt.is(canvas.children().length, rows.length * 2);
-});
-
 test('ColumnRenderable applies passed columnProps to columns', tt => {
-    tt.is(canvas.children().at(0).prop('fill'), 'blue');
+    tt.is(ColumnRenderableElement.childAt(0).shallow().prop('fill'), 'blue');
 });
 
-test('ColumnRenderable given a single yColumn as a string will divide the width by 1', tt => {
-    const canvas = shallow(<ColumnRenderable
+
+
+test('ColumnRenderable errors out if both x and y scales are continuous', tt => {
+    const oldConsoleError = console.error;
+    const newConsoleError = console.error = sinon.spy();
+
+    const BadColumnRenderableElement = shallow(<ColumnRenderable
         width={140}
         height={140}
         data={chartData}
-        xScale={xScale}
+        scaledData={scaledData}
+        xScale={yScale}
         yScale={yScale}
-        xColumn={'property_type'}
-        yColumn={'supply'}
         columnProps={{
             fill: 'blue'
         }}
     />);
-    tt.is(canvas.children().at(0).prop('width'), 14.285714285714286);
+
+    tt.true(newConsoleError.called);
+    tt.is(BadColumnRenderableElement.getNode(), null);
+
+    console.error = oldConsoleError;
 });
 
-test('Column has a static chartType of canvas', tt => {
-    tt.is(Column.chartType, 'canvas');
-});
+
+
+const ColumnElement = shallow(<Column
+    width={140}
+    height={140}
+    data={chartData}
+    scaledData={scaledData}
+    xScale={xScale}
+    yScale={yScale}
+    columnProps={{
+        fill: 'blue'
+    }}
+/>);
 
 test('Column renders a ColumnRenderable', tt => {
-    const canvas = shallow(<Column data={{}} xScale={() => undefined} yScale={() => undefined} xColumn="string" yColumn="string"/>);
-    tt.is(canvas.name(), 'ColumnRenderable');
+    tt.is(ColumnElement.at(0).name(), 'ColumnRenderable');
+});
+
+
+
+const BarElement = shallow(<Column
+    width={140}
+    height={140}
+    data={chartData}
+    scaledData={scaledData.map(row => ({x: row.y, y: row.x}))}
+    xScale={yScale}
+    yScale={xScale}
+    columnProps={{
+        fill: 'blue'
+    }}
+/>);
+
+test('Column can render bar charts also', tt => {
+    const secondColumnProps = BarElement.at(0).shallow().childAt(1).prop('columnProps');
+
+    // If this is a bar chart then columnProps x will be 0 for all columns and columnProps y will
+    // be greater than 0 for all but the first column
+    tt.is(secondColumnProps.x, 0);
+    tt.true(secondColumnProps.y > 0);
 });

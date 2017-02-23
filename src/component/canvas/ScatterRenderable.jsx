@@ -1,69 +1,67 @@
 // @flow
 
-import React from 'react';
-import type {ChartScalar, ChartRow} from 'src/chartdata/ChartData';
+import React, {PropTypes} from 'react';
 
-type DotProps = {
-    key: string,
-    x: number,
-    y: number,
-    dataX: ChartScalar,
-    dataY: ChartScalar,
-    row: ChartRow
-};
 
 /**
  *
  * @typedef Dot
  * @type ReactElement
  *
- * @prop {number} x - The x position of the dot on the canvas
- * @prop {number} y - The y position of the dot on the canvas
- * @prop {ChartScalar} dataX - The `ChartScalar` value for `xColumn` in this row.
- * @prop {ChartScalar} dataY - The `ChartScalar` value for `yColumn` in this row.
- * @prop {ChartRow} row - The `ChartRow` corresponding to this dot.
+ * @prop {Object} dotProps
+ * A mixture of default props and those passed through `Scatter.props.dotProps`. This object should
+ * be able to be spread onto the svg element eg. `<circle {...props.columnProps}/>`.
+ *
+ * @prop {number} dotProps.cx
+ * The pixel x coordinate of the dot's centre
+ *
+ * @prop {number} dotProps.cy
+ * The pixel y coordinate of dot's centre
+ *
+ * @prop {Object} dimensions
+ * An object containing the `x` and `y` dimension values for this chart. As well as any other
+ * dimensions defined when setting up the chart.
+ *
+ * @prop {number} index
+ * The index for this row
+ *
+ * @prop {ChartData} data
+ * The `ChartData` object that is being used to for this chart.
+ *
+ * @prop {Map} rowData
+ * An Immutable map of the raw data for this row.
+ *
+ * @prop {Object[]} scaledData
+ * The full array of pre scaled data.
  */
 
-const defaultDot = (dotProps: DotProps): React.Element<any> => {
-    const {x, y} = dotProps;
-    return <circle fill='black' cx={x} cy={y} r={3}/>;
+const defaultDot = (props: Object): React.Element<any> => {
+    return <circle fill='black' r={3} {...props.dotProps}/>;
 };
+
 
 
 /**
  *
  * @component
  *
- * ScatterRenderable is the basic svg renderer for Scatter charts.
+ * ScatterRenderable is the low-level svg renderer for Scatter charts.
  *
  * @example
  *
- * const yScale = scaleLog()
- *     .domain([0, 10])
- *     .range([0, 720])
- *     .nice();
- *
- * const xScale = scalePoint()
- *     .domain(['January', 'February', 'March', 'April'])
- *     .range([0, 1280]);
- *
- * const scaleRadius = scaleLinear()
- *     .domain([0, 100])
- *     .range([5, 30]);
+ * const scaledData = [
+ *     {x: 1, y: 200},
+ *     {x: 2, y: 400},
+ *     {x: 3, y: 600},
+ *     {x: 4, y: 800},
+ * ];
  *
  * return <ScatterRenderable
- *     width={1280}
- *     height={720}
- *     xScale={xScale}
- *     yScale={yScale}
- *     xColumn={'month'}
- *     yColumn={'demand'}
- *     data={chartData}
- *     dot={({x, y, dataX, dataY, row}) => <circle
- *         cx={x}
- *         cy={y}
- *         r={scaleRadius(row.get('demand'))}
- *     />}
+ *     scaledData={scaledData}
+ *     dotProps={{
+ *          strokeWidth: '2'
+ *     }}
+ *     dot={(props) => <circle {...props.columnProps} stroke="red"/>}
  * />;
  *
  *
@@ -75,80 +73,97 @@ export class ScatterRenderable extends React.PureComponent {
     };
 
     static propTypes = {
-        // Props passed to canvas
-
-        /**
-         * The width of the canvas. This is just passed on to the Svg component.
-         */
-        height: React.PropTypes.number,
-        /**
-         * The height of the canvas. This is just passed on to the Svg component.
-         */
-        width: React.PropTypes.number,
-        /**
-         * An object of props that will be spread onto the svg element.
-         * This is just passed on to the Svg component.
-         */
-        svgProps: React.PropTypes.object,
-
-        // Own props
 
         /**
          * {ChartData} The `ChartData` Record used to contain the data for the chart.
          */
-        data: React.PropTypes.object.isRequired,
+        data: PropTypes.object,
+
         /**
-         * {Scale} Any d3-scale for the x axis.
+         * {Object} The pre-scaled data that is used to render points
          */
-        xScale: React.PropTypes.func.isRequired,
+        scaledData: PropTypes.arrayOf(PropTypes.shape({
+            x: PropTypes.number,
+            y: PropTypes.number
+        })).isRequired,
+
         /**
-         * {Scale} Any d3-scale for the y axis.
+         * An object of props that will be spread onto the svg element used to display dots on the chart.
          */
-        yScale: React.PropTypes.func.isRequired,
-        /**
-         * The column key from `ChartData` to use for the x axis.
-         */
-        xColumn: React.PropTypes.string.isRequired,
-        /**
-         * The column key from `ChartData` to use for the y axis.
-         */
-        yColumn: React.PropTypes.string.isRequired,
+        dotProps: PropTypes.object,
+
         /**
          * {Dot} An optional react component that will be used to render dots on the chart.
          * Defaults to rendering a `<circle/>`.
          */
-        dot: React.PropTypes.func
+        dot: PropTypes.func
     };
 
-    buildDots(): Array<React.Element<any>> {
-        const {data, xScale, yScale, xColumn, yColumn, dot} = this.props;
-        const Dot = dot;
-        const rangeY = yScale.range();
-        const offset = xScale.bandwidth ? xScale.bandwidth() / 2 : 0;
+    buildDot: any; // shut up flow
 
-        return data.rows.map((row: ChartRow, index: number): React.Element<any> => {
-            const dataX = row.get(xColumn);
-            const dataY = row.get(yColumn);
-            return <Dot
-                key={index}
-                x={xScale(dataX) + offset}
-                y={rangeY[1] - yScale(dataY)}
-                dataX={dataX}
-                dataY={dataY}
-                row={row}
-            />;
-        });
+    constructor(props: Object) {
+        super(props);
+        this.buildDot = this.buildDot.bind(this);
+    }
+
+    buildDot(
+        row: Object,
+        index: number
+    ): ?React.Element<any> {
+        if(row.x == null || row.y == null) return null;
+        const {dot: Dot, dotProps} = this.props;
+        return <Dot
+            key={index}
+            dotProps={{
+                cx: row.x,
+                cy: row.y,
+                ...dotProps
+            }}
+            dimensions={row}
+            index={index}
+            data={this.props.data}
+            scaledData={this.props.scaledData}
+        />;
     }
 
     render(): React.Element<any> {
         return <g>
-            {this.buildDots()}
+            {this.props.scaledData.map(this.buildDot)}
         </g>;
     }
 }
 
+/**
+ *
+ * @component
+ *
+ * Component used to render scatter/point charts. This component requires further props to define
+ * what pieces of data it uses. @see `Chart` for details.
+ * @name Scatter
+ *
+ * @example
+ * <Scatter
+ *     dot={(props) => <circle {...props.dotProps} fill='blue'/>}
+ * />
+ *
+ */
+
 export default class Scatter extends React.Component {
     static chartType = 'canvas';
+
+    static propTypes = {
+        /**
+         * An object of props that will be spread onto the svg element used to display dots on the chart.
+         */
+        dotProps: PropTypes.object,
+
+        /**
+         * {Dot} An optional react component that will be used to render dots on the chart.
+         * Defaults to rendering a `<circle/>`.
+         */
+        dot: PropTypes.func
+    };
+
     render(): React.Element<any> {
         return <ScatterRenderable {...this.props} />;
     }

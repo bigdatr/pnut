@@ -1,9 +1,9 @@
-import {ScatterRenderable, ChartData, Svg} from 'pnut';
 import React from 'react';
+import {shallow} from 'enzyme';
+import test from 'ava';
 import {scaleLinear, scalePoint} from 'd3-scale';
-import {interpolateRdBu} from 'd3-scale-chromatic';
-import {ElementQueryHock} from 'stampy';
-import {fromJS, Map, List} from 'immutable';
+import Area from '../AreaRenderable';
+import ChartData from '../../../chartdata/ChartData';
 
 
 const columns = [
@@ -209,56 +209,41 @@ const rows = [
 
 const chartData = new ChartData(rows, columns);
 
-class CanvasExample extends React.Component {
-    render() {
-        const yScale = scaleLinear()
-            .domain([chartData.min('supply'), chartData.max('supply')])
-            .range([0, this.props.eqHeight])
-            .nice();
+const yScale = scaleLinear()
+    .domain([chartData.min('supply'), chartData.max('supply')])
+    .range([0, 100])
+    .nice();
 
-        const xScale = scalePoint()
-            .domain(rows.map(row => row.month))
-            .range([0, this.props.eqWidth]);
+const xScale = scalePoint()
+    .domain(rows.map(row => row.month))
+    .range([0, 100]);
 
-        const scaleRadius = scaleLinear()
-            .domain([chartData.min('demand'), chartData.max('demand')])
-            .range([5, 30]);
+const scaledData = chartData.rows.map(row => ({
+    x: row.get('month') != null ? xScale(row.get('month')) + xScale.bandwidth() / 2 : null,
+    y: row.get('supply') != null ? 140 - yScale(row.get('supply')) : null
+})).toArray();
 
 
-        return <div>
-            <div style={{position: 'absolute', top: 0, left: 0}}>
-                <Svg width={this.props.eqWidth} height={this.props.eqHeight}>
-                    <ScatterRenderable
-                        width={this.props.eqWidth}
-                        height={this.props.eqHeight}
-                        xScale={xScale}
-                        yScale={yScale}
-                        xColumn={'month'}
-                        yColumn={'supply'}
-                        data={chartData}
-                        dot={({x, y, row}) => <circle
-                            cx={x}
-                            cy={y}
-                            r={scaleRadius(row.get('demand'))}
-                        />}
-                    />
-                </Svg>
-            </div>
+const AreaElement = shallow(<Area
+    width={200}
+    height={200}
+    data={chartData}
+    scaledData={scaledData}
+    xScale={xScale}
+    yScale={yScale}
+    lineProps={{
+        strokeWidth: '2'
+    }}
+/>);
 
-        </div>
-    }
-}
+test('Area renders a LineRenderable', tt => {
+    tt.is(AreaElement.name(), 'LineRenderable');
+});
 
-const HockedExample = ElementQueryHock([])(CanvasExample);
+test('Area LineRenderable is a closed path', tt => {
+    // console.log(AreaElement.at(0).shallow().props());
+    const areaPath = AreaElement.at(0).shallow().childAt(0).prop('lineProps').d;
+    // console.log('afdsdfa', areaPath);
+    tt.is(areaPath[areaPath.length - 1], 'Z')
+});
 
-export default () => {
-    return <div
-        style={{
-            position: 'absolute',
-            top: '100px',
-            left: '100px',
-            bottom: '100px',
-            right: '100px'
-        }}
-    ><HockedExample/></div>
-};

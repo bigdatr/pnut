@@ -1,7 +1,6 @@
-import test from 'ava';
 import React from 'react';
 import {shallow} from 'enzyme';
-
+import test from 'ava';
 import {scaleLinear, scalePoint} from 'd3-scale';
 import Line, {LineRenderable} from '../LineRenderable';
 import ChartData from '../../../chartdata/ChartData';
@@ -219,60 +218,93 @@ const xScale = scalePoint()
     .domain(rows.map(row => row.month))
     .range([0, 100]);
 
-const canvas = shallow(<LineRenderable
+const scaledData = chartData.rows.map(row => ({
+    x: row.get('month') != null ? xScale(row.get('month')) + xScale.bandwidth() / 2 : null,
+    y: row.get('supply') != null ? 140 - yScale(row.get('supply')) : null
+})).toArray();
+
+
+const LineElement = shallow(<LineRenderable
     width={200}
     height={200}
     data={chartData}
+    scaledData={scaledData}
     xScale={xScale}
     yScale={yScale}
-    xColumn={'month'}
-    yColumn={'supply'}
-    data={chartData}
-    pathProps={{
+    lineProps={{
         strokeWidth: '2'
     }}
 />);
 
-test('LineRenderable renders a line', tt => {
-    tt.is(canvas.childAt(0).shallow().name(), 'path');
+test('LineRenderable renders a svg path element', tt => {
+    tt.is(LineElement.childAt(0).shallow().name(), 'path');
 });
 
 test('LineRenderable will use props.line instead of DefaultLine', tt => {
-    const canvas = shallow(<LineRenderable
+    const LineElement = shallow(<LineRenderable
         width={200}
         height={200}
         data={chartData}
+        scaledData={scaledData}
         xScale={xScale}
         yScale={yScale}
-        xColumn={'month'}
-        yColumn={'supply'}
-        data={chartData}
+        lineProps={{
+            strokeWidth: '2'
+        }}
         line={() => <div/>}
     />);
 
-    tt.is(canvas.childAt(0).shallow().name(), 'div');
+    tt.is(LineElement.childAt(0).shallow().name(), 'div');
 });
 
-test('LineRenderable will offset the x position by half if the scale has a bandwidth', tt => {
-    const props = {
-        width: 140,
-        height: 140,
-        data: new ChartData([rows[0], rows[1]], [columns[0], columns[1]]),
-        xScale: xScale,
-        yScale: yScale,
-        xColumn: 'demand',
-        yColumn: 'supply'
-    };
-    const canvasLinear = shallow(<LineRenderable {...props} xScale={scaleLinear().domain(rows.map(row => row.demand)).range([0,100])}/>);
-    const canvasBandwidth = shallow(<LineRenderable {...props} xScale={scalePoint().domain(rows.map(row => row.demand)).range([0,100])} />);
-    const getD = (cc) => cc
-        .childAt(0)
-        .shallow()
-        .prop('d')
-        .split(' ')[4];
+test('LineRenderable allows custom curves', tt => {
+    const LinearLineElement = shallow(<LineRenderable
+        width={200}
+        height={200}
+        data={chartData}
+        scaledData={scaledData}
+        xScale={xScale}
+        yScale={yScale}
+        lineProps={{
+            strokeWidth: '2'
+        }}
+    />);
 
-    tt.is(getD(canvasLinear), '100');
-    tt.is(getD(canvasBandwidth), '3.225806451612903');
+    const MonotoneLineElement = shallow(<LineRenderable
+        width={200}
+        height={200}
+        data={chartData}
+        scaledData={scaledData}
+        xScale={xScale}
+        yScale={yScale}
+        lineProps={{
+            strokeWidth: '2'
+        }}
+        curveSelector={curves => curves.curveMonotoneX}
+    />);
+
+    tt.true(LinearLineElement.childAt(0).prop('lineProps').d !== MonotoneLineElement.childAt(0).prop('lineProps').d);
+});
+
+
+
+test('LineRenderable can also render area charts', tt => {
+    const AreaElement = shallow(<LineRenderable
+        width={200}
+        height={200}
+        data={chartData}
+        scaledData={scaledData}
+        xScale={xScale}
+        yScale={yScale}
+        area={true}
+        lineProps={{
+            strokeWidth: '2'
+        }}
+    />);
+
+    const areaPath = AreaElement.childAt(0).prop('lineProps').d;
+
+    tt.is(areaPath[areaPath.length - 1], 'Z')
 });
 
 test('Line has a static chartType of canvas', tt => {
@@ -280,7 +312,14 @@ test('Line has a static chartType of canvas', tt => {
 });
 
 test('Line renders a LineRenderable', tt => {
-    const canvas = shallow(<Line data={{}} xScale={() => undefined} yScale={() => undefined} xColumn="string" yColumn="string"/>);
+    const canvas = shallow(<Line
+            data={{}}
+            xScale={() => undefined}
+            scaledData={scaledData}
+            yScale={() => undefined}
+            height={100}
+            width={100}
+        />);
     tt.is(canvas.name(), 'LineRenderable');
 });
 

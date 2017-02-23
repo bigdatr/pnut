@@ -33,6 +33,8 @@ export default class Svg extends React.PureComponent {
         /** An object of props that will be spread onto the svg element. */
         svgProps: React.PropTypes.object,
 
+        stroke: React.PropTypes.string,
+
         className: React.PropTypes.string,
 
         /** The x position of the canvas */
@@ -52,6 +54,7 @@ export default class Svg extends React.PureComponent {
         return <svg
             overflow='visible'
             display='block'
+            stroke={this.props.stroke}
             className={this.props.className}
             width={this.props.width}
             height={this.props.height}

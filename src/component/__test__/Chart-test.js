@@ -40,83 +40,76 @@ const rows = [
 
 const data = new ChartData(rows, columns);
 
-test('Svg.getCanvasSize props and padding default to 0', tt => {
+//
+// canvas
+
+test('Chart.applyCanvasSize props and padding default to 0', tt => {
     const chart = shallow(<Chart width={0} height={0} data={data} xColumn="demand"><Line yColumn="supply"/></Chart>);
 
-    Object.values(chart.instance().getCanvasSize())
+    Object.values(chart.instance().applyCanvasSize({width: 0, height: 0}))
         .map(ii => {
             return tt.is(ii, 0);
         });
 });
 
-test('Chart.getAxisSize returns correct padding for each combination', tt => {
-    const chart = shallow(<Chart width={0} height={0} padding={[1,1,1,1]} data={data} xColumn="demand"><Line yColumn="supply"/></Chart>);
-    tt.deepEqual(chart.instance().getAxisSize(), {});
-    tt.is(chart.instance().getAxisSize('top').height, 1);
-    tt.is(chart.instance().getAxisSize('bottom').height, 1);
-    tt.is(chart.instance().getAxisSize('left').width, 1);
-    tt.is(chart.instance().getAxisSize('right').width, 1);
+test('Charts that are children will not return position offsets', tt => {
+    const chart = shallow(<Chart childChart width={0} height={0} data={data} xColumn="demand"><Line yColumn="supply"/></Chart>).instance();
+    tt.is(chart.applyCanvasSize({width: 0, height: 0}).left, 0);
+    tt.is(chart.applyCanvasSize({width: 0, height: 0}).right, 0);
+    tt.is(chart.applyCanvasSize({width: 0, height: 0}).bottom, 0);
+    tt.is(chart.applyCanvasSize({width: 0, height: 0}).top, 0);
 });
 
-test('Chart.getDefaultScale will default to a linearScale with no range or domain', tt => {
-    const testScale = (scale) => {
-        tt.is(scale.domain().length, 0);
-        tt.is(scale.range()[0], 0);
-        tt.is(scale.range()[1], 1);
+test('Charts that are children will be padded in', tt => {
+    const chart = shallow(<Chart padding={[10,10,10,10]} width={100} height={100} data={data} xColumn="demand">
+        <Chart/>
+    </Chart>);
+    tt.is(chart.childAt(0).props().width, 80);
+    tt.is(chart.childAt(0).props().height, 80);
+});
+
+
+
+//
+// scale updates
+
+test('if a scaleUpdate is given a function it will be called with the scale and props', tt => {
+    const xScaleUpdate = (scale, props) => {
+        tt.is(typeof scale, 'function');
+        tt.is(typeof props, 'object');
+        return scale;
     };
-    const chart = shallow(<Chart dimensions={['x', 'y', 'custom']} width={0} height={0} data={data} xColumn="demand">
-        <Line yColumn="supply" customScale={testScale}/>
-    </Chart>);
+    shallow(<Chart width={0} height={0} data={data} xColumn="demand" xScaleUpdate={xScaleUpdate}><Line yColumn="supply"/></Chart>);
 });
 
-test('if a scale is given a function it will be called with the scale and props', tt => {
-    const scale = spy(scale => scale);
-    shallow(<Chart width={0} height={0} data={data} xColumn="demand" xScale={scale}><Line yColumn="supply"/></Chart>).instance();
-    tt.true(typeof scale.firstCall.args[0] === 'function');
-    tt.true(typeof scale.firstCall.args[1] === 'object');
+test('if a scaleTypeName is provided to a child the scale will be recalculated', tt => {
+    const CustomLine = (props) => {
+        tt.not(props.xScale.bandwidth);
+        return <Line {...props} />;
+    };
+    shallow(<Chart width={0} height={0} data={data} xColumn="demand" ><CustomLine yColumn="supply" xScaleType="scalePoint" /></Chart>)
 });
 
-test('it puts axis types in thier spots', tt => {
-    const scale = spy(scale => scale);
-
-    function Axis() {
-        return <g/>;
-    }
-    Axis.chartType = 'axis';
-
-    const chart = shallow(<Chart width={0} height={0} data={data} xColumn="demand" xScale={scale}>
-        <Line yColumn="supply"/>
-        <Axis position="top" yColumn="supply" />
-    </Chart>);
-
-    tt.is(chart.children().at(0).children().at(0).name(), 'Axis');
-    tt.is(chart.children().at(1).children().at(0).name(), 'Line');
+test('if a scaleUpdate is provided to a child the scale will be recalculated', tt => {
+    const xScaleUpdate = (scale, props) => {
+        tt.is(typeof scale, 'function');
+        tt.is(typeof props, 'object');
+        return scale;
+    };
+    shallow(<Chart width={0} height={0} data={data} xColumn="demand" ><Line yColumn="supply" xScaleUpdate={xScaleUpdate}/></Chart>);
 });
 
-test('mixing continuous and discrete data in scales will thrown an error', tt => {
+//
+// misc
 
-    const chart = () => shallow(<Chart width={0} height={0} data={data} xColumn="demand">
-        <Line yColumn="supply"/>
-        <Line yColumn="month"/>
-    </Chart>);
-
-    tt.throws(chart);
-});
-
-test('if the dimension is not provided the scales domain will be empty', tt => {
-    const scale = scale => console.log(scale) || tt.is(scale.domain().length, 0);
-
+test('component will update dimensions and scaled data on componentWillReceiveProps', tt => {
     const chart = shallow(<Chart width={0} height={0} data={data} xColumn="month">
-        <Line />
-    </Chart>);
-});
-
-test('discrete domains will be the length of the data inserted', tt => {
-    const scale = scale => tt.is(scale.domain().length, 3);
-
-    shallow(<Chart width={0} height={0} data={data} xColumn="month" xScale={scale}>
         <Line yColumn="supply"/>
-    </Chart>);
+    </Chart>).instance();
+
+    var old = chart.dimensions;
+    chart.componentWillReceiveProps(chart.props);
+    tt.not(old, chart.dimensions);
 });
 
 
