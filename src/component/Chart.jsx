@@ -81,7 +81,7 @@ import type ChartRow from 'src/chartdata/ChartData';
  *          .domain([props.data.min('distance'), pp.data.max('distance')])
  *          .range([0, props.height]);
  * }
- * <Chart data={data} xColumn="time" yScale={customScale}>
+ * <Chart data={data} xColumn="time" yScaleUpdate={customScale}>
  *     <Line yColumn="distance"/>
  * </Chart>
  *
