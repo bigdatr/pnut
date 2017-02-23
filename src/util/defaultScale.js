@@ -32,11 +32,7 @@ export default function defaultScale(scaleProps: Object): Function {
         // the domain of continuous data can be a plain min max of columns
         ? [0, data.max(columns)]
         // the domain of non-continuous data has to be an array of all unique values of columns
-        : columns
-            .reduce((mergedColumns: *[], column: string): List => {
-                return mergedColumns.concat(data.getUniqueValues(column));
-            }, List())
-            .toArray();
+        : data.getUniqueValues(columns).toArray()
 
 
     switch(primitiveDimension) {

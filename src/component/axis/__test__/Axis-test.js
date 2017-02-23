@@ -109,6 +109,8 @@ test('getTextAnchorProp returns a valid value for left position', tt => {
 });
 
 
+//
+// positions
 
 test('getPointPosition returns corrent [x,y] values for top position', tt => {
     tt.deepEqual(topAxis.instance().getPointPosition('top', 50, 5), [50, -5]);
@@ -124,6 +126,22 @@ test('getPointPosition returns corrent [x,y] values for bottom position', tt => 
 
 test('getPointPosition returns corrent [x,y] values for left position', tt => {
     tt.deepEqual(topAxis.instance().getPointPosition('left', 50, 5), [-5, 50]);
+});
+
+test('a location prop will override the point postion default and use the opposite scale value', tt => {
+    const axis = shallow(<AxisRenderable
+        position="top"
+        xScale={scale}
+        yScale={scale}
+        scale={scale}
+        ticks={scale => scale.ticks(10)}
+        width={100}
+        height={100}
+        location={20}
+    />);
+
+    tt.deepEqual(axis.instance().getPointPosition('top', 50, 5), [50, 35]);
+    tt.deepEqual(axis.instance().getPointPosition('left', 50, 5), [35, 50]);
 });
 
 
