@@ -259,13 +259,13 @@ export class AxisRenderable extends React.PureComponent {
     ): Array<number> {
         switch(position) {
             case 'top':
-                return [distance, this.props.height - offset];
+                return [distance,  -offset];
             case 'right':
-                return [offset, this.props.height - distance];
+                return [this.props.width + offset, this.props.height - distance];
             case 'bottom':
-                return [distance, offset];
+                return [distance, this.props.height + offset];
             case 'left':
-                return [this.props.width - offset, this.props.height - distance];
+                return [-offset, this.props.height - distance];
             default:
                 throw new Error(`unknown position: ${position}`);
         }

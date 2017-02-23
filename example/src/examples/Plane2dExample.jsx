@@ -228,7 +228,7 @@ class Plane2dExample extends React.Component {
         const chartProps = {
             width: 800,
             height: 500,
-            padding: [64,64,64,64],
+            padding: [64,64,64,80],
             xColumn: "month",
             data: chartData
         }
@@ -245,6 +245,7 @@ class Plane2dExample extends React.Component {
 
                 <Chart {...chartProps}>
                     <Axis position='bottom' dimension="x"/>
+                    <Axis position='top' dimension="x"/>
 
                     <Chart>
                         <Gridlines/>
