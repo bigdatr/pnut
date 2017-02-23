@@ -111,19 +111,19 @@ test('getTextAnchorProp returns a valid value for left position', tt => {
 
 
 test('getPointPosition returns corrent [x,y] values for top position', tt => {
-    tt.deepEqual(topAxis.instance().getPointPosition('top', 50, 5), [50, 95]);
+    tt.deepEqual(topAxis.instance().getPointPosition('top', 50, 5), [50, -5]);
 });
 
 test('getPointPosition returns corrent [x,y] values for right position', tt => {
-    tt.deepEqual(topAxis.instance().getPointPosition('right', 50, 5), [5, 50]);
+    tt.deepEqual(topAxis.instance().getPointPosition('right', 50, 5), [105, 50]);
 });
 
 test('getPointPosition returns corrent [x,y] values for bottom position', tt => {
-    tt.deepEqual(topAxis.instance().getPointPosition('bottom', 50, 5), [50, 5]);
+    tt.deepEqual(topAxis.instance().getPointPosition('bottom', 50, 5), [50, 105]);
 });
 
 test('getPointPosition returns corrent [x,y] values for left position', tt => {
-    tt.deepEqual(topAxis.instance().getPointPosition('left', 50, 5), [95, 50]);
+    tt.deepEqual(topAxis.instance().getPointPosition('left', 50, 5), [-5, 50]);
 });
 
 
@@ -176,7 +176,7 @@ const axisWithCustomTicks = shallow(<AxisRenderable
 
 
 test('Axis allows custom tick props', tt => {
-    tt.is(scaleBandAxis.childAt(1).childAt(0).childAt(0).shallow().prop('stroke'), 'black');
+    tt.is(scaleBandAxis.childAt(1).childAt(0).childAt(0).shallow().prop('stroke'), 'inherit');
     tt.is(axisWithCustomTicks.childAt(1).childAt(0).childAt(0).shallow().prop('stroke'), 'red');
     tt.is(axisWithCustomTicks.childAt(1).childAt(1).childAt(0).shallow().prop('stroke'), 'blue');
 });
@@ -194,7 +194,7 @@ test('Axis allows custom axisLine props', tt => {
         .childAt(0)
         .shallow()
         .prop('stroke');
-    tt.is(getAxisStroke(scaleBandAxis), 'black');
+    tt.is(getAxisStroke(scaleBandAxis), 'inherit');
     tt.is(getAxisStroke(axisWithCustomTicks), 'red');
 });
 
