@@ -238,7 +238,7 @@ class ChartData extends Record({
     static isValueValid(value: *): boolean {
         return typeof value === "string"
             || typeof value === "number"
-            || (value instanceof Date && !isNaN(value.getTime())) // value is date, and date is not invalid
+            || ChartData.isValueDate(value)
             || value === null;
     }
 
@@ -255,8 +255,24 @@ class ChartData extends Record({
      */
 
     static isValueContinuous(value: *): boolean {
-        return typeof value === "number"
-            || (value instanceof Date && !isNaN(value.getTime())); // value is date, and date is not invalid
+        return typeof value === "number" || ChartData.isValueDate(value);
+    }
+
+    /**
+     * Check if the value is a date and that the date is not invalid.
+     *
+     * @param {*} value The value to check.
+     * @return {boolean} A boolean indicating of the value is a date.
+     *
+     * @name isValueDate
+     * @kind function
+     * @memberof ChartData
+     * @static
+     */
+
+    static isValueDate(value: *): boolean {
+        // value is date, and date is not invalid
+        return value instanceof Date && !isNaN(value.getTime());
     }
 
     /**

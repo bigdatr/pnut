@@ -1,6 +1,7 @@
 import {Line, ChartData, Chart, Scatter, Column, Axis, Gridlines} from 'pnut';
 import React from 'react';
 import {ElementQueryHock} from 'stampy';
+import moment from 'moment';
 
 import lineData from '../data/lineData';
 
@@ -18,14 +19,12 @@ class Plane2dExample extends React.Component {
             height: 500,
             padding: [64,64,64,80],
             xColumn: "month",
-            data: chartData,
-            xScaleType: 'scalePoint'
+            data: chartData
         }
 
-        const xScaleTicks = scale => scale.domain().filter((ii, key) => key % 4 === 0);
+        // const xScaleTicks = scale => scale;
 
         const gridlines = <Gridlines lineHorizontal={lightLine} lineVertical={lightLine}/>;
-
         return <div>
             <div style={{position: 'absolute', top: 0, left: 0}}>
 
@@ -34,14 +33,14 @@ class Plane2dExample extends React.Component {
                     yScaleUpdate={scale => scale.domain([-chartData.max('supply'), chartData.max('supply')])}
                 >
                     {gridlines}
-                    <Axis location={0} ticks={xScaleTicks} position='top' dimension="x" />
-                    <Axis location={'2015-05-01'} position='left' dimension="y" yColumn="supply"/>
+                    <Axis location={0} position='top' dimension="x" />
+                    <Axis location={moment().subtract(1, 'year').toDate()} position='left' dimension="y" yColumn="supply"/>
                     <Line yColumn="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
                 </Chart>
 
                 <Chart {...chartProps}>
                     {gridlines}
-                    <Axis ticks={xScaleTicks} position='bottom' dimension="x" location={chartData.median('supply')} />
+                    <Axis position='bottom' dimension="x" location={chartData.median('supply')} />
                     <Axis position='left' dimension="y" yColumn="supply"/>
                     <Line yColumn="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
                 </Chart>
@@ -52,12 +51,10 @@ class Plane2dExample extends React.Component {
                         <Axis position='left' dimension="y"/>
                         <Line />
                         <Scatter />
-                        <Column />
                     </Chart>
                     <Chart yColumn="demand">
                         <Axis position='right' dimension="y"/>
                         <Scatter />
-                        <Column />
                         <Line />
                     </Chart>
                 </Chart>

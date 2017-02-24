@@ -3,7 +3,8 @@ import React from 'react';
 import {shallow} from 'enzyme';
 import sinon from 'sinon';
 import Axis,{AxisRenderable} from '../Axis';
-import {scaleLinear, scaleBand} from 'd3-scale';
+import ChartData from '../../../chartdata/ChartData';
+import {scaleLinear, scaleBand, scaleTime} from 'd3-scale';
 
 const savedErrorLog = console.error;
 
@@ -238,6 +239,21 @@ test('Axis with discrete scales will use domain for ticks. Other will use ticks'
 test('Axis renders a AxisRenderable', tt => {
     const canvas = shallow(<Axis data={{}} scale={() => undefined} />);
     tt.is(canvas.name(), 'AxisRenderable');
+});
+
+
+test('Axis with a time scale will default text to YYYY-MM-DD', tt => {
+    const rows = [
+        {foo: new Date('1970-01-01')},
+        {foo: new Date('1970-01-02')},
+        {foo: new Date('1970-01-03')}
+    ];
+
+    const canvas = shallow(<AxisRenderable
+        scale={scaleTime().domain([rows[0].foo, rows[2].foo])}
+        position="top"
+    />);
+    tt.is(canvas.childAt(1).childAt(0).childAt(1).shallow().text(), '1970-01-01');
 });
 
 
