@@ -35,7 +35,7 @@ const rows = [
         supply: 38
     },
     {
-        demand: 707,
+        demand: 500,
         property_type: "Apartment",
         supply: 264
     },
@@ -47,7 +47,7 @@ const rows = [
     {
         demand: 4544,
         property_type: "House",
-        supply: 2151
+        supply: 300
     },
     {
         demand: 2560,

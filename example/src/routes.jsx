@@ -10,6 +10,7 @@ import ColumnExample from 'examples/ColumnExample';
 import BarExample from 'examples/BarExample';
 import ScatterExample from 'examples/ScatterExample';
 import AxisExample from 'examples/AxisExample';
+import PieExample from 'examples/PieExample';
 import Plane2dExample from 'examples/Plane2dExample';
 
 const routes = <Route component={AppHandler} path="/">
@@ -25,6 +26,7 @@ const routes = <Route component={AppHandler} path="/">
         <Route path="Bar" component={BarExample}/>
         <Route path="Column" component={ColumnExample}/>
         <Route path="Scatter" component={ScatterExample}/>
+        <Route path="Pie" component={PieExample}/>
         <Route path="Axis" component={AxisExample}/>
     </Route>
 

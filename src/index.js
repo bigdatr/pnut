@@ -18,3 +18,5 @@ export {default as Area} from './component/canvas/AreaRenderable';
 export {AreaRenderable} from './component/canvas/AreaRenderable';
 export {default as Scatter} from './component/canvas/ScatterRenderable';
 export {ScatterRenderable} from './component/canvas/ScatterRenderable';
+export {default as Pie} from './component/canvas/PieRenderable';
+export {PieRenderable} from './component/canvas/PieRenderable';
