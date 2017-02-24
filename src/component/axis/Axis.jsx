@@ -1,6 +1,7 @@
 // @flow
 
 import React from 'react';
+import ChartData from '../../chartdata/ChartData';
 
 function DefaultAxisLine(props: Object): React.Element<any> {
     return <line
@@ -51,7 +52,7 @@ export class AxisRenderable extends React.PureComponent {
         axisLineWidth: 1,
         overlap: 0,
         text: DefaultText,
-        textFormat: (text) => text,
+        textFormat: (text) => ChartData.isValueDate(text) ? text.toISOString().slice(0,10) : text,
         textPadding: 6,
         textProps: {},
         tickLine: DefaultTick,
@@ -67,7 +68,8 @@ export class AxisRenderable extends React.PureComponent {
         /** Domain value of opposite scale at which to render the axis */
         location: React.PropTypes.oneOfType([
             React.PropTypes.number,
-            React.PropTypes.string
+            React.PropTypes.string,
+            React.PropTypes.instanceOf(Date)
         ]),
 
         /** Custom axisLine renderer */
