@@ -91,3 +91,12 @@ test('ChartData.interpolateDiscrete correctly interpolates values', tt => {
         'interpolating works with dates'
     );
 });
+
+
+test('ChartData.isValueTime returns true for valid date', tt => {
+    tt.true(ChartData.isValueDate(new Date('2017-01-01')), 'date is date');
+    tt.false(ChartData.isValueDate(new Date('invalid date')), 'invalid date is not date');
+    tt.false(ChartData.isValueDate(1), 'number is not date');
+    tt.false(ChartData.isValueDate('1'), 'string is not date');
+    tt.false(ChartData.isValueDate({}), 'object is not date');
+});
