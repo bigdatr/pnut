@@ -5,6 +5,7 @@ import AppHandler from 'components/AppHandler';
 import ErrorHandler from 'components/ErrorHandler';
 import ContentsPage from 'components/ContentsPage';
 import LineExample from 'examples/LineExample';
+import GraphExample from 'examples/GraphExample';
 import AreaExample from 'examples/AreaExample';
 import ColumnExample from 'examples/ColumnExample';
 import BarExample from 'examples/BarExample';
@@ -21,6 +22,7 @@ const routes = <Route component={AppHandler} path="/">
 
     <Route path="canvas">
         <Route path="Line" component={LineExample}/>
+        <Route path="Graph" component={GraphExample}/>
         <Route path="Area" component={AreaExample}/>
         <Route path="Bar" component={BarExample}/>
         <Route path="Column" component={ColumnExample}/>

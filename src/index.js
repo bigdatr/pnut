@@ -14,6 +14,8 @@ export {default as Gridlines} from './component/canvas/Gridlines';
 export {GridlinesRenderable} from './component/canvas/Gridlines';
 export {default as Line} from './component/canvas/LineRenderable';
 export {LineRenderable} from './component/canvas/LineRenderable';
+export {default as Graph} from './component/canvas/GraphRenderable';
+export {GraphRenderable} from './component/canvas/GraphRenderable';
 export {default as Area} from './component/canvas/AreaRenderable';
 export {AreaRenderable} from './component/canvas/AreaRenderable';
 export {default as Scatter} from './component/canvas/ScatterRenderable';

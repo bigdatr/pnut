@@ -21,18 +21,18 @@ export default function defaultScale(scaleProps: Object): Function {
 
 
     // are any of the columns continuous.
-    const continuous = isContinuous(columns, data).get(true);
+    const continuous = true;//isContinuous(columns, data).get(true);
 
     const scaleName = scaleType || (continuous ? 'scaleLinear' : 'scaleBand');
 
     // if the size is greater than one we have multiple data types
-    if(isContinuous(columns, data).size > 1) {
-        throw new Error(`A scale cannot share continuous and non continuous data: ${columns.join(', ')}`);
-    }
+    // if(isContinuous(columns, data).size > 1) {
+    //     throw new Error(`A scale cannot share continuous and non continuous data: ${columns.join(', ')}`);
+    // }
 
     const domainArray = continuous
         // the domain of continuous data can be a plain min max of columns
-        ? [0, data.max(columns)]
+        ? [0, 1]//data.max(columns)]
         // the domain of non-continuous data has to be an array of all unique values of columns
         : data.getUniqueValues(columns).toArray();
 

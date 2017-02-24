@@ -155,7 +155,6 @@ class Chart extends Component {
         this.scaledData = this.getScaledData(nextProps);
     }
     getDimensions(props: Object): Object {
-
         // collect the children propTypes and merge chartType
         const childrenProps = Children.toArray(props.children)
             .map((child: Element<any>): Object => {
@@ -224,6 +223,10 @@ class Chart extends Component {
             }, Map());
     }
     getScaledData(props: Object): List {
+        if(
+            typeof props.data !== 'object' &&
+            typeof props.frame !== 'object'
+        ) return null;
         const data = props.frame || props.data;
         return data.rows.map((row: ChartRow): Map => {
             return this.dimensions.map((dimension: Map, dimensionName: string): Map => {
@@ -302,18 +305,22 @@ class Chart extends Component {
                 return (index: number, key: string): * => this.scaledData.getIn([index, dimensionName, key]);
             });
 
-        const scaledData = inheritedProps.get('frame', inheritedProps.get('data')).rows
-            // map rows
-            .map((row: ChartRow, index: number): List<Object> => {
-                // then dimensions
-                return this.dimensions
-                    .map((dimension: Map, dimensionName: string): Map => {
-                        const appliedDimension = applyDimension(dimension, inheritedProps);
-                        return getters.get(dimensionName)(index, appliedDimension.get('columnName'));
-                    })
-                    .toObject();
-            })
-            .toArray();
+        const inheritedData = inheritedProps.get('frame', inheritedProps.get('data'));
+
+        const scaledData = typeof inheritedData === 'object'
+            ? inheritedData.rows
+                // map rows
+                .map((row: ChartRow, index: number): List<Object> => {
+                    // then dimensions
+                    return this.dimensions
+                        .map((dimension: Map, dimensionName: string): Map => {
+                            const appliedDimension = applyDimension(dimension, inheritedProps);
+                            return getters.get(dimensionName)(index, appliedDimension.get('columnName'));
+                        })
+                        .toObject();
+                })
+                .toArray()
+            : null;
 
         return inheritedProps
             .set('scaledData', scaledData)
