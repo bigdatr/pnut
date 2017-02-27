@@ -54,7 +54,7 @@ type RowMapper = (row: ChartRow) => ChartRow;
  * or an `Array` of either `Map`s or `Object`s.
  *
  * @callback RowUpdater
- * @param {List<ChartRow>} row The `rows` of the current `ChartData`.
+ * @param {List<ChartRow>} rows The `rows` of the current `ChartData`.
  * @return {Array<ChartRowDefinition>|List<ChartRowDefinition>} The replacement `rows`.
  */
 
@@ -66,7 +66,7 @@ type RowMapper = (row: ChartRow) => ChartRow;
  * or an `Array` of either `Map`s or `Object`s.
  *
  * @callback ColumnUpdater
- * @param {List<ChartColumnDefinition>} row A `List` of `Map`s representing the columns in the current `ChartData`.
+ * @param {List<ChartColumnDefinition>} columns A `List` of `Map`s representing the columns in the current `ChartData`.
  * @return {List<ChartColumnDefinition>} The replacement columns.
  */
 
