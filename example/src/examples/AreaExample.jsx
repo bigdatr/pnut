@@ -12,7 +12,6 @@ class AreaExample extends React.Component {
             data={data}
             xColumn='month'
             yColumn='supply'
-            xScaleType='scalePoint'
         >
             <Area curveSelector={curves => curves.curveMonotoneX}/>
         </Chart>;

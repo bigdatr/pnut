@@ -12,7 +12,6 @@ class LineExample extends React.Component {
             data={data}
             xColumn='month'
             yColumn='supply'
-            xScaleType='scalePoint'
         >
             <Line />
         </Chart>;
