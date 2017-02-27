@@ -99,6 +99,14 @@ test('if a scaleUpdate is provided to a child the scale will be recalculated', t
     shallow(<Chart width={0} height={0} data={data} xColumn="demand" ><Line yColumn="supply" xScaleUpdate={xScaleUpdate}/></Chart>);
 });
 
+
+test('if a scaleUpdate is provided to a child the custom scale will be passed to the child renderable', tt => {
+    const chart = shallow(<Chart width={0} height={0} data={data} xColumn="month" >
+        <Line yColumn="supply" xScaleUpdate={(scale) => scale.padding(0.1)}/>
+    </Chart>);
+    tt.is(chart.childAt(0).childAt(0).prop('xScale').padding(), 0.1);
+});
+
 //
 // misc
 
