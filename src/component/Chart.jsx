@@ -7,7 +7,7 @@ import applyScaledValue from '../util/applyScaledValue';
 import applyPrimitiveDimensionProps from '../util/applyPrimitiveDimensionProps';
 import defaultScale from '../util/defaultScale';
 import memoize from '../util/memoize';
-import {SpruceClassName} from 'stampy';
+import SpruceClassName from 'stampy/lib/util/SpruceClassName';
 
 import type ChartRow from 'src/chartdata/ChartData';
 
