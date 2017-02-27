@@ -97,19 +97,23 @@ export class PieRenderable extends React.PureComponent {
         diameter: number
     ): React.Element<any> {
         const {arc: Arc} = this.props;
+        const firstArcStartAngle = this.props.arcScale.range()[0];
 
-        const startAngle = this.props.scaledData
-            .slice(0, index)
-            .map(row => row.arc)
-            .reduce((a,b) => a + b, 0);
+        const startAngle = index === 0
+            ? this.props.arcScale.range()[0]
+            : this.props.scaledData
+                .slice(0, index)
+                .map(row => row.arc)
+                .reduce((a,b) => a + (b - firstArcStartAngle), firstArcStartAngle);
 
         const arcGenerator = arc()
             .innerRadius(0)
             .outerRadius(diameter / 2)
             .startAngle(startAngle)
-            .endAngle(startAngle + row.arc);
+            .endAngle(startAngle + (row.arc - firstArcStartAngle));
 
         return <Arc
+            key={row.category}
             radius={diameter / 2}
             arcGenerator={arcGenerator}
             dimensions={row}
@@ -121,6 +125,10 @@ export class PieRenderable extends React.PureComponent {
     }
 
     render(): ?React.Element<any> {
+        // console.log(this.props.arcScale.range());
+        // console.log(this.props.arcScale.domain());
+        // console.log(this.props.scaledData);
+
         const {arcScale, categoryScale} = this.props;
         const diameter = Math.min(this.props.height, this.props.width);
 

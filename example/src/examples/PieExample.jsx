@@ -3,8 +3,35 @@ import React from 'react';
 import {scaleLinear, scalePoint} from 'd3-scale';
 import {ElementQueryHock} from 'stampy';
 import data from '../data/columnData';
+import {easeBounce} from 'd3-ease';
 
-class LineExample extends React.Component {
+class PieExample extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            endAngle: 0
+        };
+        this.tick = this.tick.bind(this);
+    }
+
+    componentDidMount() {
+        this.tick();
+    }
+
+    tick() {
+        const increment = 0.01;
+        if(this.state.endAngle + increment > 1) {
+            this.setState({
+                endAngle: 1
+            })
+        }
+        this.setState({
+            endAngle: this.state.endAngle += increment
+        });
+
+        window.requestAnimationFrame(this.tick);
+    }
+
     render() {
         const colors = [
             "#7fc97f",
@@ -16,8 +43,9 @@ class LineExample extends React.Component {
             "#bf5b17",
             "#666666"
         ];
+
         return  <Chart
-            dimensions={['arc', 'category', 'radius']}
+            dimensions={['arc', 'category']}
             width={this.props.eqWidth}
             height={this.props.eqHeight}
             data={data}
@@ -28,19 +56,12 @@ class LineExample extends React.Component {
             arcScaleType='scaleLinear'
             arcScaleUpdate={scale => scale
                 .domain([0, data.sum('demand')])
-                .range([0, Math.PI * 2])
+                .range([0, easeBounce(this.state.endAngle) * Math.PI * 2])
             }
-            radiusColumn='supply'
-            radiusScaleUpdate={scale => scale.range([Math.min(this.props.eqHeight, this.props.eqWidth) / 4, Math.min(this.props.eqHeight, this.props.eqWidth) / 2])}
             arc={(props) => {
                 return <path
                     {...props.arcProps}
                     stroke='none'
-                    d={
-                        props.arcGenerator
-                            .outerRadius(props.dimensions.radius)
-                            .cornerRadius(10)()
-                    }
                 />
             }}
         >
@@ -49,7 +70,7 @@ class LineExample extends React.Component {
     }
 }
 
-const HockedExample = ElementQueryHock([])(LineExample);
+const HockedExample = ElementQueryHock([])(PieExample);
 
 export default () => {
     return <div
