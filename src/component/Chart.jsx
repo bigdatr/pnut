@@ -219,6 +219,7 @@ class Chart extends Component {
                     }, Map())
                 });
 
+
                 // group children by their scaleGroup name (defaults to dimensionName)
                 return groups.set(dimensionName, dimension);
             }, Map());
@@ -270,9 +271,8 @@ class Chart extends Component {
             ...props
         }));
 
-        const getters = this.dimensions
+        const customScales = this.dimensions
             .map((dimension: Map, dimensionName: string): Map => {
-
                 const {scaleUpdate, scaleTypeName} = applyDimension(dimension, Map(props)).toObject();
 
                 // if child has defined either a custom scale or scaleType
@@ -286,18 +286,25 @@ class Chart extends Component {
                         data: inheritedProps.get('data')
                     });
 
+                    // if custom scale is a function apply pass the default scale through it.
+                    return typeof scaleUpdate === 'function' ? scaleUpdate(scale.copy(), inheritedProps.toObject()) : scale;
+                } else {
+                    return null;
+                }
+            });
 
+        const getters = this.dimensions
+            .map((dimension: Map, dimensionName: string): Map => {
+                const customScale = customScales.get(dimensionName);
+
+                if(customScale) {
                     return (index: number, key: string): * => {
                         const value = inheritedProps.get('frame', inheritedProps.get('data')).getIn(['rows', index, key]);
-
-                        // if custom scale is a function apply pass the default scale through it.
-                        const customScale = typeof scaleUpdate === 'function' ? scaleUpdate(scale.copy(), inheritedProps.toObject()) : scale;
-
                         return applyScaledValue(dimensionName, customScale, value, inheritedProps.toObject());
                     };
                 }
 
-                // defualt getter just gets from scaledData via a index => dimensionName => key
+                // default getter just gets from scaledData via a index => dimensionName => key
                 // the primitive dimension quirks have already been applied via applyScaledValue
                 return (index: number, key: string): * => this.scaledData.getIn([index, dimensionName, key]);
             });
@@ -320,7 +327,8 @@ class Chart extends Component {
             .set('childChart', true)
             .merge(this.dimensions.mapEntries((entries: Array<any>): Array<any> => {
                 const [dimensionName, dimension] = entries;
-                return [`${dimensionName}Scale`, dimension.get('scales').first()];
+                const customScale = customScales.get(dimensionName);
+                return [`${dimensionName}Scale`, customScale || dimension.get('scales').first()];
             }))
             .toObject();
     }

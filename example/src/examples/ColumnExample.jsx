@@ -11,10 +11,10 @@ class ColumnExample extends React.Component {
             height={this.props.eqHeight}
             data={data}
             xColumn='property_type'
-            yColumn='demand'
-            xScaleUpdate={scale => scale.padding(0.1)}
         >
-            <Column/>
+            <Column yColumn='demand' columnProps={{fill: 'blue', stroke: 'none'}} xScaleUpdate={scale => scale.padding(0.7).align(0.233333333)}/>
+            <Column yColumn='supply' columnProps={{fill: 'red',  stroke: 'none'}} xScaleUpdate={scale => scale.padding(0.7).align(.466666667)}/>
+            <Column yColumn='other' columnProps={{fill: 'green',  stroke: 'none'}} xScaleUpdate={scale => scale.padding(0.7).align(0.7)}/>
         </Chart>;
     }
 }
