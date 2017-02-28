@@ -108,6 +108,22 @@ const columns = [
 ];
 
 //
+// empty
+//
+
+test('ChartData Record can be created with nothing passed in', tt => {
+    const data = new ChartData();
+    tt.is(data.rows.size, 0);
+    tt.is(data.columns.size, 0);
+});
+
+test('ChartData Record can be created with only rows passed in', tt => {
+    const data = new ChartData(rows);
+    tt.deepEqual(data.rows, fromJS(rows));
+    tt.is(data.columns.size, 0);
+});
+
+//
 // rows
 //
 

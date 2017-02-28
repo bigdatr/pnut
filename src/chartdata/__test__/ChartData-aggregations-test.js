@@ -223,6 +223,40 @@ test('ChartData.max should return null when provided a column that doesnt exist'
     tt.is(data.max('not here'), null);
 });
 
+
+// extent
+
+test('ChartData.extent should return the min and max value for a column', tt => {
+    const data = new ChartData(rows, columns);
+    tt.deepEqual(data.extent('supply'), [12, 34]);
+});
+
+test('ChartData.extent should return the min and max value for multiple columns', tt => {
+    const data = new ChartData(rows, columns);
+    tt.deepEqual(data.extent(['supply', 'demand']), [4, 99]);
+});
+
+test('ChartData.extent should return the min and max value for a column, even with null values', tt => {
+    const data = new ChartData(rowsWithNulls, columns);
+    tt.deepEqual(data.extent('supply'), [32, 34]);
+});
+
+test('ChartData.extent should return the min and max value for a column, even with strings', tt => {
+    const data = new ChartData(rowsMonths, columnsMonths);
+    tt.deepEqual(data.extent('month'), ["2014-01-01", "2016-12-01"]);
+});
+
+test('ChartData.extent should return [null, null] when there are no values to compare', tt => {
+    const data = new ChartData(allNulls, columns);
+    tt.deepEqual(data.extent('supply'), [null, null]);
+});
+
+test('ChartData.extent should return [null, null] when provided a column that doesnt exist', tt => {
+    const data = new ChartData(rows, columns);
+    tt.deepEqual(data.extent('not here'), [null, null]);
+});
+
+
 // sum
 
 test('ChartData.sum should return the sum of values of a column', tt => {
