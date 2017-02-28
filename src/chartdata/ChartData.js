@@ -101,12 +101,12 @@ class ChartData extends Record({
      * Creates a ChartData Record. Data passed in `rows` will be sanitized and any invalid value
      * types will be replaced with `null`.
      *
-     * @param {Array<Object<string, ChartScalar>>|List<Map<string, ChartScalar>>} rows
+     * @param {Array<Object<string, ChartScalar>>|List<Map<string, ChartScalar>>} [rows = []]
      * An `Array` or `List` of data rows, where each row is an `Object` or `Map` that contains data
      * for a row. Once passed into a `ChartData` constructor these rows are replaced with equivalent
      * Immutable `Map`s.
      *
-     * @param {Array<ChartColumnDefinition>|List<ChartColumnDefinition>} columns
+     * @param {Array<ChartColumnDefinition>|List<ChartColumnDefinition>} [columns = []]
      * An `Array` or `List` of columns. These enable you to nominate labels for your columns,
      * and provide a default column order.
      *
@@ -161,8 +161,8 @@ class ChartData extends Record({
      */
 
     constructor(
-        rows: Array<ChartRowDefinition>|List<ChartRowDefinition>,
-        columns: Array<ChartColumnDefinition>|List<ChartColumnDefinition>|OrderedMap<string,ChartColumn>
+        rows: Array<ChartRowDefinition>|List<ChartRowDefinition> = [],
+        columns: Array<ChartColumnDefinition>|List<ChartColumnDefinition>|OrderedMap<string,ChartColumn> = []
     ) {
         const chartDataRows: List<ChartRow> = ChartData._createRows(rows);
         const chartDataColumns: OrderedMap<string,ChartColumn> = ChartData._createColumns(
@@ -891,6 +891,29 @@ class ChartData extends Record({
 
     max(columns: ChartColumnArg): ?ChartScalar {
         return this._aggregation("max", columns);
+    }
+
+    /**
+     * Gets the minimum and maximum non-null value in a column, or `Array` or `List`, of columns,
+     * returned as an array of `[min, max]`.
+     *
+     * @param {string|Array<string>|List<string>} columns
+     * The names of one or more columns to perform the operation on.
+     *
+     * @return {Array<number|null>} An array with two elements, the minimum and maximum value respectively.
+     * Both of these elements will be null if no mininum or maximum value could be determined.
+     *
+     * @name extent
+     * @kind function
+     * @inner
+     * @memberof ChartData
+     */
+
+    extent(columns: ChartColumnArg): Array<?ChartScalar> {
+        return [
+            this._aggregation("min", columns),
+            this._aggregation("max", columns)
+        ];
     }
 
     /**
