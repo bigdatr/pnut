@@ -1,4 +1,4 @@
-import {Line, ChartData, Chart, Scatter, Column, Axis, Gridlines} from 'pnut';
+import {Line, ChartData, Chart, Scatter, Column, Axis, Gridlines, Benchmark} from 'pnut';
 import React from 'react';
 import {ElementQueryHock} from 'stampy';
 import moment from 'moment';
@@ -33,7 +33,9 @@ class Plane2dExample extends React.Component {
                     yScaleUpdate={scale => scale.domain([-chartData.max('supply'), chartData.max('supply')])}
                 >
                     {gridlines}
-                    <Axis location={0} position='top' dimension="x" />
+                    <Benchmark labelOffset={[0, -20]} label="Rad Stuff" location={2000} dimension="y" />
+                    <Benchmark labelOffset={[0, -20]} label="Rad Stuff" location={moment().subtract(2, 'year').toDate()} dimension="x" />
+                    <Axis position='bottom' dimension="x" />
                     <Axis location={moment().subtract(1, 'year').toDate()} position='left' dimension="y" yColumn="supply"/>
                     <Line yColumn="supply" pathProps={{stroke: 'red', strokeWidth: 2}}/>
                 </Chart>
