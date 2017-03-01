@@ -18,3 +18,5 @@ export {default as Area} from './component/canvas/AreaRenderable';
 export {AreaRenderable} from './component/canvas/AreaRenderable';
 export {default as Scatter} from './component/canvas/ScatterRenderable';
 export {ScatterRenderable} from './component/canvas/ScatterRenderable';
+export {default as Histogram} from './component/canvas/HistogramRenderable';
+export {HistogramRenderable} from './component/canvas/HistogramRenderable';

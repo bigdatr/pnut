@@ -2,6 +2,15 @@
 
 import * as ImmutableMath from 'immutable-math';
 import {interpolate} from 'd3-interpolate';
+import {
+    quantile,
+    variance,
+    deviation,
+    histogram,
+    thresholdFreedmanDiaconis,
+    thresholdScott,
+    thresholdSturges
+} from 'd3-array';
 
 import {
     fromJS,
@@ -235,11 +244,19 @@ class ChartData extends Record({
      * @static
      */
 
-    static isValueValid(value: *): boolean {
+    static isValueValid(value: *, allowTuple: boolean = true): boolean {
         return typeof value === "string"
             || typeof value === "number"
             || ChartData.isValueDate(value)
-            || value === null;
+            || value === null
+            || ( // Range tuple
+                allowTuple
+                && List.isList(value)
+                && value.size === 2
+                && ChartData.isValueValid(value.get(0), false)
+                && ChartData.isValueValid(value.get(1), false)
+                && value.get(0) <= value.get(1)
+            );
     }
 
     /**
@@ -432,11 +449,12 @@ class ChartData extends Record({
             return null;
         }
 
-        return this._memoize(`${operation}.${columnList.join(',')}`, (): ?ChartScalar => {
-            const result: number = this._allValuesForColumns(columnList)
-                .filter(val => val != null)
-                .update(ImmutableMath[operation]());
+        const allValuesForColumns = this._memoize(`allValuesForColumns.${columnList.join(',')}`, () => {
+            return this._allValuesForColumns(columnList).filter(val => val != null);
+        });
 
+        return this._memoize(`${operation}.${columnList.join(',')}`, (): ?ChartScalar => {
+            const result: number = allValuesForColumns.update(ImmutableMath[operation]());
             return typeof result != "string" && isNaN(result) ? null : result;
         });
     }
@@ -969,6 +987,160 @@ class ChartData extends Record({
     median(columns: ChartColumnArg): ?ChartScalar {
         return this._aggregation("median", columns);
     }
+
+    quantile(columns: ChartColumnArg, p: number): ?ChartScalar {
+        const columnList: List<string> = this._columnArgList(columns);
+        if(this._columnListError(columnList)) {
+            return null;
+        }
+
+        const allValuesForColumns = this._memoize(`allValuesForColumns.${columnList.join(',')}`, () => {
+            return this._allValuesForColumns(columnList).filter(val => val != null);
+        });
+
+
+        return quantile(allValuesForColumns.sort().toArray(), p);
+    }
+
+    summary(columns: ChartColumnArg): ?FiveNumberSummary {
+        return Map({
+            min: this.min(columns),
+            lowerQuartile: this.quantile(columns, 0.25),
+            median: this.median(columns),
+            upperQuartile: this.quantile(columns, 0.75),
+            max: this.max(columns)
+        });
+    }
+
+    variance(columns: ChartColumnArg): ?ChartScalar {
+        const columnList: List<string> = this._columnArgList(columns);
+        if(this._columnListError(columnList)) {
+            return null;
+        }
+
+        const allValuesForColumns = this._memoize(`allValuesForColumns.${columnList.join(',')}`, () => {
+            return this._allValuesForColumns(columnList).filter(val => val != null);
+        });
+
+        return  this._memoize(`variance.${columnList.join(',')}`, () => {
+            return variance(allValuesForColumns.toArray());
+        });
+    }
+
+    deviation(columns: ChartColumnArg): ?ChartScalar {
+        const columnList: List<string> = this._columnArgList(columns);
+        if(this._columnListError(columnList)) {
+            return null;
+        }
+
+        const allValuesForColumns = this._memoize(`allValuesForColumns.${columnList.join(',')}`, () => {
+            return this._allValuesForColumns(columnList).filter(val => val != null);
+        });
+
+        return this._memoize(`deviation.${columnList.join(',')}`, () => {
+            return deviation(allValuesForColumns.toArray());
+        });
+    }
+
+    _defaultRowMapper(row) {
+        return Map();
+    }
+
+    _defaultColumnMapper(column) {
+        return column;
+    }
+
+
+    // @TODO need to handle date binning?
+    bin(
+        column,
+        thresholds,
+        domain,
+        columnMapper = this._defaultColumnMapper,
+        rowMapper= this._defaultRowMapper
+    ): ?ChartData {
+        var start = performance.now();
+        const columnList: List<string> = this._columnArgList(column);
+        if(this._columnListError(columnList)) {
+            return null;
+        }
+
+        const allValues = this._memoize(`allValuesForColumns.${column}`, () => {
+            return this._allValuesForColumns(columnList).filter(val => val != null);
+        });
+
+        const allValuesAsArray = allValues.toArray();
+
+        const isDate = ChartData.isValueDate(allValuesAsArray[0]);
+
+        const min = this.min(column);
+        const max = this.max(column);
+
+        const binThresholds = thresholds == null
+            ? thresholdSturges(allValuesAsArray)
+            : typeof thresholds === 'function'
+                ? thresholds(allValues, min, max, {
+                    freedmanDiaconis: thresholdFreedmanDiaconis,
+                    scott: thresholdScott,
+                    sturges: thresholdSturges
+                })
+                : thresholds;
+
+        const binDomain = domain == null
+            ? [min, max]
+            : domain;
+
+        const bins = histogram()
+            .thresholds(binThresholds)
+            .domain(binDomain)(allValuesAsArray);
+
+        const binnedRows = this.rows
+            .groupBy(row => {
+                const preBinnedValue = row.get(column);
+                return bins.reduce((matchedIndex, bin, binIndex) => {
+                    if(typeof matchedIndex === 'number') return matchedIndex;
+                    return bin.indexOf(preBinnedValue) !== -1 ? binIndex : matchedIndex;
+                }, null);
+            })
+            .sortBy(
+                (binRows, binIndex) => binIndex,
+                (binIndexA, binIndexB) => binIndexA - binIndexB
+            )
+            .toList()
+            .map((binRows, binIndex) => {
+                const blankRow = binRows.get(0).map((value, rowColumn) => {
+                    return rowColumn === column ? null : List();
+                });
+
+                return binRows
+                    .reduce((aggRow, row) => {
+                        return aggRow
+                            .mergeWith((prev, next) => prev ? prev.push(next) : prev, row);
+                    }, blankRow)
+                    .filter(val => !!val)
+            });
+
+        const rows = binnedRows
+            .map(rowMapper)
+            .map((row, binIndex) => row.merge({
+                [column]: isDate
+                    ? List([new Date(bins[binIndex].x0), new Date(bins[binIndex].x1)])
+                    : List([bins[binIndex].x0, bins[binIndex].x1])
+            }));
+
+        // @TODO this is duplicated from above - combine them together
+        const columnDefinitions: List<Map> = this.columns
+            .toList()
+            .map(col => col.toMap());
+
+        const columns = columnDefinitions.map(columnMapper);
+
+        const chartData = new ChartData(rows, columns)
+        return chartData;
+
+    }
+
+
 }
 
 export default ChartData;

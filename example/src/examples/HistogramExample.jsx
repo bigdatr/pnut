@@ -1,29 +1,22 @@
-import {Line, Svg, Chart} from 'pnut';
+import {Histogram, Svg, Chart} from 'pnut';
 import React from 'react';
-import {scaleLinear, scalePoint} from 'd3-scale';
 import {ElementQueryHock} from 'stampy';
-import data from '../data/lineData';
+import data from '../data/columnData';
 
-class LineExample extends React.Component {
+class HistogramExample extends React.Component {
     render() {
-        const binnedData = data.bin('month', null, null, undefined, row => {
-            return row.map(value => value.reduce((a,b) => a + b, 0));
-        });
-
-
         return  <Chart
             width={this.props.eqWidth}
             height={this.props.eqHeight}
             data={data}
-            xColumn='month'
-            yColumn='supply'
+            xColumn='property_type'
         >
-            <Line />
+            <Histogram yColumn='demand'/>
         </Chart>;
     }
 }
 
-const HockedExample = ElementQueryHock([])(LineExample);
+const HockedExample = ElementQueryHock([])(HistogramExample);
 
 export default () => {
     return <div

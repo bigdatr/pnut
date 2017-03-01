@@ -9,6 +9,7 @@ import AreaExample from 'examples/AreaExample';
 import ColumnExample from 'examples/ColumnExample';
 import BarExample from 'examples/BarExample';
 import ScatterExample from 'examples/ScatterExample';
+import HistogramExample from 'examples/HistogramExample';
 import AxisExample from 'examples/AxisExample';
 import Plane2dExample from 'examples/Plane2dExample';
 
@@ -25,6 +26,7 @@ const routes = <Route component={AppHandler} path="/">
         <Route path="Bar" component={BarExample}/>
         <Route path="Column" component={ColumnExample}/>
         <Route path="Scatter" component={ScatterExample}/>
+        <Route path="Histogram" component={HistogramExample}/>
         <Route path="Axis" component={AxisExample}/>
     </Route>
 
