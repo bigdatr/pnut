@@ -12,6 +12,8 @@ import SpruceClassName from 'stampy/lib/util/SpruceClassName';
 
 import type ChartRow from 'src/chartdata/ChartData';
 
+// TODO: memoize
+
 /**
  * @component
  *
