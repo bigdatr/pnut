@@ -244,19 +244,11 @@ class ChartData extends Record({
      * @static
      */
 
-    static isValueValid(value: *, allowTuple: boolean = true): boolean {
+    static isValueValid(value: *): boolean {
         return typeof value === "string"
             || typeof value === "number"
             || ChartData.isValueDate(value)
-            || value === null
-            || ( // Range tuple
-                allowTuple
-                && List.isList(value)
-                && value.size === 2
-                && ChartData.isValueValid(value.get(0), false)
-                && ChartData.isValueValid(value.get(1), false)
-                && value.get(0) <= value.get(1)
-            );
+            || value === null;
     }
 
     /**
@@ -443,7 +435,12 @@ class ChartData extends Record({
             }, List());
     }
 
-    _aggregation(operation: string, columns: ChartColumnArg): ?ChartScalar {
+    _aggregation(
+        operation: string,
+        aggregateFunction: (valueList: List) => number,
+        columns: ChartColumnArg
+    ): ?ChartScalar {
+
         const columnList: List<string> = this._columnArgList(columns);
         if(this._columnListError(columnList)) {
             return null;
@@ -454,7 +451,7 @@ class ChartData extends Record({
         });
 
         return this._memoize(`${operation}.${columnList.join(',')}`, (): ?ChartScalar => {
-            const result: number = allValuesForColumns.update(ImmutableMath[operation]());
+            const result: number = allValuesForColumns.update(aggregateFunction);
             return typeof result != "string" && isNaN(result) ? null : result;
         });
     }
@@ -466,6 +463,17 @@ class ChartData extends Record({
         const value: ChartScalar = fn();
         this._memos[key] = value;
         return value;
+    }
+
+    _columnDefinitions(): List<Map> {
+        // interally columns are stored as an OrderedMap of ColumnData records because it's useful
+        // but for any user facing stuff it's better to let them define columns as Lists of Maps
+        // or Arrays of Objects (a.k.a. ChartColumnDefinitions),
+        // so this method converts the interal data structure back to the user facing one
+
+        return this.columns
+            .toList()
+            .map(col => col.toMap());
     }
 
     /*
@@ -513,16 +521,8 @@ class ChartData extends Record({
      */
 
     updateColumns(updater: ColumnUpdater): ChartData {
-        // interally columns are stored as an OrderedMap of ColumnData records because it's useful
-        // but for any user facing stuff it's better to let them define columns as Lists of Maps
-        // or Arrays of Objects (a.k.a. ChartColumnDefinitions),
-        // so here we convert the interal data structure back to the user facing one
-        // for use in the updater().
-
-        const columnDefinitions: List<Map> = this.columns
-            .toList()
-            .map(col => col.toMap());
-
+        // convert the interal data structure back to the user facing one for use in the updater().
+        const columnDefinitions = this._columnDefinitions();
         return new ChartData(this.rows, updater(columnDefinitions));
     }
 
@@ -890,7 +890,7 @@ class ChartData extends Record({
      */
 
     min(columns: ChartColumnArg): ?ChartScalar {
-        return this._aggregation("min", columns);
+        return this._aggregation("min", ImmutableMath.min(), columns);
     }
 
     /**
@@ -908,7 +908,7 @@ class ChartData extends Record({
      */
 
     max(columns: ChartColumnArg): ?ChartScalar {
-        return this._aggregation("max", columns);
+        return this._aggregation("max", ImmutableMath.max(), columns);
     }
 
     /**
@@ -929,8 +929,8 @@ class ChartData extends Record({
 
     extent(columns: ChartColumnArg): Array<?ChartScalar> {
         return [
-            this._aggregation("min", columns),
-            this._aggregation("max", columns)
+            this.min(columns),
+            this.max(columns)
         ];
     }
 
@@ -949,7 +949,7 @@ class ChartData extends Record({
      */
 
     sum(columns: ChartColumnArg): ?ChartScalar {
-        return this._aggregation("sum", columns);
+        return this._aggregation("sum", ImmutableMath.sum(), columns);
     }
 
     /**
@@ -967,7 +967,7 @@ class ChartData extends Record({
      */
 
     average(columns: ChartColumnArg): ?ChartScalar {
-        return this._aggregation("average", columns);
+        return this._aggregation("average", ImmutableMath.average(), columns);
     }
 
     /**
@@ -985,8 +985,9 @@ class ChartData extends Record({
      */
 
     median(columns: ChartColumnArg): ?ChartScalar {
-        return this._aggregation("median", columns);
+        return this._aggregation("median", ImmutableMath.median(), columns);
     }
+
 
     quantile(columns: ChartColumnArg, p: number): ?ChartScalar {
         const columnList: List<string> = this._columnArgList(columns);
@@ -998,68 +999,43 @@ class ChartData extends Record({
             return this._allValuesForColumns(columnList).filter(val => val != null);
         });
 
-
         return quantile(allValuesForColumns.sort().toArray(), p);
     }
 
     summary(columns: ChartColumnArg): ?FiveNumberSummary {
-        return Map({
-            min: this.min(columns),
-            lowerQuartile: this.quantile(columns, 0.25),
-            median: this.median(columns),
-            upperQuartile: this.quantile(columns, 0.75),
-            max: this.max(columns)
+        const columnList: List<string> = this._columnArgList(columns);
+        if(this._columnListError(columnList)) {
+            return null;
+        }
+
+        return this._memoize(`summary.${columnList.join(',')}`, () => {
+            return Map({
+                min: this.min(columns),
+                lowerQuartile: this.quantile(columns, 0.25),
+                median: this.median(columns),
+                upperQuartile: this.quantile(columns, 0.75),
+                max: this.max(columns)
+            });
         });
     }
 
     variance(columns: ChartColumnArg): ?ChartScalar {
-        const columnList: List<string> = this._columnArgList(columns);
-        if(this._columnListError(columnList)) {
-            return null;
-        }
-
-        const allValuesForColumns = this._memoize(`allValuesForColumns.${columnList.join(',')}`, () => {
-            return this._allValuesForColumns(columnList).filter(val => val != null);
-        });
-
-        return  this._memoize(`variance.${columnList.join(',')}`, () => {
-            return variance(allValuesForColumns.toArray());
-        });
+        return this._aggregation("variance", (data) => variance(data.toArray()), columns);
     }
 
     deviation(columns: ChartColumnArg): ?ChartScalar {
-        const columnList: List<string> = this._columnArgList(columns);
-        if(this._columnListError(columnList)) {
-            return null;
-        }
-
-        const allValuesForColumns = this._memoize(`allValuesForColumns.${columnList.join(',')}`, () => {
-            return this._allValuesForColumns(columnList).filter(val => val != null);
-        });
-
-        return this._memoize(`deviation.${columnList.join(',')}`, () => {
-            return deviation(allValuesForColumns.toArray());
-        });
-    }
-
-    _defaultRowMapper(row) {
-        return Map();
-    }
-
-    _defaultColumnMapper(column) {
-        return column;
+        return this._aggregation("deviation", (data) => deviation(data.toArray()), columns);
     }
 
 
-    // @TODO need to handle date binning?
     bin(
         column,
         thresholds,
         domain,
-        columnMapper = this._defaultColumnMapper,
-        rowMapper= this._defaultRowMapper
+        rowMapper,
+        columnUpdater
     ): ?ChartData {
-        var start = performance.now();
+
         const columnList: List<string> = this._columnArgList(column);
         if(this._columnListError(columnList)) {
             return null;
@@ -1108,6 +1084,7 @@ class ChartData extends Record({
             )
             .toList()
             .map((binRows, binIndex) => {
+                // Generate blank starting row map with bin column nulled
                 const blankRow = binRows.get(0).map((value, rowColumn) => {
                     return rowColumn === column ? null : List();
                 });
@@ -1115,29 +1092,25 @@ class ChartData extends Record({
                 return binRows
                     .reduce((aggRow, row) => {
                         return aggRow
+                            // Merge without overwriting bin column
                             .mergeWith((prev, next) => prev ? prev.push(next) : prev, row);
                     }, blankRow)
-                    .filter(val => !!val)
+                    .filter(val => !!val);
             });
 
         const rows = binnedRows
-            .map(rowMapper)
+            .map(rowMapper || (() => Map()))
             .map((row, binIndex) => row.merge({
-                [column]: isDate
-                    ? List([new Date(bins[binIndex].x0), new Date(bins[binIndex].x1)])
-                    : List([bins[binIndex].x0, bins[binIndex].x1])
+                [`${column}Lower`]: isDate ? new Date(bins[binIndex].x0) : bins[binIndex].x0,
+                [`${column}Upper`]: isDate ? new Date(bins[binIndex].x1) : bins[binIndex].x1
             }));
 
-        // @TODO this is duplicated from above - combine them together
-        const columnDefinitions: List<Map> = this.columns
-            .toList()
-            .map(col => col.toMap());
+        const columnDefinitions = this._columnDefinitions();
+        const columns = columnUpdater
+            ? columnDefinitions.update(columnUpdater)
+            : columnDefinitions;
 
-        const columns = columnDefinitions.map(columnMapper);
-
-        const chartData = new ChartData(rows, columns)
-        return chartData;
-
+        return new ChartData(rows, columns);
     }
 
 
