@@ -1,4 +1,4 @@
-import {Line, Svg, Chart, Column} from 'pnut';
+import {Line, Svg, Chart} from 'pnut';
 import React from 'react';
 import {scaleLinear, scalePoint} from 'd3-scale';
 import {ElementQueryHock} from 'stampy';
@@ -6,13 +6,6 @@ import data from '../data/lineData';
 
 class LineExample extends React.Component {
     render() {
-        const binnedData = data.bin('month', null, null, row => {
-            return row.map(value => value.reduce((a,b) => a + b, 0));
-        });
-
-        console.log(binnedData);
-
-
         return  <Chart
             width={this.props.eqWidth}
             height={this.props.eqHeight}

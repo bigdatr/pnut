@@ -1055,7 +1055,7 @@ class ChartData extends Record({
         const binThresholds = thresholds == null
             ? thresholdSturges(allValuesAsArray)
             : typeof thresholds === 'function'
-                ? thresholds(allValues, min, max, {
+                ? thresholds(allValuesAsArray, min, max, {
                     freedmanDiaconis: thresholdFreedmanDiaconis,
                     scott: thresholdScott,
                     sturges: thresholdSturges
@@ -1105,7 +1105,15 @@ class ChartData extends Record({
                 [`${column}Upper`]: isDate ? new Date(bins[binIndex].x1) : bins[binIndex].x1
             }));
 
-        const columnDefinitions = this._columnDefinitions();
+        const columnDefinitions = this._columnDefinitions()
+            .update((columnList) => {
+                // Maintain ordering of columns when adding new ones
+                const currentIndex = columnList.findIndex((ii) => ii.get('key') === column);
+                return columnList
+                    .set(currentIndex, columnList.get(currentIndex).set('key', `${column}Lower`))
+                    .insert(currentIndex + 1, columnList.get(currentIndex).set('key', `${column}Upper`));
+            });
+
         const columns = columnUpdater
             ? columnDefinitions.update(columnUpdater)
             : columnDefinitions;

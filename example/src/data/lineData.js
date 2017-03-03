@@ -2,17 +2,18 @@ import {ChartData} from 'pnut';
 
 const columns = [
     {
+        key: 'month',
+        label: 'Month'
+    },
+    {
         key: 'supply',
         label: 'Supply'
     },
     {
         key: 'demand',
         label: 'Demand'
-    },
-    {
-        key: 'month',
-        label: 'Month'
     }
+
 ];
 
 const rows = [

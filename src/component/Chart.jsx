@@ -231,7 +231,12 @@ class Chart extends Component {
                 return dimension
                     .get('scales')
                     .map((scale: Function, value: string): * => {
-                        return applyScaledValue(dimensionName, scale, row.get(value), this.applyCanvasSize(props));
+                        return applyScaledValue(
+                            dimensionName,
+                            scale,
+                            row.get(value),
+                            this.applyCanvasSize(props)
+                        );
                     });
             });
         });
@@ -294,6 +299,7 @@ class Chart extends Component {
                 }
             });
 
+
         // Create functions to get a value for each row for each dimension
         const getters = this.dimensions
             .map((dimension: Map, dimensionName: string): Map => {
@@ -317,15 +323,35 @@ class Chart extends Component {
             // map rows
             .map((row: ChartRow, index: number): List<Object> => {
                 // then dimensions
-                return this.dimensions
-                    .map((dimension: Map, dimensionName: string): Map => {
+                return  this.dimensions
+                    .reduce((
+                        flattenedDimensions: Map,
+                        dimension: Map,
+                        dimensionName: string
+                    ): Map => {
                         const appliedDimension = applyDimension(dimension, inheritedProps);
-                        return getters.get(dimensionName)(index, appliedDimension.get('columnName'));
-                    })
+                        const columns = List([].concat(appliedDimension.get('columnName')));
+
+                        const newDimensions = columns.reduce((newDimensions, column, dimensionIndex) => {
+                            const multiColumn = columns.size > 1;
+                            const scaledValue = getters.get(dimensionName)(index, column);
+
+                            const withBaseDimension = dimensionIndex === 0
+                                ? newDimensions.set(dimensionName, scaledValue)
+                                : newDimensions;
+
+                            return multiColumn
+                                ? withBaseDimension.set(`${dimensionName}${dimensionIndex}`, scaledValue)
+                                : withBaseDimension;
+                        }, Map());
+
+                        return flattenedDimensions.merge(newDimensions);
+                    }, Map())
                     .toObject();
             })
             .toArray();
 
+        console.log(scaledData);
         return inheritedProps
             .set('scaledData', scaledData)
             .set('childChart', true)

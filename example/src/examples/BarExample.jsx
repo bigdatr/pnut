@@ -6,7 +6,6 @@ import data from '../data/columnData';
 
 class BarExample extends React.Component {
     render() {
-
         return  <Chart
             width={this.props.eqWidth}
             height={this.props.eqHeight}

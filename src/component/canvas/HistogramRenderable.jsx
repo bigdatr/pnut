@@ -55,8 +55,8 @@ function DefaultColumn(props: Object): React.Element<any> {
  *
  * @component
  *
- * ColumnRenderable is the low-level svg renderer for Column charts and Bar Charts.
- * Bar is an alias of Column and BarRenderable is an alias of ColumnRenderable
+ * HistogramRenderable is the low-level svg renderer for Column charts and Bar Charts.
+ * Bar is an alias of Column and BarRenderable is an alias of HistogramRenderable
  *
  * @example
  *
@@ -82,7 +82,7 @@ function DefaultColumn(props: Object): React.Element<any> {
  */
 
 
-export class ColumnRenderable extends React.PureComponent {
+export class HistogramRenderable extends React.PureComponent {
 
     static propTypes = {
         /**
@@ -154,23 +154,19 @@ export class ColumnRenderable extends React.PureComponent {
         let x, y, width, height;
 
         if(orientation === 'vertical') {
-            x = row.x - bandwidth / 2;
+            x = row.x0;
             y = row.y;
-            width = bandwidth;
+            width = row.x1 - row.x0;
             height = this.props.height - row.y;
         } else {
             x = 0;
-            y = row.y - bandwidth / 2;
+            y = row.y0;
             width = row.x;
-            height = bandwidth;
+            height = row.y1;
         }
 
         return <Column
-            key={
-                orientation === 'vertical'
-                    ? this.props.xScale.domain()[index]
-                    : this.props.yScale.domain()[index]
-            }
+            key={index}
             columnProps={{
                 x, y, width, height,
                 ...this.props.columnProps
@@ -184,20 +180,20 @@ export class ColumnRenderable extends React.PureComponent {
     }
 
     render(): ?React.Element<any> {
-        const {xScale, yScale} = this.props;
-        const orientation = this.props.orientation || xScale.bandwidth
+
+        const sampleRow = this.props.scaledData[0];
+
+        const orientation = this.props.orientation || sampleRow.hasOwnProperty('x0')
             ? 'vertical'
-            :  yScale.bandwidth
+            :  sampleRow.hasOwnProperty('y0')
                 ? 'horizontal'
-                : console.error('Column chart must have at least one band scale');
+                : console.error('Histogram renderable must be supplied binned data');
 
         if(!orientation) return null;
 
-        const bandwidth = orientation === 'vertical' ? xScale.bandwidth() : yScale.bandwidth();
-
         return <g>
             {this.props.scaledData.map((row: Object, index: number): React.Element<any> => {
-                return this.buildColumn(row, index, orientation, bandwidth);
+                return this.buildColumn(row, index, orientation);
             })}
         </g>;
     }
@@ -243,7 +239,7 @@ export default class Column extends React.Component {
     };
 
     render(): React.Element<any> {
-        return <ColumnRenderable {...this.props} />;
+        return <HistogramRenderable {...this.props} />;
     }
 }
 
