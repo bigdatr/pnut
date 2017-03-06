@@ -329,9 +329,14 @@ class Chart extends Component {
                         dimension: Map,
                         dimensionName: string
                     ): Map => {
+                        // Get dimension info for current component
                         const appliedDimension = applyDimension(dimension, inheritedProps);
                         const columns = List([].concat(appliedDimension.get('columnName')));
 
+                        // calculate new dimensions to add to dimension Map. In most cases this
+                        // will be a single dimension (eg: x or y, etc) but if an array of columns
+                        // is supplied then newDimensoins will be a map with a entry for each
+                        // supplied column: eg: {x: 1, x0: 1, x2: 5, x3: 10}.
                         const newDimensions = columns.reduce((
                             newDimensions: Map<string, number>,
                             column: string,
@@ -340,10 +345,14 @@ class Chart extends Component {
                             const multiColumn = columns.size > 1;
                             const scaledValue = getters.get(dimensionName)(index, column);
 
+                            // Always add the base dimension. This way components that don't know
+                            // about x0, x1 etc will still work because x is still defined.
                             const withBaseDimension = dimensionIndex === 0
                                 ? newDimensions.set(dimensionName, scaledValue)
                                 : newDimensions;
 
+                            // If there are multiple columns specified then set the extra dimension
+                            // values with keys in the form `${dimensionName}${dimensionIndex}` - eg. x0
                             return multiColumn
                                 ? withBaseDimension.set(`${dimensionName}${dimensionIndex}`, scaledValue)
                                 : withBaseDimension;
