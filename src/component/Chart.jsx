@@ -332,7 +332,11 @@ class Chart extends Component {
                         const appliedDimension = applyDimension(dimension, inheritedProps);
                         const columns = List([].concat(appliedDimension.get('columnName')));
 
-                        const newDimensions = columns.reduce((newDimensions, column, dimensionIndex) => {
+                        const newDimensions = columns.reduce((
+                            newDimensions: Map<string, number>,
+                            column: string,
+                            dimensionIndex: number
+                        ): Map<string, number> => {
                             const multiColumn = columns.size > 1;
                             const scaledValue = getters.get(dimensionName)(index, column);
 

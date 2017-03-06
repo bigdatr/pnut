@@ -12,7 +12,6 @@ class HistogramExample extends React.Component {
         });
 
         return  <Chart
-            dimensions={['x', 'y']}
             width={this.props.eqWidth}
             height={this.props.eqHeight}
             data={binnedData}

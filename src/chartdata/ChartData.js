@@ -31,6 +31,8 @@ export type ChartColumnArg = string|Array<string>|List<string>;
 type RowUpdater = (rows: List<ChartRow>) => List<ChartRow>;
 type ColumnUpdater = (columns: List<ChartColumn>) => List<ChartColumn>;
 type RowMapper = (row: ChartRow) => ChartRow;
+type BinThreshold = List<ChartScalar> | Array<ChartScalar> | number;
+type BinThresholdGenerator = (values: Array<ChartScalar>, min: ?ChartScalar, max: ?ChartScalar, generators: Object) => BinThreshold;
 
 /**
  * A valid chart value, which can only accept data of type `string`, `number` and `null`.
@@ -446,9 +448,12 @@ class ChartData extends Record({
             return null;
         }
 
-        const allValuesForColumns = this._memoize(`allValuesForColumns.${columnList.join(',')}`, () => {
-            return this._allValuesForColumns(columnList).filter(val => val != null);
-        });
+        const allValuesForColumns = this._memoize(
+            `allValuesForColumns.${columnList.join(',')}`,
+            (): List<ChartScalar> => {
+                return this._allValuesForColumns(columnList).filter(val => val != null);
+            }
+        );
 
         return this._memoize(`${operation}.${columnList.join(',')}`, (): ?ChartScalar => {
             const result: number = allValuesForColumns.update(aggregateFunction);
@@ -1013,11 +1018,15 @@ class ChartData extends Record({
             return null;
         }
 
-        const allValuesForColumns = this._memoize(`allValuesForColumns.${columnList.join(',')}`, () => {
-            return this._allValuesForColumns(columnList).filter(val => val != null);
-        });
+        const allValuesForColumns = this._memoize(
+            `allValuesForColumns.${columnList.join(',')}`,
+            (): List<ChartScalar> => {
+                return this._allValuesForColumns(columnList).filter(val => val != null);
+            }
+        );
 
-        return quantile(allValuesForColumns.sort().toArray(), p);
+        const quantileValue = quantile(allValuesForColumns.sort().toArray(), p);
+        return  typeof quantileValue === 'undefined' ? null : quantileValue;
     }
 
     /**
@@ -1047,13 +1056,13 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    summary(columns: ChartColumnArg): ?FiveNumberSummary {
+    summary(columns: ChartColumnArg): ?Map<string, number> {
         const columnList: List<string> = this._columnArgList(columns);
         if(this._columnListError(columnList)) {
             return null;
         }
 
-        return this._memoize(`summary.${columnList.join(',')}`, () => {
+        return this._memoize(`summary.${columnList.join(',')}`, (): Map<string, number> => {
             return Map({
                 min: this.min(columns),
                 lowerQuartile: this.quantile(columns, 0.25),
@@ -1165,16 +1174,25 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    bin(column, thresholds, domain, rowMapper, columnUpdater): ?ChartData {
+    bin(
+        column: string,
+        thresholds?: BinThreshold | BinThresholdGenerator,
+        domain?: List<ChartScalar>|Array<ChartScalar>,
+        rowMapper?: (row: Map<string, List<ChartScalar>>) => Map<string, ChartScalar>,
+        columnUpdater?: (columns: List<ChartColumnDefinition>) => List<ChartColumnDefinition>
+    ): ?ChartData {
 
         const columnList: List<string> = this._columnArgList(column);
         if(this._columnListError(columnList)) {
             return null;
         }
 
-        const allValues = this._memoize(`allValuesForColumns.${column}`, () => {
-            return this._allValuesForColumns(columnList).filter(val => val != null);
-        });
+        const allValues = this._memoize(
+            `allValuesForColumns.${column}`,
+            (): List<ChartScalar> => {
+                return this._allValuesForColumns(columnList).filter(val => val != null);
+            }
+        );
 
         const allValuesAsArray = allValues.toArray();
 
@@ -1197,15 +1215,18 @@ class ChartData extends Record({
             ? thresholdSturges(allValuesAsArray)
             : calculatedThresholds
                 ? List.isList(calculatedThresholds)
+                    // $FlowBug: flow doesn't know that only lists can get through `List.isList`
                     ? calculatedThresholds.toArray()
                     : calculatedThresholds
                 : List.isList(thresholds)
+                    // $FlowBug: flow doesn't know that only lists can get through `List.isList`
                     ? thresholds.toArray()
                     : thresholds;
 
         const binDomain = domain == null
             ? [min, max]
             : List.isList(domain)
+                // $FlowBug: flow doesn't know that only lists can get through `List.isList`
                 ? domain.toArray()
                 : domain;
 
@@ -1215,33 +1236,45 @@ class ChartData extends Record({
 
         // Use d3-histogram generated bins to organize ChartData rows into bins
         const binnedRows = this.rows
-            .groupBy(row => {
+            .groupBy((row: ChartRow): Map<number, List> => {
                 const preBinnedValue = row.get(column);
                 // bins is plain js so can't use findIndex here
-                return bins.reduce((matchedIndex, bin, binIndex) => {
+                return bins.reduce((
+                    matchedIndex: number,
+                    bin: Object,
+                    binIndex: number
+                ): number => {
                     if(typeof matchedIndex === 'number') return matchedIndex;
                     return bin.indexOf(preBinnedValue) !== -1 ? binIndex : matchedIndex;
                 }, null);
             })
+            .filter((binRows, binIndex) => binIndex != null)
             .sortBy(
                 (binRows, binIndex) => binIndex,
                 (binIndexA, binIndexB) => binIndexA - binIndexB
             )
             .toList()
-            .map((binRows, binIndex) => {
+            .map((binRows: List<ChartRow>): List<ChartRow> => {
                 // Generate blank starting row map with bin column nulled
-                const blankRow = binRows.get(0).map((value, rowColumn) => {
+                const blankRow = binRows.get(0).map((
+                    value: ChartScalar,
+                    rowColumn: string
+                ): List|null => {
                     return rowColumn === column ? null : List();
                 });
 
                 return binRows
-                    .reduce((aggRow, row) => {
+                    .reduce((
+                        aggRow: Map<string, List<ChartScalar>>,
+                        row: ChartRow
+                    ): Map<string, List<ChartScalar>> => {
                         return aggRow
                             // Merge without overwriting bin column
                             .mergeWith((prev, next) => prev ? prev.push(next) : prev, row);
                     }, blankRow)
                     .filter(val => !!val);
             });
+
 
         // Run binned rows through provided rowMapper then add Lower and Upper values.
         const rows = binnedRows
@@ -1253,7 +1286,7 @@ class ChartData extends Record({
 
         // Generate new columns list with `${column}Lower` and `${column}Upper` versions of column
         const columnDefinitions = this._columnDefinitions()
-            .update((columnList) => {
+            .update((columnList: List<ChartColumnDefinition>): List<ChartColumnDefinition> => {
                 // Maintain ordering of columns when adding new ones
                 const currentIndex = columnList.findIndex((ii) => ii.get('key') === column);
                 return columnList

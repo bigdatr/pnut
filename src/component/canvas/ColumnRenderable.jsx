@@ -35,8 +35,6 @@ import React, {PropTypes} from 'react';
  * @prop {ChartData} data
  * The `ChartData` object that is being used to for this chart.
  *
- * @prop {Map} rowData
- * An Immutable map of the raw data for this row.
  *
  * @prop {Object[]} scaledData
  * The full array of pre scaled data.
@@ -178,7 +176,6 @@ export class ColumnRenderable extends React.PureComponent {
             dimensions={row}
             index={index}
             data={this.props.data}
-            rowData={this.props.data.rows.get(index)}
             scaledData={this.props.scaledData}
         />;
     }

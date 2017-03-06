@@ -108,6 +108,21 @@ test('if a scaleUpdate is provided to a child the custom scale will be passed to
 });
 
 //
+// multiple columns
+
+test('if xColumn is an array then child components will receive x0, x1 in scaledData', tt => {
+    const chart = shallow(<Chart width={200} height={200} data={data} xColumn={["supply", "demand"]} >
+        <Line yColumn="month" />
+    </Chart>);
+    console.log();
+
+
+    tt.is(typeof chart.childAt(0).childAt(0).props().scaledData[0].x0, 'number');
+    tt.is(typeof chart.childAt(0).childAt(0).props().scaledData[1].x1, 'number');
+});
+
+
+//
 // misc
 
 test('component will update dimensions and scaled data on componentWillReceiveProps', tt => {

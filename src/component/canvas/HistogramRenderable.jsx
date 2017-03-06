@@ -35,9 +35,6 @@ import React, {PropTypes} from 'react';
  * @prop {ChartData} data
  * The `ChartData` object that is being used to for this chart.
  *
- * @prop {Map} rowData
- * An Immutable map of the raw data for this row.
- *
  * @prop {Object[]} scaledData
  * The full array of pre scaled data.
  *
@@ -134,8 +131,7 @@ export class HistogramRenderable extends React.PureComponent {
     buildColumn(
         row: Object,
         index: number,
-        orientation: 'vertical'|'horizontal',
-        bandwidth: number
+        orientation: 'vertical'|'horizontal'
     ): React.Element<any> {
         const {column: Column} = this.props;
 
@@ -162,7 +158,6 @@ export class HistogramRenderable extends React.PureComponent {
             dimensions={row}
             index={index}
             data={this.props.data}
-            rowData={this.props.data.rows.get(index)}
             scaledData={this.props.scaledData}
         />;
     }
