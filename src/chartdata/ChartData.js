@@ -988,6 +988,24 @@ class ChartData extends Record({
         return this._aggregation("median", ImmutableMath.median(), columns);
     }
 
+    /**
+     * Get the p quantile of the values in a column (or `Array` or `List` of columns), where p is a
+     * number in the range [0, 1]. For example, the median can be computed using p = 0.5, the first
+     * quartile at p = 0.25, and the third quartile at p = 0.75. This uses [d3's quantile](https://github.com/d3/d3-array#quantile)
+     * method. See [d3's docs](https://github.com/d3/d3-array#quantile) for details.
+     *
+     * @param {string|Array<string>|List<string>} columns
+     * The names of one or more columns to perform the operation on.
+     * @param {number} p
+     * A number in the range [0,1] where 0.5 is the median.
+     *
+     * @return {number|null} The quantile of the values, or null if no quantile could be determined.
+     *
+     * @name quantile
+     * @kind function
+     * @inner
+     * @memberof ChartData
+     */
 
     quantile(columns: ChartColumnArg, p: number): ?ChartScalar {
         const columnList: List<string> = this._columnArgList(columns);
@@ -1001,6 +1019,33 @@ class ChartData extends Record({
 
         return quantile(allValuesForColumns.sort().toArray(), p);
     }
+
+    /**
+     * Get a [five number summary](https://en.wikipedia.org/wiki/Five-number_summary) of the values
+     * in a column (or `Array` or `List` of columns).
+     * This can be used to render a [box plot](https://en.wikipedia.org/wiki/Box_plot).
+     *
+     * The summary consists of:
+     *
+     * - the sample minimum (smallest observation) - `min`
+     * - the lower quartile or first quartile - `lowerQuartile`
+     * - the median (middle value) - `median`
+     * - the upper quartile or third quartile - `upperQuartile`
+     * - the sample maximum (largest observation) - `max`
+     *
+     *
+     * @param {string|Array<string>|List<string>} columns
+     * The names of one or more columns to perform the operation on.
+     *
+     * @return {Object|null}
+     * An object containing `min`, `lowerQuartile`, `median`, `upperQuartile`, and `max`
+     *
+     *
+     * @name summary
+     * @kind function
+     * @inner
+     * @memberof ChartData
+     */
 
     summary(columns: ChartColumnArg): ?FiveNumberSummary {
         const columnList: List<string> = this._columnArgList(columns);
@@ -1019,22 +1064,108 @@ class ChartData extends Record({
         });
     }
 
+    /**
+     * Get the [population variance](https://www.khanacademy.org/math/ap-statistics/quantitative-data-ap/measuring-spread-quantitative/v/variance-of-a-population)
+     * of the values in a column, or `Array` or `List`, of columns. This uses [d3's variance method](https://github.com/d3/d3-array#variance).
+     *
+     * @param {string|Array<string>|List<string>} columns
+     * The names of one or more columns to perform the operation on.
+     *
+     * @return {number|null} The variance of the values, or null if no variance could be determined.
+     *
+     * @name variance
+     * @kind function
+     * @inner
+     * @memberof ChartData
+     */
+
     variance(columns: ChartColumnArg): ?ChartScalar {
         return this._aggregation("variance", (data) => variance(data.toArray()), columns);
     }
+
+    /**
+     * Get the standard deviation of the values in a column, or `Array` or `List`, of columns.
+     * This uses [d3's deviation method](https://github.com/d3/d3-array#deviation). The standard
+     * deviation is defined as the square root of the variance.
+     *
+     * @param {string|Array<string>|List<string>} columns
+     * The names of one or more columns to perform the operation on.
+     *
+     * @return {number|null} The deviation of the values, or null if no deviation could be determined.
+     *
+     * @name deviation
+     * @kind function
+     * @inner
+     * @memberof ChartData
+     */
 
     deviation(columns: ChartColumnArg): ?ChartScalar {
         return this._aggregation("deviation", (data) => deviation(data.toArray()), columns);
     }
 
+    /**
+     * Organize the data into [bins](https://en.wikipedia.org/wiki/Data_binning) as defined by the
+     * provided `thresholds`. Uses [d3's `histogram`](https://github.com/d3/d3-array#histograms) method.
+     *
+     * @example
+     *
+     * const binnedData = data.bin('month', (values, min, max, generators) => {
+     *     return generators.freedmanDiaconis(values, min, max);
+     * }, null, row => {
+     *     return row.map(value => value.reduce((a,b) => a + b, 0));
+     * });
+     *
+     * @param {string} column
+     * The column to use for organizing data into bins.
+     *
+     * @param {Array<ChartScalar>|List<ChartScalar>|number|Function} [thresholds]
+     * A List or Array of values or a `count` number or a function that returns a List or Array of
+     * values or a `count` number.
+     *
+     * If thresholds is a number then the data will be organized into that number of uniform bins.
+     *
+     * Otherwise if thresholds is an Array or list in the form `[x0, x1, …]` - any value less than
+     * x0 will be placed in the first bin; any value greater than or equal to x0 but less than x1
+     * will be placed in the second bin; and so on. method. If `thresholds` is a function is will be
+     * passed 4 parameters and is expected to return an Array or List in the form described above:
+     *
+     * - `values` An array of values in the specified column
+     * - `min` The min of the values in the specified column
+     * - `max` The max of the values in the specified column
+     * - `generators` An object containing 3 default [threshold generators](https://github.com/d3/d3-array#histogram-thresholds)
+     * from d3. See the example for usage details.
+     *
+     * If no threshold is specifed then [Sturges' forumula](https://en.wikipedia.org/wiki/Histogram#Mathematical_definition)
+     * will be used to calculate thresholds.
+     *
+     * @param {Array<ChartScalar>|List<ChartScalar>} [domain]
+     * Specifies the domain to use when creating bins. Any values outside the specified domain will
+     * not be placed into bins. Defaults to `[min, max]`.
+     *
+     * @param {function} [rowMapper]
+     * A function that will be called with each bin row _after_ the binning operation. Each row will
+     * have all columns except the one specified by the `column` parameter. Each column's value will
+     * be a list of all the values that reside within the current bin. This allows you to perform
+     * aggregations of your choice on the values. While this function is not required - if it is
+     * not specified then the `ChartData` returned from  the bin method will have `null` values for
+     * all columns except the column specified by the `column` parameter.
+     *
+     * @param {function} [columnUpdater]
+     * A function that will receive a list of the original `ChartData`'s columns. This allows you to
+     * change the labels or types or rename columns before they are passed to the new `ChartData`.
+     * The columns List passed to the function will already have new columns added to specify the
+     * bounds of the bin. They will be named in the form `${column}Lower` and `${column}Upper`.
+     *
+     *
+     * @return {ChartData} A new ChartData with the rows organised into bins.
+     *
+     * @name bin
+     * @kind function
+     * @inner
+     * @memberof ChartData
+     */
 
-    bin(
-        column,
-        thresholds,
-        domain,
-        rowMapper,
-        columnUpdater
-    ): ?ChartData {
+    bin(column, thresholds, domain, rowMapper, columnUpdater): ?ChartData {
 
         const columnList: List<string> = this._columnArgList(column);
         if(this._columnListError(columnList)) {
@@ -1052,27 +1183,41 @@ class ChartData extends Record({
         const min = this.min(column);
         const max = this.max(column);
 
+
+        const calculatedThresholds = typeof thresholds === 'function'
+            ? thresholds(allValuesAsArray, min, max, {
+                freedmanDiaconis: thresholdFreedmanDiaconis,
+                scott: thresholdScott,
+                sturges: thresholdSturges
+            })
+            : null;
+
+        // Calculate thresholds for binning
         const binThresholds = thresholds == null
             ? thresholdSturges(allValuesAsArray)
-            : typeof thresholds === 'function'
-                ? thresholds(allValuesAsArray, min, max, {
-                    freedmanDiaconis: thresholdFreedmanDiaconis,
-                    scott: thresholdScott,
-                    sturges: thresholdSturges
-                })
-                : thresholds;
+            : calculatedThresholds
+                ? List.isList(calculatedThresholds)
+                    ? calculatedThresholds.toArray()
+                    : calculatedThresholds
+                : List.isList(thresholds)
+                    ? thresholds.toArray()
+                    : thresholds;
 
         const binDomain = domain == null
             ? [min, max]
-            : domain;
+            : List.isList(domain)
+                ? domain.toArray()
+                : domain;
 
         const bins = histogram()
             .thresholds(binThresholds)
             .domain(binDomain)(allValuesAsArray);
 
+        // Use d3-histogram generated bins to organize ChartData rows into bins
         const binnedRows = this.rows
             .groupBy(row => {
                 const preBinnedValue = row.get(column);
+                // bins is plain js so can't use findIndex here
                 return bins.reduce((matchedIndex, bin, binIndex) => {
                     if(typeof matchedIndex === 'number') return matchedIndex;
                     return bin.indexOf(preBinnedValue) !== -1 ? binIndex : matchedIndex;
@@ -1098,6 +1243,7 @@ class ChartData extends Record({
                     .filter(val => !!val);
             });
 
+        // Run binned rows through provided rowMapper then add Lower and Upper values.
         const rows = binnedRows
             .map(rowMapper || (() => Map()))
             .map((row, binIndex) => row.merge({
@@ -1105,6 +1251,7 @@ class ChartData extends Record({
                 [`${column}Upper`]: isDate ? new Date(bins[binIndex].x1) : bins[binIndex].x1
             }));
 
+        // Generate new columns list with `${column}Lower` and `${column}Upper` versions of column
         const columnDefinitions = this._columnDefinitions()
             .update((columnList) => {
                 // Maintain ordering of columns when adding new ones
@@ -1120,8 +1267,6 @@ class ChartData extends Record({
 
         return new ChartData(rows, columns);
     }
-
-
 }
 
 export default ChartData;

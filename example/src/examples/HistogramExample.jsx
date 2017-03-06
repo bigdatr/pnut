@@ -6,15 +6,10 @@ import data from '../data/lineData';
 class HistogramExample extends React.Component {
     render() {
         const binnedData = data.bin('month', (values, min, max, generators) => {
-            console.log(values, min, max);
             return generators.freedmanDiaconis(values, min, max);
         }, null, row => {
             return row.map(value => value.reduce((a,b) => a + b, 0));
         });
-
-        // const binnedData = data.bin('month', null, null, row => {
-        //     return row.map(value => value.reduce((a,b) => a + b, 0));
-        // });
 
         return  <Chart
             dimensions={['x', 'y']}

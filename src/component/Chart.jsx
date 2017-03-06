@@ -351,7 +351,6 @@ class Chart extends Component {
             })
             .toArray();
 
-        console.log(scaledData);
         return inheritedProps
             .set('scaledData', scaledData)
             .set('childChart', true)

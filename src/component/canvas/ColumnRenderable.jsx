@@ -67,7 +67,7 @@ function DefaultColumn(props: Object): React.Element<any> {
  *     {x: 4, y: 800},
  * ];
  *
- * return <LineRenderable
+ * return <ColumnRenderable
  *     height={1000}
  *     xScale={xScale}
  *     yScale={yScale}

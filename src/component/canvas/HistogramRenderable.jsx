@@ -55,8 +55,7 @@ function DefaultColumn(props: Object): React.Element<any> {
  *
  * @component
  *
- * HistogramRenderable is the low-level svg renderer for Column charts and Bar Charts.
- * Bar is an alias of Column and BarRenderable is an alias of HistogramRenderable
+ * HistogramRenderable is the low-level svg renderer for Histogram Charts.
  *
  * @example
  *
@@ -67,10 +66,8 @@ function DefaultColumn(props: Object): React.Element<any> {
  *     {x: 4, y: 800},
  * ];
  *
- * return <LineRenderable
+ * return <HistogramRenderable
  *     height={1000}
- *     xScale={xScale}
- *     yScale={yScale}
  *     scaledData={scaledData}
  *     columnProps={{
  *          strokeWidth: '2'
@@ -108,15 +105,6 @@ export class HistogramRenderable extends React.PureComponent {
             y: PropTypes.number
         })).isRequired,
 
-        /**
-         * {Scale} A [d3 scale](https://github.com/d3/d3-scale) for the x axis.
-         */
-        xScale: PropTypes.func.isRequired,
-
-        /**
-         * {Scale} A [d3 scale](https://github.com/d3/d3-scale) for the y axis.
-         */
-        yScale: PropTypes.func.isRequired,
 
         /**
          * An object of props that will be spread onto the svg element used to render the bar/column
@@ -162,7 +150,7 @@ export class HistogramRenderable extends React.PureComponent {
             x = 0;
             y = row.y0;
             width = row.x;
-            height = row.y1;
+            height = row.y1 - row.y0;
         }
 
         return <Column
@@ -204,18 +192,18 @@ export class HistogramRenderable extends React.PureComponent {
  *
  * @component
  *
- * Component used to render column charts. This component requires further props to define what pieces
+ * Component used to render histogram charts. This component requires further props to define what pieces
  * of data it uses. @see `Chart` for details.
- * @name Column
+ * @name Histogram
  *
  * @example
- * <Column
+ * <Histogram
  *     column={(props) => <rect {...props.columnProps} fill='blue'/>}
  * />
  *
  */
 
-export default class Column extends React.Component {
+export default class Histogram extends React.Component {
     static chartType = 'canvas';
 
     static propTypes = {
