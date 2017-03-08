@@ -136,7 +136,11 @@ class Chart extends Component {
     static chartType = 'canvas';
 
     static defaultProps = {
-        dimensions: ['x','y']
+        dimensions: ['x','y'],
+        wrapper: Svg,
+        wrapperProps: {},
+        childWrapper: Svg,
+        childWrapperProps: {}
     }
 
     constructor(props: Object) {
@@ -380,35 +384,47 @@ class Chart extends Component {
         const {
             className,
             modifier,
-            spruceName: name = 'PnutChart'
+            spruceName: name = 'PnutChart',
+            wrapper: Wrapper,
+            childWrapper: ChildWrapper,
+            wrapperProps,
+            childWrapperProps,
+            childChart
         } = this.props;
 
+        const combinedWrapperProps = {
+            ...wrapperProps,
+            stroke: stroke,
+            className: SpruceClassName({name, modifier, className}),
+            width: outerWidth,
+            height: outerHeight
+        };
 
-        const scaledChildren = List(Children.toArray(this.props.children))
+        const combinedChildWrapperProps = {
+            ...childWrapperProps,
+            x: left,
+            y: top,
+            width: width,
+            height: height
+        };
+
+        const scaledChildren = Children
+            .toArray(this.props.children)
             .map((child: Element<any>): Element<any> => {
                 return cloneElement(child, this.getChildProps({
                     ...child.props,
                     chartType: child.type.chartType
                 }));
-            })
-            .toArray();
+            });
 
-        const chart = <Svg x={left} y={top} width={width} height={height}>
-            {scaledChildren}
-        </Svg>;
+        const chart = <ChildWrapper {...combinedChildWrapperProps}>{scaledChildren}</ChildWrapper>;
 
 
-        if(this.props.childChart) {
+        if(childChart) {
             return chart;
         }
 
-        return <Svg
-            stroke={stroke}
-            className={SpruceClassName({name, modifier, className})}
-            width={outerWidth}
-            height={outerHeight}
-            children={chart}
-        />;
+        return <Wrapper {...combinedWrapperProps}>{chart}</Wrapper>;
     }
 }
 
