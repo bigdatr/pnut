@@ -502,7 +502,7 @@ test('ChartData.summary should return a five figure summary of values of a colum
     tt.is(summary.get('max'), data.max('demand'));
 });
 
-test('ChartData.summary should return map with nulls when there are no values to compare', tt => {
+test('ChartData.summary should return a map with nulls when there are no values to compare', tt => {
     const data = new ChartData(allNulls, columns);
     tt.true(Immutable.is(data.summary('demand'), Map({
         min: null,
@@ -518,7 +518,7 @@ test('ChartData.summary should memoize per column', tt => {
     tt.false(Immutable.is(data.summary('supply'), data.summary('demand')));
 });
 
-test('ChartData.summary should return map with nulls when provided a column that doesnt exist', tt => {
+test('ChartData.summary should return null when provided a column that doesnt exist', tt => {
     const data = new ChartData(rows, columns);
     tt.is(data.summary('not here'), null);
 });
