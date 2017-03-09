@@ -318,9 +318,21 @@ export default class Axis extends React.Component {
         /**
          * The dimension to base this axis off. Probably x or y
          */
-        dimension: React.PropTypes.string.isRequired
+        dimension: React.PropTypes.string.isRequired,
+
+        /**
+         * Position the axis will stick to.
+         */
+        position: React.PropTypes.oneOf(['top', 'right', 'bottom', 'left'])
     }
     render(): React.Element<any> {
-        return <AxisRenderable {...this.props} scale={this.props[`${this.props.dimension}Scale`]}/>;
+        const {dimension, position} = this.props;
+        const defaultPosition = (dimension === 'x') ? 'bottom' : 'left';
+
+        return <AxisRenderable
+            {...this.props}
+            position={position || defaultPosition}
+            scale={this.props[`${dimension}Scale`]}
+        />;
     }
 }
