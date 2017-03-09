@@ -256,4 +256,19 @@ test('Axis with a time scale will default text to YYYY-MM-DD', tt => {
     tt.is(canvas.childAt(1).childAt(0).childAt(1).shallow().text(), '1970-01-01');
 });
 
+test('Axis Renderable will default position to x:bottom and y:left', tt => {
+    const rows = [
+        {foo: new Date('1970-01-01')},
+        {foo: new Date('1970-01-02')},
+        {foo: new Date('1970-01-03')}
+    ];
+
+    tt.is(shallow(<Axis dimension="x"/>).props().position, 'bottom');
+    tt.is(shallow(<Axis dimension="y"/>).props().position, 'left');
+    tt.is(shallow(<Axis dimension="x" position="top"/>).props().position, 'top');
+});
+
+
+
+
 
