@@ -349,7 +349,10 @@ test('ChartData.getUniqueValues should use memoization', tt => {
 test('ChartData.getUniqueValues should memoize per column', tt => {
     const data = new ChartData(rows, columns);
     data.getUniqueValues('demand');
-    tt.deepEqual(data.getUniqueValues('fruit'), List(["apple", "orange", "peach", "pear"]));
+    tt.true(is(
+        data.getUniqueValues('fruit'),
+        List(["apple", "orange", "peach", "pear"])
+    ));
 });
 
 
@@ -357,7 +360,7 @@ test('ChartData.getUniqueValues should return a list of unique values from mutip
     const data = new ChartData(rowsWithLoadsOfFruit, columnsWithLoadsOfFruit);
     tt.true(is(
         data.getUniqueValues(['fruit', 'fruit2']),
-        List(["apple", "fish", "pumpkin", "orange", "peach", "pear"])
+        List(["apple", "orange", "peach", "pear", "fish", "pumpkin"])
     ));
 });
 
@@ -374,5 +377,5 @@ test('ChartData.getUniqueValues should use memoization with multiple columns', t
 test('ChartData.getUniqueValues should memoize per column with multiple columns', tt => {
     const data = new ChartData(rowsWithLoadsOfFruit, columnsWithLoadsOfFruit);
     data.getUniqueValues(['fruit', 'demand']);
-    tt.deepEqual(data.getUniqueValues(['fruit', 'fruit2']), List(["apple", "fish", "pumpkin", "orange", "peach", "pear"]));
+    tt.deepEqual(data.getUniqueValues(['fruit', 'fruit2']), List(["apple", "orange", "peach", "pear", "fish", "pumpkin"]));
 });

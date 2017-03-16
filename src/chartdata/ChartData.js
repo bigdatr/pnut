@@ -606,9 +606,11 @@ class ChartData extends Record({
             return null;
         }
         return this._memoize(`getUniqueValues.${columnList.join(',')}`, (): ?List<ChartScalar> => {
-            return this.rows
-                .reduce((list: List<ChartScalar>, ii: ChartRow): List<ChartScalar> => {
-                    return list.concat(columnList.map(column => ii.get(column)));
+            return columnList
+                .reduce((list: List<ChartScalar>, column: string): List<ChartScalar> => {
+                    return list.concat(
+                        this.rows.map(row => row.get(column))
+                    );
                 }, List())
                 .toOrderedSet()
                 .toList();
