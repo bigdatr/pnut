@@ -40,7 +40,7 @@
     "jsdoc-babel": "^0.2.1",
     "jsdoc-react-proptypes": "^1.0.0",
     "jsdom": "^9.8.3",
-    "jsdonk": "0.4.10",
+    "jsdonk": "^0.4.13",
     "node-sass": "^3.11.2",
     "nyc": "^10.0.0",
     "react": "^15.3.2",
