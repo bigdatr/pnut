@@ -1,8 +1,7 @@
 import Wrapper from './Wrapper';
 import React, {Component, Children, cloneElement, Element, PropTypes} from 'react';
 import {mapChildren, flattenRenderableChildren} from '../util/childHelpers';
-
-const duration = 500;
+import * as d3Ease from 'd3-ease';
 
 //@TODO rename to Animate/AnimationWrapper
 class Animation extends Component {
@@ -41,6 +40,8 @@ class Animation extends Component {
     }
 
     interpolate() {
+        console.log(d3Ease);
+        const easing = this.props.easing(d3Ease);
         this.setState({
             animations: Object.keys(this.state.animations)
                 .reduce((result, id) => {
@@ -51,7 +52,8 @@ class Animation extends Component {
                         result[id].target,
                         result[id].current,
                         result[id].start,
-                        Date.now()
+                        Date.now(),
+                        easing
                     );
 
                     return result;
@@ -59,14 +61,15 @@ class Animation extends Component {
         });
     }
 
-    interpolateValues(initial, target, current, start, now) {
-        const complete = (now - start) / duration;
+    interpolateValues(initial, target, current, start, now, easing) {
+        const complete = (now - start) / this.props.duration;
         if(complete >= 1) return target;
+        const easedComplete = easing(complete);
 
         const interpolated = initial.map((row, index) => {
             const keys = Object.keys(row);
             return keys.reduce((result, key) => {
-                result[key] = initial[index][key] + ((target[index][key] - initial[index][key]) * complete);
+                result[key] = initial[index][key] + ((target[index][key] - initial[index][key]) * easedComplete);
                 return result;
             }, {});
         });

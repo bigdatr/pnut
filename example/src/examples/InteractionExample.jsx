@@ -1,20 +1,10 @@
-import {Scatter, Line,  Group, Animation, Svg, Chart} from 'pnut';
+import {Scatter, Interaction, Line,  Group, Animation, Svg, Chart} from 'pnut';
 import React from 'react';
 import {scaleLinear, scalePoint} from 'd3-scale';
 import {ElementQueryHock} from 'stampy';
 import data from '../data/lineData';
 
 
-class InteractionWrapper extends React.Component {
-    static chartType = 'wrapper';
-    static augmentChildProps
-
-    render() {
-        console.log(this.props);
-        return <g>{this.props.children}</g>
-    }
-
-}
 
 class ScatterExample extends React.Component {
     constructor(props) {
@@ -47,12 +37,16 @@ class ScatterExample extends React.Component {
             radiusColumn='demand'
             radiusScaleUpdate={scale => scale.range([10, 40])}
         >
-            <Group>
-                <Animation>
+            <Interaction>
+                <Animation duration={300} easing={(easings) => easings.easeQuadOut}>
                     <Scatter id='scatter' dot={props => <circle {...props.dotProps} fill='black' r={props.dimensions.radius}/>}/>
                     <Line id='line' curveSelector={(curves) => curves.curveMonotoneX}/>
+                    <Group>
+                        <Interaction>
+                        </Interaction>
+                    </Group>
                 </Animation>
-            </Group>
+            </Interaction>
         </Chart>;
     }
 }

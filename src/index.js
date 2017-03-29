@@ -3,11 +3,12 @@ export {default as ChartData} from './chartdata/ChartData';
 export {default as Svg} from './component/Svg';
 export {default as Chart} from './component/Chart';
 export {default as Animation} from './component/Animation';
+export {default as Interaction} from './component/Interaction';
 export {default as Group} from './component/Group';
 
 // Children
-export {default as Axis} from './component/axis/Axis';
-export {AxisRenderable} from './component/axis/Axis';
+export {default as Axis} from './component/canvas/Axis';
+export {AxisRenderable} from './component/canvas/Axis';
 export {default as Column} from './component/canvas/ColumnRenderable';
 export {ColumnRenderable} from './component/canvas/ColumnRenderable';
 export {default as Bar} from './component/canvas/BarRenderable';
@@ -22,7 +23,3 @@ export {default as Scatter} from './component/canvas/ScatterRenderable';
 export {ScatterRenderable} from './component/canvas/ScatterRenderable';
 export {default as Histogram} from './component/canvas/HistogramRenderable';
 export {HistogramRenderable} from './component/canvas/HistogramRenderable';
-
-
-export {default as Interaction} from './component/canvas/InteractionRenderable';
-export {InteractionRenderable} from './component/canvas/InteractionRenderable';

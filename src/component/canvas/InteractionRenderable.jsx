@@ -140,8 +140,8 @@ export class InteractionRenderable extends React.PureComponent {
         const modes = [PIXEL_STEP, LINE_HEIGHT, PAGE_HEIGHT];
         const multiplier = modes[ee.deltaMode];
 
-        const dX = ee.deltaX * multiplier;
-        const dY = ee.deltaY * multiplier;
+        const dx = ee.deltaX * multiplier;
+        const dy = ee.deltaY * multiplier;
 
         if(this.props.onMouseWheel) {
             this.props.onMouseWheel({dx, dy}, {event: ee});
@@ -283,7 +283,6 @@ export class InteractionRenderable extends React.PureComponent {
 
 
     render(): React.Element<any> {
-        console.log(this.props);
         return <g
             ref={(elem) => this.box = elem}
             onMouseMove={this.handlePointerMove}
@@ -313,7 +312,7 @@ export class InteractionRenderable extends React.PureComponent {
 }
 
 export default class Interaction extends React.Component {
-    static chartType = 'interactive';
+    static chartType = 'renderable';
     render(): React.Element<any> {
         return <InteractionRenderable {...this.props} />;
     }
