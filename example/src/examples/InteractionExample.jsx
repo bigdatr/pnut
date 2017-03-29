@@ -4,11 +4,6 @@ import {scaleLinear, scalePoint} from 'd3-scale';
 import {ElementQueryHock} from 'stampy';
 import data from '../data/lineData';
 
-const data2 = data.mapRows(row => {
-    return row
-        .set('supply', row.get('supply') * Math.random())
-        .set('demand', row.get('demand') * Math.random());
-});
 
 class InteractionWrapper extends React.Component {
     static chartType = 'wrapper';
@@ -31,9 +26,13 @@ class ScatterExample extends React.Component {
     }
 
     componentDidMount() {
-        setTimeout(() => {
+        setInterval(() => {
             this.setState({
-                data: data2
+                data: data.mapRows(row => {
+                    return row
+                        .set('supply', row.get('supply') * Math.random())
+                        .set('demand', row.get('demand') * Math.random());
+                })
             })
         }, 2000);
     }
@@ -48,10 +47,12 @@ class ScatterExample extends React.Component {
             radiusColumn='demand'
             radiusScaleUpdate={scale => scale.range([10, 40])}
         >
-            <Animation>
-                <Scatter id='scatter' dot={props => <circle {...props.dotProps} fill='black' r={props.dimensions.radius}/>}/>
-                <Line id='line' curveSelector={(curves) => curves.curveMonotoneX}/>
-            </Animation>
+            <Group>
+                <Animation>
+                    <Scatter id='scatter' dot={props => <circle {...props.dotProps} fill='black' r={props.dimensions.radius}/>}/>
+                    <Line id='line' curveSelector={(curves) => curves.curveMonotoneX}/>
+                </Animation>
+            </Group>
         </Chart>;
     }
 }

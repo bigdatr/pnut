@@ -344,14 +344,12 @@ class Wrapper extends Component {
     }
 
     scaleChildren(children) {
-        if(this.props.debug) console.log(this.props);
-        const depth = 1;
         return mapChildren(children, (child) => {
             return this.getChildProps({
                 ...child.props,
                 chartType: child.type.chartType
             });
-        }, depth);
+        });
     }
 
     render(): Element<any> {

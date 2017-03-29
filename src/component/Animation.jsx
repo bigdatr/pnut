@@ -20,9 +20,7 @@ class Animation extends Component {
 
 
     getAnimationsFromChildren(children) {
-        const depth = 0;
-
-        return flattenRenderableChildren(children, depth).reduce((result, child) => {
+        return flattenRenderableChildren(children).reduce((result, child) => {
             if(!child.props.id) return result;
             result[child.props.id] = {
                 current: child.props.scaledData,
@@ -94,6 +92,7 @@ class Animation extends Component {
                 }
 
                 result[id].target = data;
+                result[id].initial = result[id].current;
                 result[id].start = Date.now();
 
                 return result;
@@ -103,7 +102,6 @@ class Animation extends Component {
     }
 
     applyAnimationsToChildren(children) {
-        const depth = 0;
 
         return mapChildren(children, (child) => {
             // @TODO unnecessary cloning here...
@@ -115,25 +113,11 @@ class Animation extends Component {
                     ? this.state.animations[child.props.id].current
                     : child.props.scaledData
             };
-        }, depth);
+        });
     }
 
     render() {
         return <g>{this.applyAnimationsToChildren(this.props.children)}</g>;
-    }
-}
-
-// @TODO reduce number of wrappers
-class AnimationWrapper extends Component {
-    static chartType = 'wrapper';
-    render() {
-        return <Wrapper
-            {...this.props}
-        >
-            <Animation>
-                {this.props.children}
-            </Animation>
-        </Wrapper>;
     }
 }
 
