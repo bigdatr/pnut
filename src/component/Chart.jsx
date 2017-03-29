@@ -283,7 +283,7 @@ class Chart extends Component {
         // Create custom scales from dimensions if required
         const customScales = this.dimensions
             .map((dimension: Map, dimensionName: string): Map => {
-                const {scaleUpdate, scaleTypeName} = applyDimension(dimension, Map(props)).toObject();
+                const {scaleUpdate, scaleTypeName} = applyDimension(dimension, inheritedProps).toObject();
 
                 // if child has defined either a custom scale or scaleType
                 // we need to recreate the scale based on the custom props
