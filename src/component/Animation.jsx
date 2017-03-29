@@ -38,7 +38,8 @@ class Animation extends Component {
         this.interpolate();
         window.requestAnimationFrame(this.tick);
     }
-
+    // @TODO velocity/accelleration animations
+    // @TODO physics based easing
     interpolate() {
         console.log(d3Ease);
         const easing = this.props.easing(d3Ease);

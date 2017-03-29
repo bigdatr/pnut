@@ -15,17 +15,17 @@ class ScatterExample extends React.Component {
 
     }
 
-    componentDidMount() {
-        setInterval(() => {
-            this.setState({
-                data: data.mapRows(row => {
-                    return row
-                        .set('supply', row.get('supply') * Math.random())
-                        .set('demand', row.get('demand') * Math.random());
-                })
-            })
-        }, 2000);
-    }
+    // componentDidMount() {
+    //     setInterval(() => {
+    //         this.setState({
+    //             data: data.mapRows(row => {
+    //                 return row
+    //                     .set('supply', row.get('supply') * Math.random())
+    //                     .set('demand', row.get('demand') * Math.random());
+    //             })
+    //         })
+    //     }, 2000);
+    // }
     render() {
         return  <Chart
             dimensions={['x', 'y', 'radius']}
@@ -38,7 +38,7 @@ class ScatterExample extends React.Component {
             radiusScaleUpdate={scale => scale.range([10, 40])}
         >
             <Interaction>
-                <Animation duration={300} easing={(easings) => easings.easeQuadOut}>
+                <Animation duration={300} easing={(easings) => easings.easeQuad}>
                     <Scatter id='scatter' dot={props => <circle {...props.dotProps} fill='black' r={props.dimensions.radius}/>}/>
                     <Line id='line' curveSelector={(curves) => curves.curveMonotoneX}/>
                     <Group>
