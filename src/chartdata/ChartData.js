@@ -428,11 +428,10 @@ class ChartData extends Record({
     }
 
     _allValuesForColumns(columnList: List<string>): List<ChartScalar> {
-        return this.rows
-            .reduce((values: List<ChartScalar>, row: ChartRow): List<ChartScalar> => {
-                return values.concat(row
-                    .filter((val, key) => columnList.contains(key))
-                    .toList()
+        return columnList
+            .reduce((list: List<ChartScalar>, column: string): List<ChartScalar> => {
+                return list.concat(
+                    this.rows.map(row => row.get(column))
                 );
             }, List());
     }
@@ -606,12 +605,7 @@ class ChartData extends Record({
             return null;
         }
         return this._memoize(`getUniqueValues.${columnList.join(',')}`, (): ?List<ChartScalar> => {
-            return columnList
-                .reduce((list: List<ChartScalar>, column: string): List<ChartScalar> => {
-                    return list.concat(
-                        this.rows.map(row => row.get(column))
-                    );
-                }, List())
+            return this._allValuesForColumns(columnList)
                 .toOrderedSet()
                 .toList();
         });
