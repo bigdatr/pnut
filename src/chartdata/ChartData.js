@@ -427,15 +427,6 @@ class ChartData extends Record({
         return fromJS(columns);
     }
 
-    _allValuesForColumns(columnList: List<string>): List<ChartScalar> {
-        return columnList
-            .reduce((list: List<ChartScalar>, column: string): List<ChartScalar> => {
-                return list.concat(
-                    this.rows.map(row => row.get(column))
-                );
-            }, List());
-    }
-
     _aggregation(
         operation: string,
         aggregateFunction: (valueList: List) => number,
@@ -447,15 +438,14 @@ class ChartData extends Record({
             return null;
         }
 
-        const allValuesForColumns = this._memoize(
-            `allValuesForColumns.${columnList.join(',')}`,
-            (): List<ChartScalar> => {
-                return this._allValuesForColumns(columnList).filter(val => val != null);
-            }
-        );
+        const allValues = this.getAllValues(columnList);
+        if(!allValues) {
+            return null;
+        }
+        const nonNullValues = allValues.filter(val => val != null);
 
         return this._memoize(`${operation}.${columnList.join(',')}`, (): ?ChartScalar => {
-            const result: number = allValuesForColumns.update(aggregateFunction);
+            const result: number = nonNullValues.update(aggregateFunction);
             return typeof result != "string" && isNaN(result) ? null : result;
         });
     }
@@ -581,8 +571,38 @@ class ChartData extends Record({
     }
 
     /**
-     * For a given column, or `Array` or `List` of columns, this returns a `List` of unique values in those columns, in the order that
-     * each unique value first appears in `rows`.
+     * For a given column, or `Array` or `List` of columns, this returns a `List` of all values in those columns.
+     *
+     * @param {string|Array<string>|List<string>} columns
+     * The names of one or more columns to perform the operation on.
+     *
+     * @return {List<ChartScalar>|null}
+     * A `List` of values in the order they appear in `columns`, or null if columns have been
+     * set but the column could not be found.
+     *
+     * @name getAllValues
+     * @kind function
+     * @inner
+     * @memberof ChartData
+     */
+
+    getAllValues(columns: ChartColumnArg): ?List<ChartScalar> {
+        const columnList: List<string> = this._columnArgList(columns);
+        if(this._columnListError(columnList)) {
+            return null;
+        }
+        return this._memoize(`getAllValues.${columnList.join(',')}`, (): ?List<ChartScalar> => {
+            return columnList
+                .reduce((list: List<ChartScalar>, column: string): List<ChartScalar> => {
+                    return list.concat(
+                        this.rows.map(row => row.get(column))
+                    );
+                }, List());
+        });
+    }
+
+    /**
+     * For a given column, or `Array` or `List` of columns, this returns a `List` of unique values in those columns.
      *
      * You can also return the number of unique values by calling `getUniqueValues().size`.
      *
@@ -590,7 +610,7 @@ class ChartData extends Record({
      * The names of one or more columns to perform the operation on.
      *
      * @return {List<ChartScalar>|null}
-     * A `List` of unique values in the order they appear in `rows`, or null if columns have been
+     * A `List` of unique values in the order they appear in `columns`, or null if columns have been
      * set but the column could not be found.
      *
      * @name getUniqueValues
@@ -605,7 +625,11 @@ class ChartData extends Record({
             return null;
         }
         return this._memoize(`getUniqueValues.${columnList.join(',')}`, (): ?List<ChartScalar> => {
-            return this._allValuesForColumns(columnList)
+            const allValues = this.getAllValues(columnList);
+            if(!allValues) {
+                return null;
+            }
+            return allValues
                 .toOrderedSet()
                 .toList();
         });
@@ -1014,14 +1038,16 @@ class ChartData extends Record({
             return null;
         }
 
-        const allValuesForColumns = this._memoize(
-            `allValuesForColumns.${columnList.join(',')}`,
-            (): List<ChartScalar> => {
-                return this._allValuesForColumns(columnList).filter(val => val != null);
-            }
-        );
+        const allValues = this.getAllValues(columnList);
+        if(!allValues) {
+            return null;
+        }
 
-        const quantileValue = quantile(allValuesForColumns.sort().toArray(), p);
+        const nonNullValuesAsArray = allValues.filter(val => val != null)
+            .sort()
+            .toArray();
+
+        const quantileValue = quantile(nonNullValuesAsArray, p);
         return  typeof quantileValue === 'undefined' ? null : quantileValue;
     }
 
@@ -1182,24 +1208,23 @@ class ChartData extends Record({
         if(this._columnListError(columnList)) {
             return null;
         }
+        const allValues = this.getAllValues(columnList);
+        if(!allValues) {
+            return null;
+        }
 
-        const allValues = this._memoize(
-            `allValuesForColumns.${column}`,
-            (): List<ChartScalar> => {
-                return this._allValuesForColumns(columnList).filter(val => val != null);
-            }
-        );
+        const nonNullValuesAsArray = allValues
+            .filter(val => val != null)
+            .toArray();
 
-        const allValuesAsArray = allValues.toArray();
-
-        const isDate = ChartData.isValueDate(allValuesAsArray[0]);
+        const isDate = ChartData.isValueDate(nonNullValuesAsArray[0]);
 
         const min = this.min(column);
         const max = this.max(column);
 
 
         const calculatedThresholds = typeof thresholds === 'function'
-            ? thresholds(allValuesAsArray, min, max, {
+            ? thresholds(nonNullValuesAsArray, min, max, {
                 freedmanDiaconis: thresholdFreedmanDiaconis,
                 scott: thresholdScott,
                 sturges: thresholdSturges
@@ -1208,7 +1233,7 @@ class ChartData extends Record({
 
         // Calculate thresholds for binning
         const binThresholds = thresholds == null
-            ? thresholdSturges(allValuesAsArray)
+            ? thresholdSturges(nonNullValuesAsArray)
             : calculatedThresholds
                 ? List.isList(calculatedThresholds)
                     // $FlowBug: flow doesn't know that only lists can get through `List.isList`
@@ -1228,7 +1253,7 @@ class ChartData extends Record({
 
         const bins = histogram()
             .thresholds(binThresholds)
-            .domain(binDomain)(allValuesAsArray);
+            .domain(binDomain)(nonNullValuesAsArray);
 
         // Use d3-histogram generated bins to organize ChartData rows into bins
         const binnedRows = this.rows
