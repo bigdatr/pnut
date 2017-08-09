@@ -110,7 +110,8 @@ export class ScatterRenderable extends React.PureComponent {
         row: Object,
         index: number
     ): ?React.Element<any> {
-        if(row.x == null || row.y == null) return null;
+        if(typeof row.x !== 'number' || typeof row.y !== 'number') return null;
+
         const {dot: Dot, dotProps} = this.props;
         return <Dot
             key={index}
