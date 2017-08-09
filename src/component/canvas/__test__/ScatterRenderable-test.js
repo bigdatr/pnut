@@ -223,28 +223,39 @@ const radiusScale = scaleLinear()
     .domain([chartData.min('demand'), chartData.max('demand')])
     .range([10, 30]);
 
-
-
 const scaledData = chartData.rows.map(row => ({
     x: row.get('month') != null ? xScale(row.get('month')) + xScale.bandwidth() / 2 : null,
     y: row.get('supply') != null ? 200 - yScale(row.get('supply')) : null,
     radius: row.get('demand') != null ? radiusScale(row.get('demand')) : null
 })).toArray();
 
-const DefaultScatter = shallow(<ScatterRenderable
-    width={200}
-    height={200}
-    scaledData={scaledData}
-    data={chartData}
-/>);
+const DefaultScatter = (scaledData: Array): React.Element<> => {
+    return shallow(<ScatterRenderable
+        width={200}
+        height={200}
+        scaledData={scaledData}
+        data={chartData}
+    />);
+};
 
 test('Default ScatterRenderable renders circles', tt => {
-    tt.is(DefaultScatter.childAt(0).shallow().type(), 'circle');
+    tt.is(DefaultScatter(scaledData).childAt(0).shallow().type(), 'circle');
 });
 
 test('ScatterRenderable won\'t render a dot for null points', tt => {
     // The second data point won't be rendered because it has no supply value
-    tt.is(DefaultScatter.children().length, scaledData.length - 1);
+    tt.is(DefaultScatter(scaledData).children().length, scaledData.length - 1);
+});
+
+test('ScatterRenderable won\'t render a dot for NaN points', tt => {
+    const scaledWithNaN = [...scaledData, {
+        x: "2017-01-01",
+        y: NaN,
+        radius: 30
+    }];
+
+    // Two points won't render now - one with a null, and one with a NaN value
+    tt.is(DefaultScatter(scaledWithNaN).children().length, scaledWithNaN.length - 2);
 });
 
 const CustomScatter = shallow(<ScatterRenderable
