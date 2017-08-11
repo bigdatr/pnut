@@ -128,7 +128,7 @@ export class ScatterRenderable extends React.PureComponent {
     render(): React.Element<any> {
         return <g>
             {this.props.scaledData
-                .filter(data => isNumber(data.x) && isNumber(data.y))
+                .filter(row => isNumber(row.x) && isNumber(row.y))
                 .map(this.buildDot)}
         </g>;
     }
