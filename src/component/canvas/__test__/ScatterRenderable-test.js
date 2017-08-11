@@ -249,7 +249,7 @@ test('ScatterRenderable won\'t render a dot for null points', tt => {
 
 test('ScatterRenderable won\'t render a dot for NaN points', tt => {
     const scaledWithNaN = [...scaledData, {
-        x: "2017-01-01",
+        x: 100,
         y: NaN,
         radius: 30
     }];
