@@ -39,7 +39,7 @@ const defaultDot = (props: Object): React.Element<any> => {
     return <circle fill='black' r={3} {...props.dotProps}/>;
 };
 
-
+const isNumber = (value) => typeof value === 'number' && !isNaN(value);
 
 /**
  *
@@ -110,8 +110,6 @@ export class ScatterRenderable extends React.PureComponent {
         row: Object,
         index: number
     ): ?React.Element<any> {
-        if(typeof row.x !== 'number' || typeof row.y !== 'number') return null;
-
         const {dot: Dot, dotProps} = this.props;
         return <Dot
             key={index}
@@ -129,7 +127,9 @@ export class ScatterRenderable extends React.PureComponent {
 
     render(): React.Element<any> {
         return <g>
-            {this.props.scaledData.map(this.buildDot)}
+            {this.props.scaledData
+                .filter(data => isNumber(data.x) && isNumber(data.y))
+                .map(this.buildDot)}
         </g>;
     }
 }
