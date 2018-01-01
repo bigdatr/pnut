@@ -1,5 +1,6 @@
 // @flow
-import React, {Component, Children, cloneElement, Element, PropTypes} from 'react';
+import PropTypes from 'prop-types';
+import React, {Component, Children, cloneElement, Element} from 'react';
 import {List, Map, Set} from 'immutable';
 import Svg from './Svg';
 import applyDimension from '../util/applyDimension';
