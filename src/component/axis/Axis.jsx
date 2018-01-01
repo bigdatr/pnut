@@ -1,5 +1,7 @@
 // @flow
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import ChartData from '../../chartdata/ChartData';
 
@@ -63,73 +65,73 @@ export class AxisRenderable extends React.PureComponent {
 
     static propTypes = {
         /** {'top'|'right'|'bottom'|'left'} The position of the axis */
-        position: React.PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
+        position: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
 
         /** Domain value of opposite scale at which to render the axis */
-        location: React.PropTypes.oneOfType([
-            React.PropTypes.number,
-            React.PropTypes.string,
-            React.PropTypes.instanceOf(Date)
+        location: PropTypes.oneOfType([
+            PropTypes.number,
+            PropTypes.string,
+            PropTypes.instanceOf(Date)
         ]),
 
         /** Custom axisLine renderer */
-        axisLine: React.PropTypes.func,
+        axisLine: PropTypes.func,
 
         /** {Object} An object of props that are passed to the axis line - the line that sits against the chart edge. */
-        axisLineProps: React.PropTypes.object,
+        axisLineProps: PropTypes.object,
 
-        axisLineWidth: React.PropTypes.number,
+        axisLineWidth: PropTypes.number,
 
         /** Custom tickLine renderer */
-        tickLine: React.PropTypes.func,
+        tickLine: PropTypes.func,
 
         /** {Object} An object of props that are passed to the each tick */
-        tickLineProps: React.PropTypes.object,
+        tickLineProps: PropTypes.object,
 
         /** Custom text renderer */
-        text: React.PropTypes.func,
+        text: PropTypes.func,
 
         /** {Object} An object of props that are passed to the each text node */
-        textProps: React.PropTypes.object,
+        textProps: PropTypes.object,
 
         /**
          * {Function} a function that is called for each tick and is passed the tick value. This can
          * be used for example to add a percent symbol to the tick: `(value) => value + '%'`
          */
-        textFormat: React.PropTypes.func,
+        textFormat: PropTypes.func,
 
         /** The length of the tick line. */
-        tickSize: React.PropTypes.number,
+        tickSize: PropTypes.number,
 
         /** The padding between a tick line and the tick text */
-        textPadding: React.PropTypes.number,
+        textPadding: PropTypes.number,
 
         /**
          * The distance the axis line should extend past its bounds. This can be used to make two
          * perpendicular axis lines overlap where they meet.
          */
-        overlap: React.PropTypes.number,
+        overlap: PropTypes.number,
 
         /** {Scale} The [d3-scale](https://github.com/d3/d3-scale) for the axis */
-        scale: React.PropTypes.func.isRequired,
+        scale: PropTypes.func.isRequired,
 
         /** {Scale} The [d3-scale](https://github.com/d3/d3-scale) for the axis */
-        xScale: React.PropTypes.func,
+        xScale: PropTypes.func,
 
         /** {Scale} The [d3-scale](https://github.com/d3/d3-scale) for the axis */
-        yScale: React.PropTypes.func,
+        yScale: PropTypes.func,
 
         /**
          * An array of ticks to display on the axis. In most cases this can be constructed by
          * calling the scale's [`ticks`](https://github.com/d3/d3-scale#continuous_ticks) function.
          */
-        ticks: React.PropTypes.func,
+        ticks: PropTypes.func,
 
         /** The width of the axis */
-        width: React.PropTypes.number.isRequired,
+        width: PropTypes.number.isRequired,
 
         /** The height of the axis */
-        height: React.PropTypes.number.isRequired
+        height: PropTypes.number.isRequired
     };
 
     drawTicks(): Array<React.Element<any>> {
@@ -318,12 +320,12 @@ export default class Axis extends React.Component {
         /**
          * The dimension to base this axis off. Probably x or y
          */
-        dimension: React.PropTypes.string.isRequired,
+        dimension: PropTypes.string.isRequired,
 
         /**
          * Position the axis will stick to.
          */
-        position: React.PropTypes.oneOf(['top', 'right', 'bottom', 'left'])
+        position: PropTypes.oneOf(['top', 'right', 'bottom', 'left'])
     }
     render(): React.Element<any> {
         const {dimension, position} = this.props;

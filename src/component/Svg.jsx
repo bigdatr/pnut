@@ -1,5 +1,7 @@
 // @flow
 
+import PropTypes from 'prop-types';
+
 import React from 'react';
 
 /**
@@ -23,25 +25,25 @@ export default class Svg extends React.PureComponent {
          * The height of the canvas -
          * If this is not provided then the component's children won't render.
          */
-        height: React.PropTypes.number,
+        height: PropTypes.number,
         /**
          * The width of the canvas -
          * If this is not provided then the component's children won't render.
          */
-        width: React.PropTypes.number,
+        width: PropTypes.number,
 
         /** An object of props that will be spread onto the svg element. */
-        svgProps: React.PropTypes.object,
+        svgProps: PropTypes.object,
 
-        stroke: React.PropTypes.string,
+        stroke: PropTypes.string,
 
-        className: React.PropTypes.string,
+        className: PropTypes.string,
 
         /** The x position of the canvas */
-        x: React.PropTypes.number,
+        x: PropTypes.number,
 
         /** The y position of the canvas */
-        y: React.PropTypes.number
+        y: PropTypes.number
     };
 
     static defaultProps = {
