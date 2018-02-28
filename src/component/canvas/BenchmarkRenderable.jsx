@@ -1,5 +1,7 @@
 // @flow
 import React from 'react';
+import PropTypes from 'prop-types';
+
 
 function DefaultLine(props: Object): React.Element<any> {
     return <line
@@ -48,41 +50,44 @@ export class BenchmarkRenderable extends React.PureComponent {
 
     static propTypes = {
         /** {'top'|'right'|'bottom'|'left'} The position of the label */
-        textPosition: React.PropTypes.oneOf(['top', 'bottom']),
+        textPosition: PropTypes.oneOf(['top', 'bottom']),
 
         /** {'x'|'y'} The scale to base the benchmark on */
-        dimension: React.PropTypes.oneOf(['x', 'y']),
+        dimension: PropTypes.oneOf(['x', 'y']),
 
         /** Domain value of opposite scale at which to render the axis */
-        location: React.PropTypes.oneOfType([
-            React.PropTypes.number,
-            React.PropTypes.string,
-            React.PropTypes.instanceOf(Date)
+        location: PropTypes.oneOfType([
+            PropTypes.number,
+            PropTypes.string,
+            PropTypes.instanceOf(Date)
         ]).isRequired,
 
         /** Custom line renderer */
-        line: React.PropTypes.func,
+        line: PropTypes.func,
+
+        label: PropTypes.string,
+        labelOffset: PropTypes.number,
 
         /** {Object} An object of props that are passed to the axis line - the line that sits against the chart edge. */
-        lineProps: React.PropTypes.object,
+        lineProps: PropTypes.object,
 
         /** Custom text renderer */
-        text: React.PropTypes.func,
+        text: PropTypes.func,
 
         /** {Object} An object of props that are passed to the each text node */
-        textProps: React.PropTypes.object,
+        textProps: PropTypes.object,
 
         /** {Scale} The [d3-scale](https://github.com/d3/d3-scale) for the axis */
-        xScale: React.PropTypes.func,
+        xScale: PropTypes.func,
 
         /** {Scale} The [d3-scale](https://github.com/d3/d3-scale) for the axis */
-        yScale: React.PropTypes.func,
+        yScale: PropTypes.func,
 
         /** The width of the axis */
-        width: React.PropTypes.number.isRequired,
+        width: PropTypes.number.isRequired,
 
         /** The height of the axis */
-        height: React.PropTypes.number.isRequired
+        height: PropTypes.number.isRequired
     };
 
     //

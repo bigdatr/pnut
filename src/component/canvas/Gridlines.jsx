@@ -1,6 +1,6 @@
 // @flow
-
 import React from 'react';
+import PropTypes from 'prop-types';
 
 type LineCoordinates = {
     x1: number,
@@ -86,35 +86,35 @@ export class GridlinesRenderable extends React.PureComponent {
          * {Line} A custom component used to render a vertical line.
          * Defaults to rendering a svg `<line/>`.
          */
-        lineVertical: React.PropTypes.func,
+        lineVertical: PropTypes.func,
 
         /**
          * {Line} A custom component used to render a horizontal line.
          * Defaults to rendering a `<line/>`.
          */
-        lineHorizontal: React.PropTypes.func,
+        lineHorizontal: PropTypes.func,
 
         /**
          * {Scale} Any d3-scale for the x axis.
          */
-        xScale: React.PropTypes.func.isRequired,
+        xScale: PropTypes.func.isRequired,
 
         /**
          * {Scale} Any d3-scale for the y axis.
          */
-        yScale: React.PropTypes.func.isRequired,
+        yScale: PropTypes.func.isRequired,
 
         /**
          * An array of ticks to render as vertical gridlines. In most cases this can be constructed
          * by calling the scale's [`ticks`](https://github.com/d3/d3-scale#continuous_ticks) function.
          */
-        xTicks: React.PropTypes.func,
+        xTicks: PropTypes.func,
 
         /**
          * An array of ticks to render as horizontal gridlines. In most cases this can be constructed
          * by calling the scale's [`ticks`](https://github.com/d3/d3-scale#continuous_ticks) function.
          */
-        yTicks: React.PropTypes.func
+        yTicks: PropTypes.func
     };
 
     buildHorizontalGridlines(): Array<React.Element<any>> {

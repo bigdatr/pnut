@@ -1,5 +1,6 @@
 // @flow
-import React, {Component, Children, cloneElement, Element, PropTypes} from 'react';
+import React, {Component, Children, cloneElement, Element} from 'react';
+import PropTypes from 'prop-types';
 import {List, Map, Set} from 'immutable';
 import Svg from './Svg';
 import applyDimension from '../util/applyDimension';
@@ -132,7 +133,13 @@ class Chart extends Component {
          * Renderable height is: height - top - bottom.
          * Renderable width is: width - left - right.
          */
-        padding: PropTypes.arrayOf(PropTypes.number)
+        padding: PropTypes.arrayOf(PropTypes.number),
+
+
+        className: PropTypes.string,
+        modifier: PropTypes.string,
+        spruceName: PropTypes.string,
+        childChart: PropTypes.bool
     };
 
     static chartType = 'canvas';
