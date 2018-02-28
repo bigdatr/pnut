@@ -1,6 +1,6 @@
 import {Line, ChartData, Chart, Scatter, Column, Axis, Gridlines, Benchmark} from 'pnut';
 import React from 'react';
-import {ElementQueryHock} from 'stampy';
+import ElementQueryHock from 'stampy/lib/hock/ElementQueryHock';
 import moment from 'moment';
 
 import lineData from '../data/lineData';

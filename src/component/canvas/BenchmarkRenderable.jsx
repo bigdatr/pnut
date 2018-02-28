@@ -1,7 +1,5 @@
 // @flow
-
 import React from 'react';
-import ChartData from '../../chartdata/ChartData';
 
 function DefaultLine(props: Object): React.Element<any> {
     return <line

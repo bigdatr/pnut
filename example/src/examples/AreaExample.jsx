@@ -1,7 +1,7 @@
 import {Area, Svg, Chart} from 'pnut';
 import React from 'react';
 import {scaleLinear, scalePoint} from 'd3-scale';
-import {ElementQueryHock} from 'stampy';
+import ElementQueryHock from 'stampy/lib/hock/ElementQueryHock';
 import data from '../data/lineData';
 
 class AreaExample extends React.Component {

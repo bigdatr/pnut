@@ -1,6 +1,6 @@
 import {Column, Axis, Chart, Line, Scatter} from 'pnut';
 import React from 'react';
-import {ElementQueryHock} from 'stampy';
+import ElementQueryHock from 'stampy/lib/hock/ElementQueryHock';
 
 import columnData from '../data/columnData';
 
