@@ -8,6 +8,7 @@ import {
     Map,
     List,
     OrderedMap,
+    KeyedSeq,
     Record
 } from 'immutable';
 
@@ -161,7 +162,7 @@ class ChartData extends Record({
      */
 
     constructor(
-        rows: Array<ChartRowDefinition>|List<ChartRowDefinition>,
+        rows: Array<ChartRowDefinition>|List<ChartRowDefinition>|Array<ChartRow>|List<ChartRow>,
         columns: Array<ChartColumnDefinition>|List<ChartColumnDefinition>|OrderedMap<string,ChartColumn>
     ) {
         const chartDataRows: List<ChartRow> = ChartData._createRows(rows);
@@ -381,16 +382,14 @@ class ChartData extends Record({
      * private methods
      */
 
-    _columnError(column: string): boolean {
+    _columnError(column: string) {
         if(!this.columns.get(column)) {
-            console.error(`ChartData: column "${column}" not found.`);
-            return true;
+            throw new Error(`ChartData: column "${column}" not found.`);
         }
-        return false;
     }
 
-    _columnListError(columnList: List<string>): boolean {
-        return columnList.some(ii => this._columnError(ii));
+    _columnListError(columnList: List<string>) {
+        columnList.forEach(ii => this._columnError(ii));
     }
 
     _indexError(index: number, max: ?number, integer: ?boolean = true): boolean {
@@ -426,18 +425,16 @@ class ChartData extends Record({
             }, List());
     }
 
-    _aggregation(operation: string, columns: ChartColumnArg): ?ChartScalar {
+    _aggregation(operation: string, columns: ChartColumnArg): ChartScalar {
         const columnList: List<string> = this._columnArgList(columns);
-        if(this._columnListError(columnList)) {
-            return null;
-        }
+        this._columnListError(columnList);
 
         return this._memoize(`${operation}.${columnList.join(',')}`, (): ?ChartScalar => {
-            const result: number = this._allValuesForColumns(columnList)
+            const result = this._allValuesForColumns(columnList)
                 .filter(val => val != null)
                 .update(ImmutableMath[operation]());
 
-            return typeof result != "string" && isNaN(result) ? null : result;
+            return (typeof result != "string" && isNaN(result)) ? null : result;
         });
     }
 
@@ -501,7 +498,7 @@ class ChartData extends Record({
         // so here we convert the interal data structure back to the user facing one
         // for use in the updater().
 
-        const columnDefinitions: List<Map> = this.columns
+        const columnDefinitions = this.columns
             .toList()
             .map(col => col.toMap());
 
@@ -550,9 +547,7 @@ class ChartData extends Record({
      */
 
     getColumnData(column: string): List<ChartScalar> {
-        if(this._columnError(column)) {
-            return null;
-        }
+        this._columnError(column);
         return this._memoize(`getColumnData.${column}`, (): ?List<ChartScalar> => {
             return this.rows.map(row => row.get(column));
         });
@@ -577,11 +572,9 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    getUniqueValues(columns: ChartColumnArg): ?List<ChartScalar> {
+    getUniqueValues(columns: ChartColumnArg): List<ChartScalar> {
         const columnList: List<string> = this._columnArgList(columns);
-        if(this._columnListError(columnList)) {
-            return null;
-        }
+        this._columnListError(columnList);
         return this._memoize(`getUniqueValues.${columnList.join(',')}`, (): ?List<ChartScalar> => {
             return this.rows
                 .reduce((list: List<ChartScalar>, ii: ChartRow): List<ChartScalar> => {
@@ -611,9 +604,7 @@ class ChartData extends Record({
      */
 
     makeFrames(column: string): List<List<ChartRow>> {
-        if(this._columnError(column)) {
-            return null;
-        }
+        this._columnError(column);
         return this._memoize(`makeFrames.${column}`, (): ?ChartData => {
             return this.rows
                 .groupBy(ii => ii.get(column))
@@ -691,10 +682,9 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    frameAtIndex(frameColumn: string, index: number): ?ChartData {
-        if(this._columnError(frameColumn) || this._indexError(index)) {
-            return null;
-        }
+    frameAtIndex(frameColumn: string, index: number): ChartData {
+        this._columnError(frameColumn);
+        this._indexError(index);
         return this._memoize(`frameAtIndex.${frameColumn}[${index}]`, (): ?ChartData => {
             const frames: List<List<ChartRow>> = this.makeFrames(frameColumn);
             if(this._indexError(index, frames.size - 1)) {
@@ -771,13 +761,9 @@ class ChartData extends Record({
      */
 
     frameAtIndexInterpolated(frameColumn: string, primaryColumn: string, index: number): ?ChartData {
-        if(
-            this._columnError(frameColumn) ||
-            this._columnError(primaryColumn) ||
-            this._indexError(index, null, false)
-        ) {
-            return null;
-        }
+        this._columnError(frameColumn);
+        this._columnError(primaryColumn);
+        this._indexError(index, null, false);
 
         if(frameColumn == primaryColumn) {
             console.error(`ChartData: frameColumn and primaryColumn cannot be the same.`);
@@ -788,10 +774,8 @@ class ChartData extends Record({
             return this.frameAtIndex(frameColumn, index);
         }
 
-        const frames: List<List<ChartRow>> = this.makeFrames(frameColumn);
-        if(this._indexError(index, frames.size - 1, false)) {
-            return null;
-        }
+        const frames = this.makeFrames(frameColumn);
+        this._indexError(index, frames.size - 1, false);
 
         // get all values of primary in entire data set, so we can leave gaps where data points may
         // not exist at these data frames
@@ -804,15 +788,15 @@ class ChartData extends Record({
 
         // for each frame, get its data and use its primaryColumn to uniquely identify points that
         // are in both frames
-        const frameA: List<ChartRow> = frames
+        const frameA: KeyedSeq<*, *> = frames
             .get(indexA)
             .groupBy(ii => ii.get(primaryColumn));
 
-        const frameB: List<ChartRow> = frames
+        const frameB: KeyedSeq<*, *> = frames
             .get(indexB)
             .groupBy(ii => ii.get(primaryColumn));
 
-        const getRowFromFrame = (frame: List<ChartRow>, primaryValue: ChartScalar): ?ChartRow => {
+        const getRowFromFrame = (frame: KeyedSeq<*, *>, primaryValue: ChartScalar): ?ChartRow => {
             const rowList: ?List<ChartRow> = frame.get(primaryValue);
             if(!rowList || rowList.size == 0) {
                 return null;
@@ -821,14 +805,14 @@ class ChartData extends Record({
             // when uniquely identifying points, the data may accidentally contain multiple matches,
             // so warn if this happens
             if(rowList.size > 1) {
-                console.warn(`ChartData: Two data points found where ${frameColumn}=${first.get(frameColumn)} and ${primaryColumn}=${String(primaryValue)}, using first data point.`);
+                console.warn(`ChartData: Two data points found where ${frameColumn}=${first.get(frameColumn) || ''} and ${primaryColumn}=${String(primaryValue)}, using first data point.`);
             }
             return first;
         };
 
         // for all primaryValues, find matching data points in both frames
         const interpolatedFrame: List<ChartRow> = allPrimaryValues
-            .map((primaryValue: ChartScalar): ?ChartRow => {
+            .flatMap((primaryValue: ChartScalar): List<*> => {
                 const rowA: ?ChartRow = getRowFromFrame(frameA, primaryValue);
                 const rowB: ?ChartRow = getRowFromFrame(frameB, primaryValue);
 
@@ -837,11 +821,11 @@ class ChartData extends Record({
                 // values if we can work out what to do with all non-continuous ones,
                 // and if it's reasonable that frameAtIndexInterpolated make up new data points
                 if(!rowA || !rowB) {
-                    return null;
+                    return List();
                 }
 
                 // for each column, try to interpolate values
-                return this.columns.reduce((map: ChartRow, column: ChartColumn): ChartRow => {
+                return List(this.columns.reduce((map: ChartRow, column: ChartColumn): ChartRow => {
                     const {key, isContinuous} = column;
                     // use interpolate on continuous non-primary columns
                     // or else keep the data discrete while interpolating
@@ -850,9 +834,9 @@ class ChartData extends Record({
                         : ChartData.interpolateDiscrete(rowA.get(key), rowB.get(key), blend);
 
                     return map.set(key, value);
-                }, Map());
-            })
-            .filter(ii => ii != null);
+                }, Map()));
+            });
+            // .filter(ii => ii != null);
 
         return new ChartData(interpolatedFrame, this.columns);
     }
