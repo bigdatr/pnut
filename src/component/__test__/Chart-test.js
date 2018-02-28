@@ -1,5 +1,6 @@
 import test from 'ava';
 import React from 'react';
+import type {Node} from 'react';
 import {Map} from 'immutable';
 import {shallow} from 'enzyme';
 import {spy} from 'sinon';

@@ -1,11 +1,12 @@
 import {Line, ChartData, Chart, Scatter, Column, Axis, Gridlines, Benchmark} from 'pnut';
 import React from 'react';
+import type {Node} from 'react';
 import ElementQueryHock from 'stampy/lib/hock/ElementQueryHock';
 import moment from 'moment';
 
 import lineData from '../data/lineData';
 
-const lightLine = (props: LineProps): React.Element<any> => {
+const lightLine = (props: LineProps): Node => {
     const {coordinates} = props;
     return <line {...coordinates} strokeWidth="1" stroke="#eee"/>;
 };

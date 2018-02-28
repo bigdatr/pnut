@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import type {Node} from 'react';
 import PropTypes from 'prop-types';
 
 
@@ -35,7 +36,7 @@ import PropTypes from 'prop-types';
  * The full array of pre scaled data.
  */
 
-const defaultDot = (props: Object): React.Element<any> => {
+const defaultDot = (props: Object): Node => {
     return <circle fill='black' r={3} {...props.dotProps}/>;
 };
 
@@ -67,7 +68,7 @@ const defaultDot = (props: Object): React.Element<any> => {
  *
  */
 
-export class ScatterRenderable extends React.PureComponent {
+export class ScatterRenderable extends React.PureComponent<Object> {
     static defaultProps = {
         dot: defaultDot
     };
@@ -109,7 +110,7 @@ export class ScatterRenderable extends React.PureComponent {
     buildDot(
         row: Object,
         index: number
-    ): ?React.Element<any> {
+    ): ?Node {
         if(row.x == null || row.y == null) return null;
         const {dot: Dot, dotProps} = this.props;
         return <Dot
@@ -126,7 +127,7 @@ export class ScatterRenderable extends React.PureComponent {
         />;
     }
 
-    render(): React.Element<any> {
+    render(): Node {
         return <g>
             {this.props.scaledData.map(this.buildDot)}
         </g>;
@@ -148,7 +149,7 @@ export class ScatterRenderable extends React.PureComponent {
  *
  */
 
-export default class Scatter extends React.Component {
+export default class Scatter extends React.Component<Object> {
     static chartType = 'canvas';
 
     static propTypes = {
@@ -164,7 +165,7 @@ export default class Scatter extends React.Component {
         dot: PropTypes.func
     };
 
-    render(): React.Element<any> {
+    render(): Node {
         return <ScatterRenderable {...this.props} />;
     }
 }

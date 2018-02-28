@@ -5,14 +5,14 @@ import {Set} from 'immutable';
 import ChartData from '../chartdata/ChartData';
 
 // create a set of booleans to check if a group is mixing dimension types
-function isContinuous(columns: Set, data: Object): Set {
+function isContinuous(columns: Set<*>, data: Object): Set<*> {
     return columns
         .map((columnName: string): boolean => {
             return data.getIn(['columns', columnName, 'isContinuous']);
         });
 }
 
-function isDate(columns: Set, data: Object): Set {
+function isDate(columns: Set<*>, data: Object): Set<*> {
     return columns
         .map((columnName: string): boolean  => {
             return ChartData.isValueDate(data.getIn(['rows', 0, columnName]));

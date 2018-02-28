@@ -2639,10 +2639,6 @@ flow-bin@0.54:
   version "0.54.1"
   resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.54.1.tgz#7101bcccf006dc0652714a8aef0c72078a760510"
 
-flow-bin@^0.33.0:
-  version "0.33.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.33.0.tgz#ef011eace7a6100f1ae08b852db78279032b8750"
-
 fn-name@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/fn-name/-/fn-name-2.0.1.tgz#5214d7537a4d06a4a301c0cc262feb84188002e7"
@@ -4755,6 +4751,15 @@ react-dom@^15.3.2:
     loose-envify "^1.1.0"
     object-assign "^4.1.0"
 
+react-dom@^16.2.0:
+  version "16.2.0"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.2.0.tgz#69003178601c0ca19b709b33a83369fe6124c044"
+  dependencies:
+    fbjs "^0.8.16"
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+    prop-types "^15.6.0"
+
 react@^15.3.2:
   version "15.4.2"
   resolved "https://registry.yarnpkg.com/react/-/react-15.4.2.tgz#41f7991b26185392ba9bae96c8889e7e018397ef"
@@ -4762,6 +4767,15 @@ react@^15.3.2:
     fbjs "^0.8.4"
     loose-envify "^1.1.0"
     object-assign "^4.1.0"
+
+react@^16.2.0:
+  version "16.2.0"
+  resolved "https://registry.yarnpkg.com/react/-/react-16.2.0.tgz#a31bd2dab89bff65d42134fa187f24d054c273ba"
+  dependencies:
+    fbjs "^0.8.16"
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+    prop-types "^15.6.0"
 
 read-file-stdin@^0.2.0:
   version "0.2.1"
@@ -5223,14 +5237,14 @@ stack-utils@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/stack-utils/-/stack-utils-1.0.1.tgz#d4f33ab54e8e38778b0ca5cfd3b3afb12db68620"
 
-stampy@^0.37.3:
-  version "0.37.3"
-  resolved "https://registry.yarnpkg.com/stampy/-/stampy-0.37.3.tgz#619b5f3f95c3c18344057c673d8f577e2f63cfe1"
+stampy@^0.37.4:
+  version "0.37.4"
+  resolved "https://registry.yarnpkg.com/stampy/-/stampy-0.37.4.tgz#18b0481c887cb2dec4bcfaf4095b2915786064b9"
   dependencies:
     classnames "^2.2.5"
     element-resize-detector "^1.1.12"
     is-plain-object "^2.0.3"
-    unmutable "^0.19.0"
+    unmutable "^0.23.0"
     url-search-params "^0.9.0"
 
 string-width@^1.0.1:
@@ -5578,9 +5592,9 @@ universalify@^0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/universalify/-/universalify-0.1.1.tgz#fa71badd4437af4c148841e3b3b165f9e9e590b7"
 
-unmutable@^0.19.0:
-  version "0.19.2"
-  resolved "https://registry.yarnpkg.com/unmutable/-/unmutable-0.19.2.tgz#d62d90f5630f4685e8eac9da06c6b78aa068b626"
+unmutable@^0.23.0:
+  version "0.23.0"
+  resolved "https://registry.yarnpkg.com/unmutable/-/unmutable-0.23.0.tgz#ad6f01e19a1a1f72b5f45ab6da856d38fb3e9121"
   dependencies:
     fast-deep-equal "^1.0.0"
     is-plain-object "^2.0.4"

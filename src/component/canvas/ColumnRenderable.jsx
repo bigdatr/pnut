@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import type {Node} from 'react';
 import PropTypes from 'prop-types';
 
 
@@ -44,7 +45,7 @@ import PropTypes from 'prop-types';
  *
  */
 
-function DefaultColumn(props: Object): React.Element<any> {
+function DefaultColumn(props: Object): Node {
     return <rect
         fill='black'
         {...props.columnProps}
@@ -83,7 +84,7 @@ function DefaultColumn(props: Object): React.Element<any> {
  */
 
 
-export class ColumnRenderable extends React.PureComponent {
+export class ColumnRenderable extends React.PureComponent<Object> {
 
     static propTypes = {
         /**
@@ -149,7 +150,7 @@ export class ColumnRenderable extends React.PureComponent {
         index: number,
         orientation: 'vertical'|'horizontal',
         bandwidth: number
-    ): React.Element<any> {
+    ): Node {
         const {column: Column} = this.props;
 
         let x, y, width, height;
@@ -184,7 +185,7 @@ export class ColumnRenderable extends React.PureComponent {
         />;
     }
 
-    render(): ?React.Element<any> {
+    render(): ?Node {
         const {xScale, yScale} = this.props;
         const orientation = this.props.orientation || xScale.bandwidth
             ? 'vertical'
@@ -197,7 +198,7 @@ export class ColumnRenderable extends React.PureComponent {
         const bandwidth = orientation === 'vertical' ? xScale.bandwidth() : yScale.bandwidth();
 
         return <g>
-            {this.props.scaledData.map((row: Object, index: number): React.Element<any> => {
+            {this.props.scaledData.map((row: Object, index: number): Node => {
                 return this.buildColumn(row, index, orientation, bandwidth);
             })}
         </g>;
@@ -220,7 +221,7 @@ export class ColumnRenderable extends React.PureComponent {
  *
  */
 
-export default class Column extends React.Component {
+export default class Column extends React.Component<Object> {
     static chartType = 'canvas';
 
     static propTypes = {
@@ -243,7 +244,7 @@ export default class Column extends React.Component {
         orientation: PropTypes.string
     };
 
-    render(): React.Element<any> {
+    render(): Node {
         return <ColumnRenderable {...this.props} />;
     }
 }

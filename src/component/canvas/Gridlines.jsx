@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import type {Node} from 'react';
 import PropTypes from 'prop-types';
 
 type LineCoordinates = {
@@ -34,7 +35,7 @@ type LineProps = {
  * @prop {Scale} yScale - The y scale for the passed to the Gridlines component
  */
 
-const defaultLine = (props: LineProps): React.Element<any> => {
+const defaultLine = (props: LineProps): Node => {
     const {coordinates} = props;
     return <line {...coordinates} strokeWidth="1" stroke="inherit"/>;
 };
@@ -72,7 +73,7 @@ const defaultLine = (props: LineProps): React.Element<any> => {
  *
  */
 
-export class GridlinesRenderable extends React.PureComponent {
+export class GridlinesRenderable extends React.PureComponent<Object> {
 
     static defaultProps = {
         lineHorizontal: defaultLine,
@@ -117,7 +118,7 @@ export class GridlinesRenderable extends React.PureComponent {
         yTicks: PropTypes.func
     };
 
-    buildHorizontalGridlines(): Array<React.Element<any>> {
+    buildHorizontalGridlines(): Array<Node> {
         const LineHorizontal = this.props.lineHorizontal;
 
         const rangeX = this.props.xScale.range();
@@ -126,7 +127,7 @@ export class GridlinesRenderable extends React.PureComponent {
 
         const [x1, x2] = rangeX;
 
-        return this.props.yTicks(this.props.yScale).map((tick: any): React.Element<any>  => {
+        return this.props.yTicks(this.props.yScale).map((tick: any): Node  => {
             const y1 = rangeY[1] - (this.props.yScale(tick) + offset);
             const y2 = y1;
 
@@ -140,7 +141,7 @@ export class GridlinesRenderable extends React.PureComponent {
         });
     }
 
-    buildVerticalGridlines(): Array<React.Element<any>> {
+    buildVerticalGridlines(): Array<Node> {
         const LineVertical = this.props.lineVertical;
 
         const rangeY = this.props.yScale.range();
@@ -148,7 +149,7 @@ export class GridlinesRenderable extends React.PureComponent {
 
         const [y1, y2] = rangeY;
 
-        return this.props.xTicks(this.props.xScale).map((tick: any): React.Element<any> => {
+        return this.props.xTicks(this.props.xScale).map((tick: any): Node => {
             const x1 = this.props.xScale(tick) + offset;
             const x2 = x1;
 
@@ -162,7 +163,7 @@ export class GridlinesRenderable extends React.PureComponent {
         });
     }
 
-    render(): React.Element<any> {
+    render(): Node {
         return <g>
             <g>
                 {this.buildHorizontalGridlines()}
@@ -174,9 +175,9 @@ export class GridlinesRenderable extends React.PureComponent {
     }
 }
 
-export default class Gridlines extends React.Component {
+export default class Gridlines extends React.Component<Object> {
     static chartType = 'canvas';
-    render(): React.Element<any> {
+    render(): Node {
         return <GridlinesRenderable {...this.props} />;
     }
 }

@@ -198,7 +198,7 @@ class ChartData extends Record({
 
         return fromJS(columns)
             .map(ii => Map(ii)) // required to convert objects to Maps within Lists
-            .reduce((map: OrderedMap<string,ChartColumn>, col: Map<string,*>): OrderedMap => {
+            .reduce((map: OrderedMap<string,ChartColumn>, col: Map<string,*>): OrderedMap<*, *> => {
                 return map.set(
                     col.get('key'),
                     new Column(ChartData._addContinuous(col, chartDataRows))

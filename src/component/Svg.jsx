@@ -1,6 +1,6 @@
 // @flow
-
 import React from 'react';
+import type {Node} from 'react';
 import PropTypes from 'prop-types';
 
 /**
@@ -17,7 +17,7 @@ import PropTypes from 'prop-types';
  *
  */
 
-export default class Svg extends React.PureComponent {
+export default class Svg extends React.PureComponent<Object> {
 
     static propTypes = {
         /**
@@ -49,7 +49,7 @@ export default class Svg extends React.PureComponent {
         svgProps: {}
     };
 
-    render(): React.Element<any> {
+    render(): Node {
         if(!this.props.width || !this.props.height) return <svg/>;
 
         return <svg

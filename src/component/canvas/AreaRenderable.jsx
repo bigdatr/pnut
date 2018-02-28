@@ -1,6 +1,7 @@
 // @flow
 
 import React from 'react';
+import type {Node} from 'react';
 import {LineRenderable} from './LineRenderable';
 
 export {LineRenderable as AreaRenderable};
@@ -20,10 +21,10 @@ export {LineRenderable as AreaRenderable};
  *     curve={(curves) => curves.curveMonotoneX}
  * />
  */
-export default class Area extends React.Component {
+export default class Area extends React.Component<Object> {
     static chartType = 'canvas';
 
-    render(): React.Element<any> {
+    render(): Node {
         return <LineRenderable
             area={true}
             {...this.props}
