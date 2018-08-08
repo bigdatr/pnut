@@ -44,6 +44,7 @@ export class BenchmarkRenderable extends React.PureComponent {
         dimension: 'y',
         line: DefaultLine,
         lineProps: {},
+        labelOffset: [0, 0],
         text: DefaultText,
         textProps: {}
     };
@@ -129,14 +130,15 @@ export class BenchmarkRenderable extends React.PureComponent {
     }
 
     getPointPosition(dimension: 'x'|'y', location: *): Array<number> {
-        console.log(dimension);
         const scale = this.props[`${dimension}Scale`];
         const value = scale(location);
+        const {height} = this.props;
+        const {width} = this.props;
 
         if(dimension === 'x') {
-            return [value, 0, value, this.props.height];
+            return [value, 0, value, height];
         } else {
-            return [0, value, this.props.width, value];
+            return [0, height - value, width, height - value];
         }
     }
 
