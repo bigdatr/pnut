@@ -6,6 +6,8 @@ export {default as Chart} from './component/Chart';
 // Children
 export {default as Axis} from './component/axis/Axis';
 export {AxisRenderable} from './component/axis/Axis';
+export {default as Benchmark} from './component/canvas/BenchmarkRenderable';
+export {BenchmarkRenderable} from './component/canvas/BenchmarkRenderable';
 export {default as Column} from './component/canvas/ColumnRenderable';
 export {ColumnRenderable} from './component/canvas/ColumnRenderable';
 export {default as Bar} from './component/canvas/BarRenderable';
