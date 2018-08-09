@@ -1,7 +1,6 @@
 // @flow
 
 import React from 'react';
-import ChartData from '../../chartdata/ChartData';
 
 function DefaultLine(props: Object): React.Element<any> {
     return <line
@@ -24,16 +23,14 @@ function DefaultText(props: Object): React.Element<any> {
  *
  * @component
  *
- * Axis renders the top, bottom, left, or right axis for a chart.
+ * Benchmark renders a straight line on an x|y axis with a label
  *
  * @example
  *
  * <BenchmarkRenderable
- *     width={this.props.eqWidth - 100}
- *     height={50}
- *     position='bottom'
- *     ticks={['category1', 'category2', 'category3']}
- *     scale={scaleX}
+ *     dimension="x"
+ *     location={20}
+ *     label="Foo"
  * />
  *
  */
@@ -63,11 +60,18 @@ export class BenchmarkRenderable extends React.PureComponent {
             React.PropTypes.instanceOf(Date)
         ]).isRequired,
 
+        /** Label next to the line */
+        label: React.PropTypes.string,
+
+        /** xy tuple to reposition the label away from the line */
+        labelOffset: React.PropTypes.arrayOf(React.PropTypes.number),
+
         /** Custom line renderer */
         line: React.PropTypes.func,
 
         /** {Object} An object of props that are passed to the axis line - the line that sits against the chart edge. */
         lineProps: React.PropTypes.object,
+
 
         /** Custom text renderer */
         text: React.PropTypes.func,
