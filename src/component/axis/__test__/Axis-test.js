@@ -241,6 +241,13 @@ test('Axis renders a AxisRenderable', tt => {
     tt.is(canvas.name(), 'AxisRenderable');
 });
 
+test('Axis with an x dimension defaults position to bottom', tt => {
+    const x = shallow(<Axis dimension="x" data={{}} scale={() => undefined} />);
+    const other = shallow(<Axis data={{}} scale={() => undefined} />);
+    tt.is(x.prop('position'), 'bottom');
+    tt.is(other.prop('position'), 'left');
+});
+
 
 test('Axis with a time scale will default text to YYYY-MM-DD', tt => {
     const rows = [
