@@ -8,4 +8,5 @@ lib
 .nyc_output
 coverage
 yarn-error.log
+website/build
 *.orig
