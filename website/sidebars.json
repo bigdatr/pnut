@@ -1,0 +1,29 @@
+{
+  "tutorial": {
+    "Tutorials": [
+      "getting-started",
+      "modifying-scales",
+      "custom-dimensions"
+    ]
+  },
+  "api": {
+    "Components": [
+      "component/Svg",
+      "component/Chart"
+    ],
+    "Renderables": [
+      "renderable/Area",
+      "renderable/Axis",
+      "renderable/Bar",
+      "renderable/Column",
+      "renderable/Gridlines",
+      "renderable/Histogram",
+      "renderable/Line",
+      "renderable/Scatter"
+    ],
+    "Data": [
+      "data/ChartData",
+      "data/applyScaledValue"
+    ]
+  }
+}
