@@ -19,7 +19,8 @@
       "renderable/Gridlines",
       "renderable/Histogram",
       "renderable/Line",
-      "renderable/Scatter"
+      "renderable/Scatter",
+      "renderable/Label"
     ],
     "Data": [
       "data/ChartData",
