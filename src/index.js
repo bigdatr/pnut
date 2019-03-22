@@ -22,3 +22,5 @@ export {default as Scatter} from './component/canvas/ScatterRenderable';
 export {ScatterRenderable} from './component/canvas/ScatterRenderable';
 export {default as Histogram} from './component/canvas/HistogramRenderable';
 export {HistogramRenderable} from './component/canvas/HistogramRenderable';
+export {default as Label} from './component/canvas/LabelRenderable';
+export {LabelRenderable} from './component/canvas/LabelRenderable';

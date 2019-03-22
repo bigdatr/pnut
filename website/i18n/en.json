@@ -44,6 +44,9 @@
       "renderable/Histogram": {
         "title": "Histogram"
       },
+      "renderable/Label": {
+        "title": "Label"
+      },
       "renderable/Line": {
         "title": "Line"
       },

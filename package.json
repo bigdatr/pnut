@@ -10,6 +10,7 @@
   "scripts": {
     "ava": "NODE_ENV=test ava",
     "build": "rm -rf lib && babel src --out-dir lib ",
+    "watch": "rm -rf lib && babel src --out-dir lib -w",
     "build-examples": "cd example && yarn install && yarn run build && cd -",
     "check-coverage": "NODE_ENV=test nyc check-coverage --branches 100.0  --functions 100.0 --lines 100.0",
     "deploy-to-gh-pages": "yarn run build && yarn run build-examples && yarn run docs && node scripts/publish.js",
