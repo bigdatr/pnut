@@ -148,7 +148,7 @@ export class ColumnRenderable extends React.PureComponent {
         index: number,
         orientation: 'vertical'|'horizontal',
         bandwidth: number
-    ): React.Element<any> {
+    ): ?React.Element<any> {
         const {column: Column} = this.props;
 
         let x, y, width, height;
@@ -164,6 +164,10 @@ export class ColumnRenderable extends React.PureComponent {
             width = row.x;
             height = bandwidth;
         }
+
+        // Don't render a column for null values, svg will treat null as a 0
+        // and render a full height column
+        if(x == undefined || y == undefined) return null;
 
         return <Column
             key={
@@ -195,7 +199,7 @@ export class ColumnRenderable extends React.PureComponent {
         const bandwidth = orientation === 'vertical' ? xScale.bandwidth() : yScale.bandwidth();
 
         return <g>
-            {this.props.scaledData.map((row: Object, index: number): React.Element<any> => {
+            {this.props.scaledData.map((row: Object, index: number): ?React.Element<any> => {
                 return this.buildColumn(row, index, orientation, bandwidth);
             })}
         </g>;
@@ -245,4 +249,3 @@ export default class Column extends React.Component {
         return <ColumnRenderable {...this.props} />;
     }
 }
-
