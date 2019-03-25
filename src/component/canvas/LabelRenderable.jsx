@@ -47,9 +47,11 @@ export class LabelRenderable extends React.PureComponent {
         row: Object,
         index: number
     ): ?React.Element<any> {
+        if(!isNumber(row.x) || !isNumber(row.y)) return null;
         const {label: Label, labelProps} = this.props;
         const rawRow = this.props.data.rows.get(index);
         const labelText = this.props.labelTextFromRow(rawRow);
+
         return labelText && <Label
             key={index}
             x={row.x + this.props.labelOffset[0]}
@@ -69,9 +71,7 @@ export class LabelRenderable extends React.PureComponent {
 
     render(): React.Element<any> {
         return <g>
-            {this.props.scaledData
-                .filter(row => isNumber(row.x) && isNumber(row.y))
-                .map(this.buildLabel)}
+            {this.props.scaledData.map(this.buildLabel)}
         </g>;
     }
 }

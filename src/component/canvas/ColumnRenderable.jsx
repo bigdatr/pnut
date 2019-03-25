@@ -50,6 +50,7 @@ function DefaultColumn(props: Object): React.Element<any> {
     />;
 }
 
+const isNumber = (value) => typeof value === 'number' && !isNaN(value);
 
 /**
  *
@@ -148,7 +149,8 @@ export class ColumnRenderable extends React.PureComponent {
         index: number,
         orientation: 'vertical'|'horizontal',
         bandwidth: number
-    ): React.Element<any> {
+    ): ?React.Element<any> {
+        if(!isNumber(row.x) || !isNumber(row.y)) return null;
         const {column: Column} = this.props;
 
         let x, y, width, height;
@@ -195,7 +197,7 @@ export class ColumnRenderable extends React.PureComponent {
         const bandwidth = orientation === 'vertical' ? xScale.bandwidth() : yScale.bandwidth();
 
         return <g>
-            {this.props.scaledData.map((row: Object, index: number): React.Element<any> => {
+            {this.props.scaledData.map((row: Object, index: number): ?React.Element<any> => {
                 return this.buildColumn(row, index, orientation, bandwidth);
             })}
         </g>;
@@ -245,4 +247,3 @@ export default class Column extends React.Component {
         return <ColumnRenderable {...this.props} />;
     }
 }
-

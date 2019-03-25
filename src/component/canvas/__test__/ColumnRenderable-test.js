@@ -59,6 +59,11 @@ const rows = [
         demand: 2560,
         property_type: "Other",
         supply: 5
+    },
+    {
+        demand: null,
+        property_type: "Unknown",
+        supply: null
     }
 ];
 
@@ -158,4 +163,8 @@ test('Column can render bar charts also', tt => {
     // be greater than 0 for all but the first column
     tt.is(secondColumnProps.x, 0);
     tt.true(secondColumnProps.y > 0);
+});
+
+test('Column wont render columns with null values', tt => {
+    tt.is(ColumnElement.at(0).shallow().children().length, 7);
 });
