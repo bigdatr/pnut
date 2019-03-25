@@ -50,6 +50,7 @@ function DefaultColumn(props: Object): React.Element<any> {
     />;
 }
 
+const isNumber = (value) => typeof value === 'number' && !isNaN(value);
 
 /**
  *
@@ -149,6 +150,7 @@ export class ColumnRenderable extends React.PureComponent {
         orientation: 'vertical'|'horizontal',
         bandwidth: number
     ): ?React.Element<any> {
+        if(!isNumber(row.x) || !isNumber(row.y)) return null;
         const {column: Column} = this.props;
 
         let x, y, width, height;
@@ -164,10 +166,6 @@ export class ColumnRenderable extends React.PureComponent {
             width = row.x;
             height = bandwidth;
         }
-
-        // Don't render a column for null values, svg will treat null as a 0
-        // and render a full height column
-        if(x == undefined || y == undefined) return null;
 
         return <Column
             key={

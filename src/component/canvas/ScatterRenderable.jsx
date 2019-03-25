@@ -112,6 +112,7 @@ export class ScatterRenderable extends React.PureComponent {
         row: Object,
         index: number
     ): ?React.Element<any> {
+        if(!isNumber(row.x) || !isNumber(row.y)) return null;
         const {dot: Dot, dotProps} = this.props;
         return <Dot
             key={index}
@@ -129,9 +130,7 @@ export class ScatterRenderable extends React.PureComponent {
 
     render(): React.Element<any> {
         return <g>
-            {this.props.scaledData
-                .filter(row => isNumber(row.x) && isNumber(row.y))
-                .map(this.buildDot)}
+            {this.props.scaledData.map(this.buildDot)}
         </g>;
     }
 }
