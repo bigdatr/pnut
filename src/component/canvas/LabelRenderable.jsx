@@ -50,6 +50,8 @@ export class LabelRenderable extends React.PureComponent {
         const {label: Label, labelProps} = this.props;
         const rawRow = this.props.data.rows.get(index);
         const labelText = this.props.labelTextFromRow(rawRow);
+        // Don't render a label for null values
+        if(row.x == undefined || row.y == undefined) return null;
         return labelText && <Label
             key={index}
             x={row.x + this.props.labelOffset[0]}
