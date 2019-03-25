@@ -270,7 +270,6 @@ test('LabelRenderable allows custom circle rendering', tt => {
 });
 
 test('LabelRenderable custom label has x and y params', tt => {
-    console.log(CustomLabel.childAt(0).shallow());
     tt.is(CustomLabel.childAt(0).shallow().prop('x'), xScale(rows[0].month));
     tt.is(CustomLabel.childAt(0).shallow().prop('y'), 200 - yScale(rows[0].supply));
 });
