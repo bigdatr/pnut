@@ -2,7 +2,7 @@
 import PropTypes from 'prop-types';
 import React, {Component, Children, cloneElement} from 'react';
 import Svg from './Svg';
-import ChartData from '../chartData/ChartData';
+import ChartData from '../chartdata/ChartData';
 import applyDimension from '../util/applyDimension';
 import applyScaledValue from '../util/applyScaledValue';
 import applyPrimitiveDimensionProps from '../util/applyPrimitiveDimensionProps';
