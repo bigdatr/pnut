@@ -1,7 +1,7 @@
 // @flow
 
 import PropTypes from 'prop-types';
-
+import type {Node} from 'react';
 import React from 'react';
 import * as d3Shape from 'd3-shape';
 
@@ -34,7 +34,7 @@ import * as d3Shape from 'd3-shape';
  *
  */
 
-function DefaultLine(props: Object): React.Element<any> {
+function DefaultLine(props: Object): Node {
     return <path
         {...props.lineProps}
     />;
@@ -66,7 +66,7 @@ function DefaultLine(props: Object): React.Element<any> {
  *
  */
 
-export class LineRenderable extends React.PureComponent {
+export class LineRenderable extends React.PureComponent<*> {
     static defaultProps = {
         line: DefaultLine,
         area: false
@@ -135,7 +135,7 @@ export class LineRenderable extends React.PureComponent {
         );
 
 
-    render(): React.Element<any> {
+    render(): Node {
         const {
             data,
             line: Line,
@@ -186,7 +186,7 @@ export class LineRenderable extends React.PureComponent {
  *
  */
 
-class Line extends React.Component {
+class Line extends React.Component<*> {
     static chartType = 'canvas';
 
     static propTypes = {
@@ -214,11 +214,9 @@ class Line extends React.Component {
         curveSelector: PropTypes.func
     };
 
-    render(): React.Element<any> {
+    render(): Node {
         return <LineRenderable {...this.props} />;
     }
 }
 
 export default Line;
-
-

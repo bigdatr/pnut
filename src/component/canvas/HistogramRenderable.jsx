@@ -1,7 +1,7 @@
 // @flow
 
 import PropTypes from 'prop-types';
-
+import type {Node} from 'react';
 import React from 'react';
 
 /**
@@ -42,7 +42,7 @@ import React from 'react';
  *
  */
 
-function DefaultColumn(props: Object): React.Element<any> {
+function DefaultColumn(props: Object): Node {
     return <rect
         fill='black'
         {...props.columnProps}
@@ -78,7 +78,7 @@ function DefaultColumn(props: Object): React.Element<any> {
  */
 
 
-export class HistogramRenderable extends React.PureComponent {
+export class HistogramRenderable extends React.PureComponent<*> {
 
     static propTypes = {
         /**
@@ -134,7 +134,7 @@ export class HistogramRenderable extends React.PureComponent {
         row: Object,
         index: number,
         orientation: 'vertical'|'horizontal'
-    ): React.Element<any> {
+    ): Node {
         const {column: Column} = this.props;
 
         let x, y, width, height;
@@ -164,7 +164,7 @@ export class HistogramRenderable extends React.PureComponent {
         />;
     }
 
-    render(): ?React.Element<any> {
+    render(): ?Node {
 
         const sampleRow = this.props.scaledData[0];
 
@@ -172,12 +172,13 @@ export class HistogramRenderable extends React.PureComponent {
             ? 'vertical'
             :  sampleRow.hasOwnProperty('y0')
                 ? 'horizontal'
+                // eslint-disable-next-line no-console
                 : console.error('Histogram renderable must be supplied binned data');
 
         if(!orientation) return null;
 
         return <g>
-            {this.props.scaledData.map((row: Object, index: number): React.Element<any> => {
+            {this.props.scaledData.map((row: Object, index: number): Node => {
                 return this.buildColumn(row, index, orientation);
             })}
         </g>;
@@ -200,7 +201,7 @@ export class HistogramRenderable extends React.PureComponent {
  *
  */
 
-export default class Histogram extends React.Component {
+export default class Histogram extends React.Component<*> {
     static chartType = 'canvas';
 
     static propTypes = {
@@ -223,8 +224,7 @@ export default class Histogram extends React.Component {
         orientation: PropTypes.string
     };
 
-    render(): React.Element<any> {
+    render(): Node {
         return <HistogramRenderable {...this.props} />;
     }
 }
-
