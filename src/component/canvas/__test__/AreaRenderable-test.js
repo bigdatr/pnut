@@ -1,6 +1,4 @@
 import React from 'react';
-import {shallow} from 'enzyme';
-import test from 'ava';
 import {scaleLinear, scalePoint} from 'd3-scale';
 import Area from '../AreaRenderable';
 import ChartData from '../../../chartdata/ChartData';
@@ -219,9 +217,9 @@ const xScale = scalePoint()
     .range([0, 100]);
 
 const scaledData = chartData.rows.map(row => ({
-    x: row.get('month') != null ? xScale(row.get('month')) + xScale.bandwidth() / 2 : null,
-    y: row.get('supply') != null ? 140 - yScale(row.get('supply')) : null
-})).toArray();
+    x: row['month'] != null ? xScale(row['month']) + xScale.bandwidth() / 2 : null,
+    y: row['supply'] != null ? 140 - yScale(row['supply']) : null
+}));
 
 
 const AreaElement = shallow(<Area
@@ -236,14 +234,13 @@ const AreaElement = shallow(<Area
     }}
 />);
 
-test('Area renders a LineRenderable', tt => {
-    tt.is(AreaElement.name(), 'LineRenderable');
+test('Area renders a LineRenderable', () => {
+    expect(AreaElement.name()).toBe('LineRenderable');
 });
 
-test('Area LineRenderable is a closed path', tt => {
+test('Area LineRenderable is a closed path', () => {
     // console.log(AreaElement.at(0).shallow().props());
     const areaPath = AreaElement.at(0).shallow().childAt(0).prop('lineProps').d;
     // console.log('afdsdfa', areaPath);
-    tt.is(areaPath[areaPath.length - 1], 'Z')
+    expect(areaPath[areaPath.length - 1]).toBe('Z')
 });
-

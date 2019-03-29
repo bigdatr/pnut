@@ -1,7 +1,4 @@
-import test from 'ava';
 import React from 'react';
-import {shallow} from 'enzyme';
-import sinon from 'sinon';
 import Axis,{AxisRenderable} from '../Axis';
 import ChartData from '../../../chartdata/ChartData';
 import {scaleLinear, scaleBand, scaleTime} from 'd3-scale';
@@ -21,11 +18,11 @@ const topAxis = shallow(<AxisRenderable
 />);
 
 
-test('Rendering throws error if bad position is passed', tt => {
-    const error = sinon.spy();
+test('Rendering throws error if bad position is passed', () => {
+    const error = jest.fn();
     console.error = error;
 
-    tt.throws(() => {
+    expect(() => {
         shallow(<AxisRenderable
             position={'nottop'}
             scale={scale}
@@ -33,22 +30,22 @@ test('Rendering throws error if bad position is passed', tt => {
             width={100}
             height={100}
         />);
-    }, 'unknown position: nottop');
+    }).toThrowError('unknown position: nottop');
 
-    tt.true(error.called);
+    expect(error).toHaveBeenCalled();
 });
 
 
-test('getTextAnchorProp throws error if bad position is passed', tt => {
-    tt.throws(() => {
+test('getTextAnchorProp throws error if bad position is passed', () => {
+    expect(() => {
         topAxis.instance().getTextAnchorProp('nottop');
-    }, 'unknown position: nottop');
+    }).toThrowError('unknown position: nottop');
 });
 
-test('getAlignmentBaselineProp throws error if bad position is passed', tt => {
-    tt.throws(() => {
+test('getAlignmentBaselineProp throws error if bad position is passed', () => {
+    expect(() => {
         topAxis.instance().getAlignmentBaselineProp('nottop');
-    }, 'unknown position: nottop');
+    }).toThrowError('unknown position: nottop');
 });
 
 
@@ -72,20 +69,28 @@ const validDominantBaselineValues = [
 
 
 
-test('getAlignmentBaselineProp returns a valid value for top position', tt => {
-    tt.true(validDominantBaselineValues.indexOf(topAxis.instance().getAlignmentBaselineProp('top')) !== -1);
+test('getAlignmentBaselineProp returns a valid value for top position', () => {
+    expect(
+        validDominantBaselineValues.indexOf(topAxis.instance().getAlignmentBaselineProp('top')) !== -1
+    ).toBe(true);
 });
 
-test('getAlignmentBaselineProp returns a valid value for right position', tt => {
-     tt.true(validDominantBaselineValues.indexOf(topAxis.instance().getAlignmentBaselineProp('right')) !== -1);
+test('getAlignmentBaselineProp returns a valid value for right position', () => {
+     expect(
+         validDominantBaselineValues.indexOf(topAxis.instance().getAlignmentBaselineProp('right')) !== -1
+     ).toBe(true);
 });
 
-test('getAlignmentBaselineProp returns a valid value for bottom position', tt => {
-     tt.true(validDominantBaselineValues.indexOf(topAxis.instance().getAlignmentBaselineProp('bottom')) !== -1);
+test('getAlignmentBaselineProp returns a valid value for bottom position', () => {
+     expect(
+         validDominantBaselineValues.indexOf(topAxis.instance().getAlignmentBaselineProp('bottom')) !== -1
+     ).toBe(true);
 });
 
-test('getAlignmentBaselineProp returns a valid value for left position', tt => {
-     tt.true(validDominantBaselineValues.indexOf(topAxis.instance().getAlignmentBaselineProp('left')) !== -1);
+test('getAlignmentBaselineProp returns a valid value for left position', () => {
+     expect(
+         validDominantBaselineValues.indexOf(topAxis.instance().getAlignmentBaselineProp('left')) !== -1
+     ).toBe(true);
 });
 
 
@@ -93,43 +98,51 @@ test('getAlignmentBaselineProp returns a valid value for left position', tt => {
 
 const validTextAnchorValues = ['start', 'middle', 'end', 'inherit'];
 
-test('getTextAnchorProp returns a valid value for top position', tt => {
-     tt.true(validTextAnchorValues.indexOf(topAxis.instance().getTextAnchorProp('top')) !== -1);
+test('getTextAnchorProp returns a valid value for top position', () => {
+     expect(
+         validTextAnchorValues.indexOf(topAxis.instance().getTextAnchorProp('top')) !== -1
+     ).toBe(true);
 });
 
-test('getTextAnchorProp returns a valid value for right position', tt => {
-     tt.true(validTextAnchorValues.indexOf(topAxis.instance().getTextAnchorProp('right')) !== -1);
+test('getTextAnchorProp returns a valid value for right position', () => {
+     expect(
+         validTextAnchorValues.indexOf(topAxis.instance().getTextAnchorProp('right')) !== -1
+     ).toBe(true);
 });
 
-test('getTextAnchorProp returns a valid value for bottom position', tt => {
-     tt.true(validTextAnchorValues.indexOf(topAxis.instance().getTextAnchorProp('bottom')) !== -1);
+test('getTextAnchorProp returns a valid value for bottom position', () => {
+     expect(
+         validTextAnchorValues.indexOf(topAxis.instance().getTextAnchorProp('bottom')) !== -1
+     ).toBe(true);
 });
 
-test('getTextAnchorProp returns a valid value for left position', tt => {
-     tt.true(validTextAnchorValues.indexOf(topAxis.instance().getTextAnchorProp('left')) !== -1);
+test('getTextAnchorProp returns a valid value for left position', () => {
+     expect(
+         validTextAnchorValues.indexOf(topAxis.instance().getTextAnchorProp('left')) !== -1
+     ).toBe(true);
 });
 
 
 //
 // positions
 
-test('getPointPosition returns corrent [x,y] values for top position', tt => {
-    tt.deepEqual(topAxis.instance().getPointPosition('top', 50, 5), [50, -5]);
+test('getPointPosition returns corrent [x,y] values for top position', () => {
+    expect(topAxis.instance().getPointPosition('top', 50, 5)).toEqual([50, -5]);
 });
 
-test('getPointPosition returns corrent [x,y] values for right position', tt => {
-    tt.deepEqual(topAxis.instance().getPointPosition('right', 50, 5), [105, 50]);
+test('getPointPosition returns corrent [x,y] values for right position', () => {
+    expect(topAxis.instance().getPointPosition('right', 50, 5)).toEqual([105, 50]);
 });
 
-test('getPointPosition returns corrent [x,y] values for bottom position', tt => {
-    tt.deepEqual(topAxis.instance().getPointPosition('bottom', 50, 5), [50, 105]);
+test('getPointPosition returns corrent [x,y] values for bottom position', () => {
+    expect(topAxis.instance().getPointPosition('bottom', 50, 5)).toEqual([50, 105]);
 });
 
-test('getPointPosition returns corrent [x,y] values for left position', tt => {
-    tt.deepEqual(topAxis.instance().getPointPosition('left', 50, 5), [-5, 50]);
+test('getPointPosition returns corrent [x,y] values for left position', () => {
+    expect(topAxis.instance().getPointPosition('left', 50, 5)).toEqual([-5, 50]);
 });
 
-test('a location prop will override the point postion default and use the opposite scale value', tt => {
+test('a location prop will override the point postion default and use the opposite scale value', () => {
     const axis = shallow(<AxisRenderable
         position="top"
         xScale={scale}
@@ -141,20 +154,20 @@ test('a location prop will override the point postion default and use the opposi
         location={20}
     />);
 
-    tt.deepEqual(axis.instance().getPointPosition('top', 50, 5), [50, 35]);
-    tt.deepEqual(axis.instance().getPointPosition('left', 50, 5), [35, 50]);
+    expect(axis.instance().getPointPosition('top', 50, 5)).toEqual([50, 35]);
+    expect(axis.instance().getPointPosition('left', 50, 5)).toEqual([35, 50]);
 });
 
 
 
-test('getLengthProp returns "width" for top or bottom', tt => {
-    tt.is(topAxis.instance().getLengthProp('top'), 'width');
-    tt.is(topAxis.instance().getLengthProp('bottom'), 'width');
+test('getLengthProp returns "width" for top or bottom', () => {
+    expect(topAxis.instance().getLengthProp('top')).toBe('width');
+    expect(topAxis.instance().getLengthProp('bottom')).toBe('width');
 });
 
-test('getLengthProp returns "height" for left or right', tt => {
-    tt.is(topAxis.instance().getLengthProp('left'), 'height');
-    tt.is(topAxis.instance().getLengthProp('right'), 'height');
+test('getLengthProp returns "height" for left or right', () => {
+    expect(topAxis.instance().getLengthProp('left')).toBe('height');
+    expect(topAxis.instance().getLengthProp('right')).toBe('height');
 });
 
 
@@ -173,8 +186,8 @@ const scaleBandAxis = shallow(<AxisRenderable
 />);
 
 
-test('Axis places ticks in middle of bandwidth', tt => {
-    tt.is(scaleBandAxis.childAt(1).childAt(0).childAt(0).shallow().prop('x1'), width / 4);
+test('Axis places ticks in middle of bandwidth', () => {
+    expect(scaleBandAxis.childAt(1).childAt(0).childAt(0).shallow().prop('x1')).toBe(width / 4);
 });
 
 const customTick = (props) => <line {...props.tickLineProps} stroke={props.index === 0 ? 'red': 'blue'} />;
@@ -194,32 +207,40 @@ const axisWithCustomTicks = shallow(<AxisRenderable
 />);
 
 
-test('Axis allows custom tick props', tt => {
-    tt.is(scaleBandAxis.childAt(1).childAt(0).childAt(0).shallow().prop('stroke'), 'inherit');
-    tt.is(axisWithCustomTicks.childAt(1).childAt(0).childAt(0).shallow().prop('stroke'), 'red');
-    tt.is(axisWithCustomTicks.childAt(1).childAt(1).childAt(0).shallow().prop('stroke'), 'blue');
+test('Axis allows custom tick props', () => {
+    expect(scaleBandAxis.childAt(1).childAt(0).childAt(0).shallow().prop('stroke')).toBe('inherit');
+    expect(
+        axisWithCustomTicks.childAt(1).childAt(0).childAt(0).shallow().prop('stroke')
+    ).toBe('red');
+    expect(
+        axisWithCustomTicks.childAt(1).childAt(1).childAt(0).shallow().prop('stroke')
+    ).toBe('blue');
 });
 
-test('Axis allows custom text props', tt => {
-    tt.is(scaleBandAxis.childAt(1).childAt(0).childAt(1).shallow().prop('fontSize'), 12);
-    tt.is(axisWithCustomTicks.childAt(1).childAt(0).childAt(1).shallow().prop('color'), 'red');
-    tt.is(axisWithCustomTicks.childAt(1).childAt(1).childAt(1).shallow().prop('color'), 'blue');
+test('Axis allows custom text props', () => {
+    expect(scaleBandAxis.childAt(1).childAt(0).childAt(1).shallow().prop('fontSize')).toBe(12);
+    expect(
+        axisWithCustomTicks.childAt(1).childAt(0).childAt(1).shallow().prop('color')
+    ).toBe('red');
+    expect(
+        axisWithCustomTicks.childAt(1).childAt(1).childAt(1).shallow().prop('color')
+    ).toBe('blue');
 });
 
 
-test('Axis allows custom axisLine props', tt => {
+test('Axis allows custom axisLine props', () => {
     const getAxisStroke = (scale) => scale
         .childAt(0)
         .childAt(0)
         .shallow()
         .prop('stroke');
-    tt.is(getAxisStroke(scaleBandAxis), 'inherit');
-    tt.is(getAxisStroke(axisWithCustomTicks), 'red');
+    expect(getAxisStroke(scaleBandAxis)).toBe('inherit');
+    expect(getAxisStroke(axisWithCustomTicks)).toBe('red');
 });
 
 
 
-test('Axis with discrete scales will use domain for ticks. Other will use ticks', tt => {
+test('Axis with discrete scales will use domain for ticks. Other will use ticks', () => {
     const linear = scaleLinear()
         .domain([0, 100])
         .range([0, 200]);
@@ -231,25 +252,25 @@ test('Axis with discrete scales will use domain for ticks. Other will use ticks'
     const linearAxis = shallow(<AxisRenderable position="top" scale={linear} width={100} height={100} />);
     const bandAxis = shallow(<AxisRenderable position="top" scale={band} width={100} height={100} />);
 
-    tt.is(linearAxis.childAt(1).children().length, 11);
-    tt.is(bandAxis.childAt(1).children().length, 2);
+    expect(linearAxis.childAt(1).children().length).toBe(11);
+    expect(bandAxis.childAt(1).children().length).toBe(2);
 
 });
 
-test('Axis renders a AxisRenderable', tt => {
+test('Axis renders a AxisRenderable', () => {
     const canvas = shallow(<Axis data={{}} scale={() => undefined} />);
-    tt.is(canvas.name(), 'AxisRenderable');
+    expect(canvas.name()).toBe('AxisRenderable');
 });
 
-test('Axis with an x dimension defaults position to bottom', tt => {
+test('Axis with an x dimension defaults position to bottom', () => {
     const x = shallow(<Axis dimension="x" data={{}} scale={() => undefined} />);
     const other = shallow(<Axis data={{}} scale={() => undefined} />);
-    tt.is(x.prop('position'), 'bottom');
-    tt.is(other.prop('position'), 'left');
+    expect(x.prop('position')).toBe('bottom');
+    expect(other.prop('position')).toBe('left');
 });
 
 
-test('Axis with a time scale will default text to YYYY-MM-DD', tt => {
+test('Axis with a time scale will default text to YYYY-MM-DD', () => {
     const rows = [
         {foo: new Date('1970-01-01')},
         {foo: new Date('1970-01-02')},
@@ -260,22 +281,17 @@ test('Axis with a time scale will default text to YYYY-MM-DD', tt => {
         scale={scaleTime().domain([rows[0].foo, rows[2].foo])}
         position="top"
     />);
-    tt.is(canvas.childAt(1).childAt(0).childAt(1).shallow().text(), '1970-01-01');
+    expect(canvas.childAt(1).childAt(0).childAt(1).shallow().text()).toBe('1970-01-01');
 });
 
-test('Axis Renderable will default position to x:bottom and y:left', tt => {
+test('Axis Renderable will default position to x:bottom and y:left', () => {
     const rows = [
         {foo: new Date('1970-01-01')},
         {foo: new Date('1970-01-02')},
         {foo: new Date('1970-01-03')}
     ];
 
-    tt.is(shallow(<Axis dimension="x"/>).props().position, 'bottom');
-    tt.is(shallow(<Axis dimension="y"/>).props().position, 'left');
-    tt.is(shallow(<Axis dimension="x" position="top"/>).props().position, 'top');
+    expect(shallow(<Axis dimension="x"/>).props().position).toBe('bottom');
+    expect(shallow(<Axis dimension="y"/>).props().position).toBe('left');
+    expect(shallow(<Axis dimension="x" position="top"/>).props().position).toBe('top');
 });
-
-
-
-
-

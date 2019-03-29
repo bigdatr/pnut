@@ -1,7 +1,4 @@
-import test from 'ava';
 import React from 'react';
-import {shallow} from 'enzyme';
-import sinon from 'sinon';
 import {scaleLog, scaleBand} from 'd3-scale';
 import Histogram, {HistogramRenderable} from '../HistogramRenderable';
 import ChartData from '../../../chartdata/ChartData';
@@ -37,15 +34,15 @@ const HistogramRenderableElement = shallow(<HistogramRenderable
     }}
 />);
 
-test('HistogramRenderable applies passed columnProps to columns', tt => {
-    tt.is(HistogramRenderableElement.childAt(0).shallow().prop('fill'), 'blue');
+test('HistogramRenderable applies passed columnProps to columns', () => {
+    expect(HistogramRenderableElement.childAt(0).shallow().prop('fill')).toBe('blue');
 });
 
 
 
-test('HistogramRenderable errors out if it doesnt have x0 x1 or y0 y1', tt => {
+test('HistogramRenderable errors out if it doesnt have x0 x1 or y0 y1', () => {
     const oldConsoleError = console.error;
-    const newConsoleError = console.error = sinon.spy();
+    const newConsoleError = console.error = jest.fn();
 
     const BadHistogramRenderableElement = shallow(<HistogramRenderable
         width={140}
@@ -56,8 +53,8 @@ test('HistogramRenderable errors out if it doesnt have x0 x1 or y0 y1', tt => {
         }}
     />);
 
-    tt.true(newConsoleError.called);
-    tt.is(BadHistogramRenderableElement.getNode(), null);
+    expect(newConsoleError).toHaveBeenCalled();
+    expect(BadHistogramRenderableElement.getElement()).toBe(null);
 
     console.error = oldConsoleError;
 });
@@ -73,8 +70,8 @@ const HistogramElement = shallow(<Histogram
     }}
 />);
 
-test('Histogram renders a HistogramRenderable', tt => {
-    tt.is(HistogramElement.at(0).name(), 'HistogramRenderable');
+test('Histogram renders a HistogramRenderable', () => {
+    expect(HistogramElement.at(0).name()).toBe('HistogramRenderable');
 });
 
 
@@ -101,11 +98,11 @@ const BarElement = shallow(<Histogram
     }}
 />);
 
-test('Histogram can render horizontal charts also', tt => {
+test('Histogram can render horizontal charts also', () => {
     const secondHistogramProps = BarElement.at(0).shallow().childAt(1).prop('columnProps');
 
     // If this is a bar chart then columnProps x will be 0 for all columns and columnProps y will
     // be greater than 0 for all but the first column
-    tt.is(secondHistogramProps.x, 0);
-    tt.true(secondHistogramProps.y > 0);
+    expect(secondHistogramProps.x).toBe(0);
+    expect(secondHistogramProps.y > 0).toBe(true);
 });
