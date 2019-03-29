@@ -1,11 +1,11 @@
 // @flow
 
 import PropTypes from 'prop-types';
-
+import type {Node} from 'react';
 import React from 'react';
 
 
-const defaultLabel = (props: Object): React.Element<any> => {
+const defaultLabel = (props: Object): Node => {
     return <text
         fontSize="12"
         textAnchor="middle"
@@ -18,7 +18,7 @@ const isNumber = (value) => typeof value === 'number' && !isNaN(value);
 
 
 
-export class LabelRenderable extends React.PureComponent {
+export class LabelRenderable extends React.PureComponent<*> {
     static defaultProps = {
         label: defaultLabel,
         labelOffset: [0, 0]
@@ -36,20 +36,17 @@ export class LabelRenderable extends React.PureComponent {
         label: PropTypes.func
     };
 
-    buildLabel: any; // shut up flow
-
     constructor(props: Object) {
         super(props);
-        this.buildLabel = this.buildLabel.bind(this);
     }
 
     buildLabel(
         row: Object,
         index: number
-    ): ?React.Element<any> {
+    ): ?Node {
         if(!isNumber(row.x) || !isNumber(row.y)) return null;
         const {label: Label, labelProps} = this.props;
-        const rawRow = this.props.data.rows.get(index);
+        const rawRow = this.props.data.rows[index];
         const labelText = this.props.labelTextFromRow(rawRow);
 
         return labelText && <Label
@@ -69,14 +66,14 @@ export class LabelRenderable extends React.PureComponent {
         />;
     }
 
-    render(): React.Element<any> {
+    render(): Node {
         return <g>
-            {this.props.scaledData.map(this.buildLabel)}
+            {this.props.scaledData.map((row, index) => this.buildLabel(row, index))}
         </g>;
     }
 }
 
-export default class Label extends React.Component {
+export default class Label extends React.Component<*> {
     static chartType = 'canvas';
 
     static propTypes = {
@@ -86,7 +83,7 @@ export default class Label extends React.Component {
         label: PropTypes.func
     };
 
-    render(): React.Element<any> {
+    render(): Node {
         return <LabelRenderable {...this.props} />;
     }
 }

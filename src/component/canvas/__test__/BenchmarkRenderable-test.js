@@ -1,7 +1,4 @@
-import test from 'ava';
 import React from 'react';
-import {shallow} from 'enzyme';
-import sinon from 'sinon';
 import Benchmark, {BenchmarkRenderable} from '../BenchmarkRenderable';
 //import ChartData from '../../../chartdata/ChartData';
 import {scaleLinear, scaleBand, scaleTime} from 'd3-scale';
@@ -25,22 +22,22 @@ const basicInstance = basicBenchmark.instance();
 //
 // Line
 
-test('getLengthProp will convert x|y to height|width', t => {
-    t.is(basicInstance.getLengthProp('y'), 'width');
-    t.is(basicInstance.getLengthProp('x'), 'height');
+test('getLengthProp will convert x|y to height|width', () => {
+    expect(basicInstance.getLengthProp('y')).toBe('width');
+    expect(basicInstance.getLengthProp('x')).toBe('height');
 });
 
-test('getPointPosition will return an array of x1,y1,x2,y2 values', t => {
-    t.deepEqual(basicInstance.getPointPosition('y', 0), [0, 200, 200, 200]);
-    t.deepEqual(basicInstance.getPointPosition('y', 50), [0, 100, 200, 100]);
-    t.deepEqual(basicInstance.getPointPosition('y', 100), [0, 0, 200, 0]);
+test('getPointPosition will return an array of x1,y1,x2,y2 values', () => {
+    expect(basicInstance.getPointPosition('y', 0)).toEqual([0, 200, 200, 200]);
+    expect(basicInstance.getPointPosition('y', 50)).toEqual([0, 100, 200, 100]);
+    expect(basicInstance.getPointPosition('y', 100)).toEqual([0, 0, 200, 0]);
 
-    t.deepEqual(basicInstance.getPointPosition('x', 0), [0, 0, 0, 200]);
-    t.deepEqual(basicInstance.getPointPosition('x', 50), [100, 0, 100, 200]);
-    t.deepEqual(basicInstance.getPointPosition('x', 100), [200, 0, 200, 200]);
+    expect(basicInstance.getPointPosition('x', 0)).toEqual([0, 0, 0, 200]);
+    expect(basicInstance.getPointPosition('x', 50)).toEqual([100, 0, 100, 200]);
+    expect(basicInstance.getPointPosition('x', 100)).toEqual([200, 0, 200, 200]);
 });
 
-test('will pass lineProps and xy values to Line component', t => {
+test('will pass lineProps and xy values to Line component', () => {
     const wrapper = shallow(<BenchmarkRenderable
         yScale={scale}
         location={50}
@@ -49,19 +46,19 @@ test('will pass lineProps and xy values to Line component', t => {
         lineProps={{foo: 'bar'}}
     />)
     const props = wrapper.instance().drawLine().props;
-    t.is(props.x, 0);
-    t.is(props.y, 100);
-    t.is(props.lineProps.x1, 0);
-    t.is(props.lineProps.x2, 200);
-    t.is(props.lineProps.y1, 100);
-    t.is(props.lineProps.y2, 100);
-    t.is(props.lineProps.foo, 'bar');
+    expect(props.x).toBe(0);
+    expect(props.y).toBe(100);
+    expect(props.lineProps.x1).toBe(0);
+    expect(props.lineProps.x2).toBe(200);
+    expect(props.lineProps.y1).toBe(100);
+    expect(props.lineProps.y2).toBe(100);
+    expect(props.lineProps.foo).toBe('bar');
 });
 
 //
 // Text
 
-test('will pass textProps and xy values to Text component', t => {
+test('will pass textProps and xy values to Text component', () => {
     const wrapper = shallow(<BenchmarkRenderable
         label="Foo Label"
         yScale={scale}
@@ -72,14 +69,14 @@ test('will pass textProps and xy values to Text component', t => {
         textProps={{foo: 'bar'}}
     />)
     const props = wrapper.instance().drawText().props;
-    t.is(props.x, 5);
-    t.is(props.y, 105);
-    t.is(props.textProps.x, 5);
-    t.is(props.textProps.y, 105);
-    t.is(props.textProps.foo, 'bar');
+    expect(props.x).toBe(5);
+    expect(props.y).toBe(105);
+    expect(props.textProps.x).toBe(5);
+    expect(props.textProps.y).toBe(105);
+    expect(props.textProps.foo).toBe('bar');
 });
 
-test('x dimension text will be rotated 90deg', t => {
+test('x dimension text will be rotated 90deg', () => {
     const wrapper = shallow(<BenchmarkRenderable
         label="Foo Label"
         dimension="x"
@@ -90,12 +87,12 @@ test('x dimension text will be rotated 90deg', t => {
         textProps={{foo: 'bar'}}
     />)
     const props = wrapper.instance().drawText().props;
-    t.is(props.textProps.transform, 'rotate(90, 100, 0)');
+    expect(props.textProps.transform).toBe('rotate(90, 100, 0)');
 });
 
 
 // misc
-test('Benchmark will pass props to BenchmarkRenderable', t => {
+test('Benchmark will pass props to BenchmarkRenderable', () => {
     const wrapper = shallow(<Benchmark
         foo="bar"
         yScale={scale}
@@ -103,11 +100,11 @@ test('Benchmark will pass props to BenchmarkRenderable', t => {
         width={200}
         height={200}
     />);
-    t.is(wrapper.prop('foo'), 'bar');
-    t.is(wrapper.prop('dimension'), 'y');
+    expect(wrapper.prop('foo')).toBe('bar');
+    expect(wrapper.prop('dimension')).toBe('y');
 });
 
-test('DefaultText props', t => {
+test('DefaultText props', () => {
     const wrapper = shallow(<BenchmarkRenderable
         label="foo"
         yScale={scale}
@@ -117,12 +114,12 @@ test('DefaultText props', t => {
     />);
     // g => Text => text => props
     const props = wrapper.find('g').children().at(0).dive().props();
-    t.is(props.children, 'foo');
-    t.is(props.stroke, 'none');
-    t.is(props.fontSize, 12);
+    expect(props.children).toBe('foo');
+    expect(props.stroke).toBe('none');
+    expect(props.fontSize).toBe(12);
 });
 
-test('DefaultLine props', t => {
+test('DefaultLine props', () => {
     const wrapper = shallow(<BenchmarkRenderable
         label="foo"
         yScale={scale}
@@ -132,5 +129,5 @@ test('DefaultLine props', t => {
     />);
     // g => Line => line => props
     const props = wrapper.find('g').children().at(1).dive().props();
-    t.is(props.stroke, 'inherit');
+    expect(props.stroke).toBe('inherit');
 });

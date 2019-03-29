@@ -1,8 +1,12 @@
 // @flow
 
-import * as ImmutableMath from 'immutable-math';
 import {interpolate} from 'd3-interpolate';
 import {
+    min,
+    median,
+    mean,
+    max,
+    sum,
     quantile,
     variance,
     deviation,
@@ -12,114 +16,58 @@ import {
     thresholdSturges
 } from 'd3-array';
 
-import {
-    fromJS,
-    Map,
-    List,
-    OrderedMap,
-    Record
-} from 'immutable';
+import type {ChartColumn} from '../definitions';
+import type {ChartColumnInput} from '../definitions';
+import type {ChartColumnInputList} from '../definitions';
+import type {ChartColumnList} from '../definitions';
+import type {ChartScalar} from '../definitions';
+import type {ChartRow} from '../definitions';
 
-import Column from './ChartColumn';
-import type {ChartColumnDefinition, ChartColumn} from './ChartColumn';
 
-export type ChartScalar = string|number|null;
-export type ChartRowDefinition = {[key: string]: ChartScalar}|Map<string,ChartScalar>;
-export type ChartRow = Map<string,ChartScalar>;
-export type ChartColumnArg = string|Array<string>|List<string>;
+const fastGroupByToArray = <V, F: Function>(rows: Array<V>, grouper: F): Array<Array<V>> => {
+    const groupIndexMap: {[key: string]: number} = {};
+    let groupedResult: Array<Array<V>> = [];
+    rows.forEach((row) => {
+        const key = String(grouper(row));
+        const groupedIndex = typeof groupIndexMap[key] === 'undefined'
+            ? groupedResult.length
+            : groupIndexMap[key];
+        groupIndexMap[key] = groupedIndex;
+        groupedResult[groupedIndex] = groupedResult[groupedIndex] || [];
+        groupedResult[groupedIndex].push(row);
+    });
+    return groupedResult;
+};
 
-type RowUpdater = (rows: List<ChartRow>) => List<ChartRow>;
-type ColumnUpdater = (columns: List<ChartColumn>) => List<ChartColumn>;
-type RowMapper = (row: ChartRow) => ChartRow;
-type BinThreshold = List<ChartScalar> | Array<ChartScalar> | number;
+
+const fastGroupByToMap = <K, R>(rows: Array<R>, grouper: (R) => K): Map<K, Array<R>> => {
+    let groupedResult: Map<K, Array<R>> = new Map();
+
+    rows.forEach((row) => {
+        const groupedKey = grouper(row);
+        groupedResult.set(groupedKey, (groupedResult.get(groupedKey) || []).concat(row));
+    });
+
+    return groupedResult;
+};
+
+// type ColumnUpdater = (columns: Array<ChartColumn>) => Array<ChartColumn>;
+// type RowMapper = (row: ChartRow) => ChartRow;
+type BinThreshold = Array<ChartScalar> | number;
 type BinThresholdGenerator = (values: Array<ChartScalar>, min: ?ChartScalar, max: ?ChartScalar, generators: Object) => BinThreshold;
+type BinRow = <V>() => ?Array<V>;
 
 /**
- * A valid chart value, which can only accept data of type `string`, `number` and `null`.
- *
- * @typedef ChartScalar
- * @type {string|number|null}
- */
-
-/**
- * An `Object` or `Map` that defines data for a row. Once passed into a `ChartData` constructor
- * these are replaced with equivalent Immutable `Map`s.
- *
- * @typedef ChartRowDefinition
- * @type {Object<string, ChartScalar>|Map<string, ChartScalar>}
- */
-
-/**
- * An Immutable `Map` representing a row of keyed data. Each value is a `ChartScalar`
- * (data of type `string`, `number` or `null`).
- *
- * @typedef ChartRow
- * @type {Map<string,ChartScalar>}
- */
-
-/**
- * This function is passed the `rows` of the current `ChartData`,
- * and should return the new rows to use in the new `ChartData` object.
- *
- * Like the `rows` argument of the `ChartData` constructor, rows can be either a `List`
- * or an `Array` of either `Map`s or `Object`s.
- *
- * @callback RowUpdater
- * @param {List<ChartRow>} rows The `rows` of the current `ChartData`.
- * @return {Array<ChartRowDefinition>|List<ChartRowDefinition>} The replacement `rows`.
- */
-
-/**
- * This function is passed a `List` of `Map`s representing the columns in the current `ChartData`,
- * and should return a new column definitions to use in the new `ChartData` object.
- *
- * Like the `columns` argument of the `ChartData` constructor, columns can be either a `List`
- * or an `Array` of either `Map`s or `Object`s.
- *
- * @callback ColumnUpdater
- * @param {List<ChartColumnDefinition>} columns A `List` of `Map`s representing the columns in the current `ChartData`.
- * @return {List<ChartColumnDefinition>} The replacement columns.
- */
-
-
-/**
- * A function called for every row in a `ChartData` object, whose results are used to
- * construct a new `ChartData`.
- *
- * Like the individual rows passed to the `rows` argument of the `ChartData` constructor,
- * each row can be either a `Map` or an `Object`.
- *
- * @callback RowMapper
- * @param {ChartRow} row The current row.
- * @param {number} key The key of the current row.
- * @return {ChartRowDefinition} The replacement row.
- */
-
-/**
- * @class
- *
- * ChartData is an Immutable Record used by pnut charts to represent chart data.
+ * ChartData is a Class used by pnut charts to represent chart data.
  * It stores rows of data objects whose members correspond to columns, and metadata about
  * the columns.
  */
 
-class ChartData extends Record({
-    columns: OrderedMap(),
-    rows: List()
-}) {
+class ChartData<R: ChartRow> {
 
     /**
      * Creates a ChartData Record. Data passed in `rows` will be sanitized and any invalid value
      * types will be replaced with `null`.
-     *
-     * @param {Array<Object<string, ChartScalar>>|List<Map<string, ChartScalar>>} [rows = []]
-     * An `Array` or `List` of data rows, where each row is an `Object` or `Map` that contains data
-     * for a row. Once passed into a `ChartData` constructor these rows are replaced with equivalent
-     * Immutable `Map`s.
-     *
-     * @param {Array<ChartColumnDefinition>|List<ChartColumnDefinition>} [columns = []]
-     * An `Array` or `List` of columns. These enable you to nominate labels for your columns,
-     * and provide a default column order.
      *
      * @example
      * const rows = [
@@ -168,70 +116,50 @@ class ChartData extends Record({
      *
      * const chartData = new ChartData(rows, columns);
      *
-     * @memberof ChartData
      */
+
+    _rows: Array<R>;
+    _columns: ChartColumnList<R>;
+    _memoize: <K, V>(key: K, fn: () => V) => V;
 
     constructor(
-        rows: Array<ChartRowDefinition>|List<ChartRowDefinition> = [],
-        columns: Array<ChartColumnDefinition>|List<ChartColumnDefinition>|OrderedMap<string,ChartColumn> = []
+        rows: Array<R> = [],
+        columns: ChartColumnInputList<R> = []
     ) {
-        const chartDataRows: List<ChartRow> = ChartData._createRows(rows);
-        const chartDataColumns: OrderedMap<string,ChartColumn> = ChartData._createColumns(
-            columns,
-            chartDataRows
-        );
+        const chartDataColumns = ChartData._createColumns(columns, rows);
 
-        super({
-            rows: chartDataRows,
-            columns: chartDataColumns
-        });
+        this._rows = rows;
+        this._columns = chartDataColumns;
 
         // object for storing memoized return data
-        this._memos = {};
-    }
-
-    /*
-     * "private" static methods
-     */
-
-    static _createRows(rows: Array<ChartRowDefinition>|List<ChartRowDefinition>): List<ChartRow> {
-        // only immutablize rows two layers in (quicker than fromJS)
-        return List(rows)
-            .map(row => Map(row)
-                .map(cell => ChartData.isValueValid(cell) ? cell : null)
-            );
+        this._memoize = this._createMemoize();
     }
 
     static _createColumns(
-        columns: Array<ChartColumnDefinition>|List<ChartColumnDefinition>|OrderedMap<string,ChartColumn>,
-        chartDataRows: List<ChartRow>
-    ): OrderedMap<string,ChartColumn> {
-
-        return fromJS(columns)
-            .map(ii => Map(ii)) // required to convert objects to Maps within Lists
-            .reduce((map: OrderedMap<string,ChartColumn>, col: Map<string,*>): OrderedMap => {
-                return map.set(
-                    col.get('key'),
-                    new Column(ChartData._addContinuous(col, chartDataRows))
-                );
-            }, OrderedMap());
+        columns: ChartColumnInputList<R>,
+        rows: Array<R>
+    ): ChartColumnList<R> {
+        return columns.map(column => ChartData._addContinuous(column, rows));
     }
 
-    static _addContinuous(col: Map<string,*>, rows: List<ChartRow>): Map<string,*> {
-        if(col.has('isContinuous') || !rows) {
-            return col;
-        }
-        const key = col.get('key');
-        const isContinuous: boolean = rows
-            .find(row => row.get(key) != null, null, Map())
-            .update(row => ChartData.isValueContinuous(row.get(key)));
+    static _addContinuous(col: ChartColumnInput<R>, rows: Array<R>): ChartColumn<R> {
+        if(typeof col.isContinuous === 'boolean') return {
+            key: col.key,
+            label: col.label,
+            isContinuous: col.isContinuous
+        };
 
-        return col.set('isContinuous', isContinuous);
+        const key = col.key;
+        const nonNullRow = rows.find(row => row[key] != null);
+        const rowValue = nonNullRow != null ? nonNullRow[key] : null;
+        const isContinuous = ChartData.isValueContinuous(rowValue);
+
+        return {
+            key: col.key,
+            label: col.label,
+            isContinuous: isContinuous
+        };
     }
-
-    /*
-     * public static methods
-     */
 
     /**
      * Check if the value is a valid value that ChartData can hold.
@@ -256,7 +184,7 @@ class ChartData extends Record({
     /**
      * Check if the value is continuous, which means that the data type has intrinsic order.
      *
-     * @param {*} value The value to check.
+     * @param {ChartScalar} value The value to check.
      * @return {boolean} A boolean indicating of the value is continuous.
      *
      * @name isValueContinuous
@@ -265,14 +193,14 @@ class ChartData extends Record({
      * @static
      */
 
-    static isValueContinuous(value: *): boolean {
+    static isValueContinuous(value: ChartScalar): boolean {
         return typeof value === "number" || ChartData.isValueDate(value);
     }
 
     /**
      * Check if the value is a date and that the date is not invalid.
      *
-     * @param {*} value The value to check.
+     * @param {ChartScalar} value The value to check.
      * @return {boolean} A boolean indicating of the value is a date.
      *
      * @name isValueDate
@@ -281,7 +209,7 @@ class ChartData extends Record({
      * @static
      */
 
-    static isValueDate(value: *): boolean {
+    static isValueDate(value: ChartScalar): boolean {
         // value is date, and date is not invalid
         return value instanceof Date && !isNaN(value.getTime());
     }
@@ -322,6 +250,7 @@ class ChartData extends Record({
             return valueB;
         }
         if(blend < 0 || blend > 1) {
+            // eslint-disable-next-line no-console
             console.error(`ChartData: blend must be from 0 to 1 inclusive`);
             return null;
         }
@@ -359,6 +288,7 @@ class ChartData extends Record({
 
     static interpolateDiscrete(valueA: ChartScalar, valueB: ChartScalar, blend: number): ChartScalar {
         if(blend < 0 || blend > 1) {
+            // eslint-disable-next-line no-console
             console.error(`ChartData: blend must be from 0 to 1 inclusive`);
             return null;
         }
@@ -370,7 +300,7 @@ class ChartData extends Record({
      */
 
     /**
-     * A `List` containing all the rows of data.
+     * An `Array` containing all the rows of data.
      *
      * @name rows
      * @member {List<ChartRow>}
@@ -378,106 +308,104 @@ class ChartData extends Record({
      * @inner
      */
 
+    get rows(): Array<R> {
+        return this._rows;
+    }
+
     /**
-     * An `OrderedMap` containing this `ChartData`'s column definitions, which are each Immutable
-     * Records of type `ChartColumn`.
-     *
+     * An `Array` containing this `ChartData`'s column definitions, which are each
+     * of type `ChartColumn`.
      * @name columns
-     * @member {OrderedMap<string, ChartColumn>}
+     * @member {Array<ChartColumn>}
      * @memberof ChartData
      * @inner
      */
-
-    /*
-     * private methods
-     */
+    get columns(): Array<ChartColumn<R>> {
+        return this._columns;
+    }
 
     _columnError(column: string): boolean {
-        if(!this.columns.get(column)) {
+        if(!this.columns.find(ii => ii.key === column)) {
+            // eslint-disable-next-line no-console
             console.error(`ChartData: column "${column}" not found.`);
             return true;
         }
         return false;
     }
 
-    _columnListError(columnList: List<string>): boolean {
+    _columnListError(columnList: Array<string>): boolean {
         return columnList.some(ii => this._columnError(ii));
     }
 
     _indexError(index: number, max: ?number, integer: ?boolean = true): boolean {
         if(index < 0) {
+            // eslint-disable-next-line no-console
             console.error(`ChartData: index "${index}" must not be smaller than 0.`);
             return true;
         }
         if(max && index > max) {
+            // eslint-disable-next-line no-console
             console.error(`ChartData: index "${index}" must not be larger than ${max}.`);
             return true;
         }
         if(integer && Math.round(index) != index) {
+            // eslint-disable-next-line no-console
             console.error(`ChartData: index "${index}" must not be decimal.`);
             return true;
         }
         return false;
     }
 
-    _columnArgList(columns: ChartColumnArg): List<string> {
+    _columnArgList(columns: $Keys<R> | Array<$Keys<R>>): Array<$Keys<R>> {
         if(typeof columns == "string") {
-            return List([columns]);
+            return [columns];
         }
-        return fromJS(columns);
+        return columns;
     }
 
-    _allValuesForColumns(columnList: List<string>): List<ChartScalar> {
+    _allValuesForColumns(columnList: Array<$Keys<R>>): Array<ChartScalar> {
         return columnList
-            .reduce((list: List<ChartScalar>, column: string): List<ChartScalar> => {
-                return list.concat(
-                    this.rows.map(row => row.get(column))
-                );
-            }, List());
+            .reduce((list: Array<ChartScalar>, column: $Keys<R>): Array<ChartScalar> => {
+                return list.concat(this.rows.map(row => row[column]));
+            }, []);
     }
 
     _aggregation(
         operation: string,
-        aggregateFunction: (valueList: List) => number,
-        columns: ChartColumnArg
+        aggregateFunction: (valueList: Array<ChartScalar>) => ?ChartScalar,
+        columns: $Keys<R> | Array<$Keys<R>>
     ): ?ChartScalar {
 
-        const columnList: List<string> = this._columnArgList(columns);
+        const columnList = this._columnArgList(columns);
+
         if(this._columnListError(columnList)) {
             return null;
         }
 
         const allValuesForColumns = this._memoize(
             `allValuesForColumns.${columnList.join(',')}`,
-            (): List<ChartScalar> => {
-                return this._allValuesForColumns(columnList).filter(val => val != null);
-            }
+            () => this._allValuesForColumns(columnList).filter(val => val != null)
         );
 
         return this._memoize(`${operation}.${columnList.join(',')}`, (): ?ChartScalar => {
-            const result: number = allValuesForColumns.update(aggregateFunction);
+            const result = aggregateFunction(allValuesForColumns);
             return typeof result != "string" && isNaN(result) ? null : result;
         });
     }
 
-    _memoize(key: string, fn: Function): * {
-        if(this._memos.hasOwnProperty(key)) {
-            return this._memos[key];
-        }
-        const value: ChartScalar = fn();
-        this._memos[key] = value;
-        return value;
-    }
+    _createMemoize() {
+        const registry = new Map();
 
-    _columnDefinitions(): List<Map> {
-        // interally columns are stored as an OrderedMap of ColumnData records because it's useful
-        // but for any user facing stuff it's better to let them define columns as Lists of Maps
-        // or Arrays of Objects (a.k.a. ChartColumnDefinitions),
-        // so this method converts the interal data structure back to the user facing one
+        return function<K, V>(key: K, fn: () => V): V {
+            // $FlowFixMe flow can't handle that value is V for some reason
+            let value: V = registry.get(key);
+            if(typeof value === 'undefined') {
+                value = fn();
+                registry.set(key, value);
+            }
 
-        return this.columns
-            .toList()
-            .map(col => col.toMap());
+            return value;
+        };
     }
 
     /*
@@ -500,8 +428,11 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    updateRows(updater: RowUpdater): ChartData {
-        return new ChartData(updater(this.rows), this.columns);
+    updateRows(updater: (Array<R>) => Array<R>): ChartData<R> {
+        return new ChartData(
+            updater(this.rows),
+            this.columns.map(({key, label, isContinuous}) => ({key, label, isContinuous}))
+        );
     }
 
     /**
@@ -524,10 +455,11 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    updateColumns(updater: ColumnUpdater): ChartData {
-        // convert the interal data structure back to the user facing one for use in the updater().
-        const columnDefinitions = this._columnDefinitions();
-        return new ChartData(this.rows, updater(columnDefinitions));
+    updateColumns(updater: (ChartColumnList<R>) => ChartColumnList<R>): ChartData<R> {
+        return new ChartData(
+            this.rows,
+            updater(this.columns).map(({key, label, isContinuous}) => ({key, label, isContinuous}))
+        );
     }
 
     /**
@@ -549,21 +481,23 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    mapRows(mapper: RowMapper): ChartData {
-        return new ChartData(this.rows.map(mapper), this.columns);
+    mapRows(mapper: (R) => R): ChartData<R> {
+        return new ChartData(
+            this.rows.map(mapper),
+            this.columns.map(({key, label, isContinuous}) => ({key, label, isContinuous}))
+        );
     }
 
     /**
      * Returns all the data in a single column.
      *
      * @param {string} column The name of the column.
-     * @return {?List<ChartScalar>} A list of the data, or null if columns have been set but the
-     * column could not be found.
+     * @return {Array<ChartScalar>} A list of the data
      *
      * @example
      * const chartData = new ChartData(rows, columns);
      * return data.getColumnData('fruit');
-     * // returns List("apple", "apple", "orange", "peach", "pear")
+     * // returns ["apple", "apple", "orange", "peach", "pear"]
      *
      * @name getColumnData
      * @kind function
@@ -571,27 +505,26 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    getColumnData(column: string): List<ChartScalar> {
+    getColumnData(column: $Keys<R>): ?Array<ChartScalar> {
         if(this._columnError(column)) {
             return null;
         }
-        return this._memoize(`getColumnData.${column}`, (): ?List<ChartScalar> => {
-            return this.rows.map(row => row.get(column));
+        return this._memoize(`getColumnData.${column}`, (): Array<ChartScalar> => {
+            return this.rows.map(row => row[column]);
         });
     }
 
     /**
-     * For a given column, or `Array` or `List` of columns, this returns a `List` of unique values in those columns, in the order that
+     * For a given column, or `Array` of columns, this returns a `Array` of unique values in those columns, in the order that
      * each unique value first appears in `rows`.
      *
-     * You can also return the number of unique values by calling `getUniqueValues().size`.
+     * You can also return the number of unique values by calling `getUniqueValues().length`.
      *
-     * @param {string|Array<string>|List<string>} columns
+     * @param {string|Array<string>} columns
      * The names of one or more columns to perform the operation on.
      *
-     * @return {List<ChartScalar>|null}
-     * A `List` of unique values in the order they appear in `rows`, or null if columns have been
-     * set but the column could not be found.
+     * @return {Array<ChartScalar>}
+     * A `Array` of unique values in the order they appear in `rows`
      *
      * @name getUniqueValues
      * @kind function
@@ -599,15 +532,13 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    getUniqueValues(columns: ChartColumnArg): ?List<ChartScalar> {
-        const columnList: List<string> = this._columnArgList(columns);
+    getUniqueValues(columns: $Keys<R> | Array<$Keys<R>>): ?Array<ChartScalar> {
+        const columnList = this._columnArgList(columns);
         if(this._columnListError(columnList)) {
             return null;
         }
-        return this._memoize(`getUniqueValues.${columnList.join(',')}`, (): ?List<ChartScalar> => {
-            return this._allValuesForColumns(columnList)
-                .toOrderedSet()
-                .toList();
+        return this._memoize(`getUniqueValues.${columnList.join(',')}`, (): Array<ChartScalar> => {
+            return [...new Set(this._allValuesForColumns(columnList))];
         });
     }
 
@@ -619,9 +550,8 @@ class ChartData extends Record({
      *
      * @param {string} column The name of the column.
      *
-     * @return {List<List<ChartRow>>|null}
-     * A `List` of frames, where each frame is a `List`s of chart rows, or null if columns have been
-     * set but the column could not be found.
+     * @return {Array<Array<ChartRow>>}
+     * A `Array` of frames, where each frame is a `Array` of chart rows
      *
      * @name makeFrames
      * @kind function
@@ -629,14 +559,12 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    makeFrames(column: string): List<List<ChartRow>> {
+    makeFrames(column: $Keys<R>): ?Array<Array<R>> {
         if(this._columnError(column)) {
             return null;
         }
-        return this._memoize(`makeFrames.${column}`, (): ?ChartData => {
-            return this.rows
-                .groupBy(ii => ii.get(column))
-                .toList();
+        return this._memoize(`makeFrames.${column}`, (): Array<Array<R>> => {
+            return fastGroupByToArray(this.rows, (row: R) => row[column]);
         });
     }
 
@@ -710,16 +638,19 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    frameAtIndex(frameColumn: string, index: number): ?ChartData {
+    frameAtIndex(frameColumn: $Keys<R>, index: number): ?ChartData<R> {
         if(this._columnError(frameColumn) || this._indexError(index)) {
             return null;
         }
-        return this._memoize(`frameAtIndex.${frameColumn}[${index}]`, (): ?ChartData => {
-            const frames: List<List<ChartRow>> = this.makeFrames(frameColumn);
-            if(this._indexError(index, frames.size - 1)) {
+        return this._memoize(`frameAtIndex.${frameColumn}[${index}]`, (): ?ChartData<R> => {
+            const frames: ?Array<Array<R>> = this.makeFrames(frameColumn);
+            if(!frames || this._indexError(index, frames.length - 1)) {
                 return null;
             }
-            return new ChartData(frames.get(index), this.columns);
+            return new ChartData(
+                frames[index],
+                this.columns.map(({key, label, isContinuous}) => ({key, label, isContinuous}))
+            );
         });
     }
 
@@ -789,7 +720,11 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    frameAtIndexInterpolated(frameColumn: string, primaryColumn: string, index: number): ?ChartData {
+    frameAtIndexInterpolated(
+        frameColumn: $Keys<R>,
+        primaryColumn: $Keys<R>,
+        index: number
+    ): ?ChartData<R> {
         if(
             this._columnError(frameColumn) ||
             this._columnError(primaryColumn) ||
@@ -798,58 +733,56 @@ class ChartData extends Record({
             return null;
         }
 
-        if(frameColumn == primaryColumn) {
+        if(frameColumn === primaryColumn) {
+            // eslint-disable-next-line no-console
             console.error(`ChartData: frameColumn and primaryColumn cannot be the same.`);
             return null;
         }
 
-        if(index == Math.round(index)) {
+        if(index === Math.round(index)) {
             return this.frameAtIndex(frameColumn, index);
         }
 
-        const frames: List<List<ChartRow>> = this.makeFrames(frameColumn);
-        if(this._indexError(index, frames.size - 1, false)) {
+        const frames = this.makeFrames(frameColumn);
+        if(!frames || this._indexError(index, frames.length - 1, false)) {
             return null;
         }
 
         // get all values of primary in entire data set, so we can leave gaps where data points may
         // not exist at these data frames
-        const allPrimaryValues: List<ChartScalar> = this.getUniqueValues(primaryColumn);
+        const allPrimaryValues = this.getUniqueValues(primaryColumn);
+        if(!allPrimaryValues) return null;
         // get frames on either side of index
-        const indexA: number = Math.floor(index);
-        const indexB: number = Math.ceil(index);
+        const indexA = Math.floor(index);
+        const indexB = Math.ceil(index);
         // determine how far between the two frames we are
-        const blend: number = index - indexA;
+        const blend = index - indexA;
 
         // for each frame, get its data and use its primaryColumn to uniquely identify points that
         // are in both frames
-        const frameA: List<ChartRow> = frames
-            .get(indexA)
-            .groupBy(ii => ii.get(primaryColumn));
+        const frameA = fastGroupByToMap(frames[indexA], (row: R) => row[primaryColumn]);
+        const frameB = fastGroupByToMap(frames[indexB], (row: R) => row[primaryColumn]);
 
-        const frameB: List<ChartRow> = frames
-            .get(indexB)
-            .groupBy(ii => ii.get(primaryColumn));
-
-        const getRowFromFrame = (frame: List<ChartRow>, primaryValue: ChartScalar): ?ChartRow => {
-            const rowList: ?List<ChartRow> = frame.get(primaryValue);
-            if(!rowList || rowList.size == 0) {
+        function getRowFromFrame<F: Map<*,*>>(frame: F, primaryValue: ChartScalar): ?R  {
+            const rowList: ?Array<R> = frame.get(primaryValue);
+            if(!rowList || rowList.length == 0) {
                 return null;
             }
-            const first: ChartRow = rowList.first();
+            const first = rowList[0];
             // when uniquely identifying points, the data may accidentally contain multiple matches,
             // so warn if this happens
-            if(rowList.size > 1) {
-                console.warn(`ChartData: Two data points found where ${frameColumn}=${first.get(frameColumn)} and ${primaryColumn}=${String(primaryValue)}, using first data point.`);
+            if(rowList.length > 1) {
+                // eslint-disable-next-line no-console
+                console.warn(`ChartData: Two data points found where ${frameColumn}=${String(first[frameColumn])} and ${primaryColumn}=${String(primaryValue)}, using first data point.`);
             }
             return first;
-        };
+        }
 
         // for all primaryValues, find matching data points in both frames
-        const interpolatedFrame: List<ChartRow> = allPrimaryValues
-            .map((primaryValue: ChartScalar): ?ChartRow => {
-                const rowA: ?ChartRow = getRowFromFrame(frameA, primaryValue);
-                const rowB: ?ChartRow = getRowFromFrame(frameB, primaryValue);
+        const interpolatedFrame: Array<R> = allPrimaryValues
+            .map((primaryValue: ChartScalar) => {
+                const rowA: ?R = getRowFromFrame(frameA, primaryValue);
+                const rowB: ?R = getRowFromFrame(frameB, primaryValue);
 
                 // one of the data points doesn't exist, we can't continue
                 // although in future we could interpolate to missing continuous
@@ -860,20 +793,26 @@ class ChartData extends Record({
                 }
 
                 // for each column, try to interpolate values
-                return this.columns.reduce((map: ChartRow, column: ChartColumn): ChartRow => {
+                return this.columns.reduce((map: R, column: ChartColumn<R>): R => {
                     const {key, isContinuous} = column;
                     // use interpolate on continuous non-primary columns
                     // or else keep the data discrete while interpolating
                     const value: ChartScalar = isContinuous && key != primaryColumn
-                        ? ChartData.interpolate(rowA.get(key), rowB.get(key), blend)
-                        : ChartData.interpolateDiscrete(rowA.get(key), rowB.get(key), blend);
+                        ? ChartData.interpolate(rowA[key], rowB[key], blend)
+                        : ChartData.interpolateDiscrete(rowA[key], rowB[key], blend);
 
-                    return map.set(key, value);
-                }, Map());
+                    return {
+                        ...map,
+                        [key]: value
+                    };
+                }, ({}: $Shape<R>));
             })
-            .filter(ii => ii != null);
+            .filter(Boolean);
 
-        return new ChartData(interpolatedFrame, this.columns);
+        return new ChartData(
+            interpolatedFrame,
+            this.columns.map(({key, label, isContinuous}) => ({key, label, isContinuous}))
+        );
     }
 
     /**
@@ -890,8 +829,8 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    min(columns: ChartColumnArg): ?ChartScalar {
-        return this._aggregation("min", ImmutableMath.min(), columns);
+    min(columns: $Keys<R> | Array<$Keys<R>>): ?ChartScalar {
+        return this._aggregation("min", min, columns);
     }
 
     /**
@@ -908,8 +847,8 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    max(columns: ChartColumnArg): ?ChartScalar {
-        return this._aggregation("max", ImmutableMath.max(), columns);
+    max(columns: $Keys<R> | Array<$Keys<R>>): ?ChartScalar {
+        return this._aggregation("max", max, columns);
     }
 
     /**
@@ -928,7 +867,7 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    extent(columns: ChartColumnArg): Array<?ChartScalar> {
+    extent(columns: $Keys<R> | Array<$Keys<R>>): [?ChartScalar, ?ChartScalar] {
         return [
             this.min(columns),
             this.max(columns)
@@ -949,8 +888,8 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    sum(columns: ChartColumnArg): ?ChartScalar {
-        return this._aggregation("sum", ImmutableMath.sum(), columns);
+    sum(columns: $Keys<R> | Array<$Keys<R>>): ?ChartScalar {
+        return this._aggregation("sum", sum, columns);
     }
 
     /**
@@ -967,8 +906,8 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    average(columns: ChartColumnArg): ?ChartScalar {
-        return this._aggregation("average", ImmutableMath.average(), columns);
+    average(columns: $Keys<R> | Array<$Keys<R>>): ?ChartScalar {
+        return this._aggregation("average", mean, columns);
     }
 
     /**
@@ -985,8 +924,8 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    median(columns: ChartColumnArg): ?ChartScalar {
-        return this._aggregation("median", ImmutableMath.median(), columns);
+    median(columns: $Keys<R> | Array<$Keys<R>>): ?ChartScalar {
+        return this._aggregation("median", median, columns);
     }
 
     /**
@@ -1008,21 +947,21 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    quantile(columns: ChartColumnArg, p: number): ?ChartScalar {
-        const columnList: List<string> = this._columnArgList(columns);
+    quantile(columns: $Keys<R> | Array<$Keys<R>>, p: number): ?ChartScalar {
+        const columnList = this._columnArgList(columns);
         if(this._columnListError(columnList)) {
             return null;
         }
 
         const allValuesForColumns = this._memoize(
             `allValuesForColumns.${columnList.join(',')}`,
-            (): List<ChartScalar> => {
-                return this._allValuesForColumns(columnList).filter(val => val != null);
-            }
+            () => this._allValuesForColumns(columnList).filter(val => val != null)
         );
-
-        const quantileValue = quantile(allValuesForColumns.sort().toArray(), p);
-        return  typeof quantileValue === 'undefined' ? null : quantileValue;
+        const sortedValues = [...allValuesForColumns].sort(
+            (a, b) => typeof a === 'number' && typeof b === 'number' ? a - b : -1
+        );
+        const quantileValue = quantile(sortedValues, p);
+        return typeof quantileValue === 'undefined' ? null : quantileValue;
     }
 
     /**
@@ -1052,20 +991,28 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    summary(columns: ChartColumnArg): ?Map<string, number> {
-        const columnList: List<string> = this._columnArgList(columns);
+    summary(
+        columns: $Keys<R> | Array<$Keys<R>>
+    ): ?{
+        min: ?ChartScalar,
+        lowerQuartile: ?ChartScalar,
+        median: ?ChartScalar,
+        upperQuartile: ?ChartScalar,
+        max: ?ChartScalar
+    } {
+        const columnList = this._columnArgList(columns);
         if(this._columnListError(columnList)) {
             return null;
         }
 
-        return this._memoize(`summary.${columnList.join(',')}`, (): Map<string, number> => {
-            return Map({
+        return this._memoize(`summary.${columnList.join(',')}`, () => {
+            return {
                 min: this.min(columns),
                 lowerQuartile: this.quantile(columns, 0.25),
                 median: this.median(columns),
                 upperQuartile: this.quantile(columns, 0.75),
                 max: this.max(columns)
-            });
+            };
         });
     }
 
@@ -1084,8 +1031,8 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    variance(columns: ChartColumnArg): ?ChartScalar {
-        return this._aggregation("variance", (data) => variance(data.toArray()), columns);
+    variance(columns: $Keys<R> | Array<$Keys<R>>): ?ChartScalar {
+        return this._aggregation("variance", variance, columns);
     }
 
     /**
@@ -1104,8 +1051,8 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    deviation(columns: ChartColumnArg): ?ChartScalar {
-        return this._aggregation("deviation", (data) => deviation(data.toArray()), columns);
+    deviation(columns: $Keys<R> | Array<$Keys<R>>): ?ChartScalar {
+        return this._aggregation("deviation", deviation, columns);
     }
 
     /**
@@ -1170,36 +1117,30 @@ class ChartData extends Record({
      * @memberof ChartData
      */
 
-    bin(
-        column: string,
+    bin<C: $Keys<R>>(
+        column: C,
         thresholds?: BinThreshold | BinThresholdGenerator,
-        domain?: List<ChartScalar>|Array<ChartScalar>,
-        rowMapper?: (row: Map<string, List<ChartScalar>>) => Map<string, ChartScalar>,
-        columnUpdater?: (columns: List<ChartColumnDefinition>) => List<ChartColumnDefinition>
-    ): ?ChartData {
-
-        const columnList: List<string> = this._columnArgList(column);
-        if(this._columnListError(columnList)) {
+        domain?: [number, number],
+        rowMapper?: (row: $ObjMap<R, BinRow>) => $ObjMap<R, BinRow>,
+        columnUpdater?: (ChartColumnList<R>) => ChartColumnList<R>
+    ): ?ChartData<{[key: string]: ChartScalar}> {
+        if(this._columnError(column)) {
             return null;
         }
 
         const allValues = this._memoize(
             `allValuesForColumns.${column}`,
-            (): List<ChartScalar> => {
-                return this._allValuesForColumns(columnList).filter(val => val != null);
-            }
+            () => this._allValuesForColumns([column]).filter(val => val != null)
         );
 
-        const allValuesAsArray = allValues.toArray();
-
-        const isDate = ChartData.isValueDate(allValuesAsArray[0]);
+        const isDate = ChartData.isValueDate(allValues[0]);
 
         const min = this.min(column);
         const max = this.max(column);
 
 
         const calculatedThresholds = typeof thresholds === 'function'
-            ? thresholds(allValuesAsArray, min, max, {
+            ? thresholds(allValues, min, max, {
                 freedmanDiaconis: thresholdFreedmanDiaconis,
                 scott: thresholdScott,
                 sturges: thresholdSturges
@@ -1208,93 +1149,98 @@ class ChartData extends Record({
 
         // Calculate thresholds for binning
         const binThresholds = thresholds == null
-            ? thresholdSturges(allValuesAsArray)
+            ? thresholdSturges(allValues)
             : calculatedThresholds
-                ? List.isList(calculatedThresholds)
-                    // $FlowBug: flow doesn't know that only lists can get through `List.isList`
-                    ? calculatedThresholds.toArray()
-                    : calculatedThresholds
-                : List.isList(thresholds)
-                    // $FlowBug: flow doesn't know that only lists can get through `List.isList`
-                    ? thresholds.toArray()
-                    : thresholds;
+                ? calculatedThresholds
+                : thresholds;
 
         const binDomain = domain == null
             ? [min, max]
-            : List.isList(domain)
-                // $FlowBug: flow doesn't know that only lists can get through `List.isList`
-                ? domain.toArray()
-                : domain;
+            : domain;
 
-        const bins = histogram()
+        const bins: Array<Array<R> & {x0: number | Date, x1: number | Date}> = histogram()
             .thresholds(binThresholds)
-            .domain(binDomain)(allValuesAsArray);
+            .domain(binDomain)(allValues);
 
         // Use d3-histogram generated bins to organize ChartData rows into bins
-        const binnedRows = this.rows
-            .groupBy((row: ChartRow): Map<number, List> => {
-                const preBinnedValue = row.get(column);
-                // bins is plain js so can't use findIndex here
-                return bins.reduce((
-                    matchedIndex: number,
-                    bin: Object,
-                    binIndex: number
-                ): number => {
-                    if(typeof matchedIndex === 'number') return matchedIndex;
-                    return bin.indexOf(preBinnedValue) !== -1 ? binIndex : matchedIndex;
-                }, null);
+        const groupedRowsMap = fastGroupByToMap(this.rows, (row: R): ?number => {
+            const preBinnedValue = row[column];
+            // bins is plain js so can't use findIndex here
+            return bins.reduce((
+                matchedIndex: ?number,
+                bin: Array<R>,
+                binIndex: number
+            ): ?number => {
+                if(typeof matchedIndex === 'number') return matchedIndex;
+                return bin.indexOf(preBinnedValue) !== -1 ? binIndex : matchedIndex;
+            }, null);
+        });
+
+        let groupedRows: Array<{binIndex: number, binRows: Array<R>}> = [];
+        for(let entry of groupedRowsMap.entries()) {
+            const [binIndex, binRows] = entry;
+            if(binIndex == null) continue;
+            groupedRows.push({binIndex, binRows});
+        }
+
+
+        const binnedRows = groupedRows
+            .sort((rowA, rowB) => {
+                return rowA.binIndex - rowB.binIndex;
             })
-            .filter((binRows, binIndex) => binIndex != null)
-            .sortBy(
-                (binRows, binIndex) => binIndex,
-                (binIndexA, binIndexB) => binIndexA - binIndexB
-            )
-            .toList()
-            .map((binRows: List<ChartRow>): List<ChartRow> => {
+            .map(({binRows}: {binIndex: number, binRows: Array<R>}): $ObjMap<R, BinRow> => {
                 // Generate blank starting row map with bin column nulled
-                const blankRow = binRows.get(0).map((
-                    value: ChartScalar,
+                const columns: Array<$Keys<R>> = Object.keys(binRows[0]);
+
+                const blankRow = columns.reduce((
+                    row: $ObjMap<R, BinRow>,
                     rowColumn: string
-                ): List|null => {
-                    return rowColumn === column ? null : List();
-                });
+                ) => {
+                    return {
+                        ...row,
+                        [rowColumn]: rowColumn === column ? null : []
+                    };
+                }, ({}: $ObjMap<R, BinRow>));
 
                 return binRows
                     .reduce((
-                        aggRow: Map<string, List<ChartScalar>>,
-                        row: ChartRow
-                    ): Map<string, List<ChartScalar>> => {
-                        return aggRow
-                            // Merge without overwriting bin column
-                            .mergeWith((prev, next) => prev ? prev.push(next) : prev, row);
-                    }, blankRow)
-                    .filter(val => !!val);
+                        aggRow: $ObjMap<R, BinRow>,
+                        row: R
+                    ): $ObjMap<R, BinRow> => {
+                        const columns: Array<$Keys<R>> = Object.keys(row);
+
+                        return columns.reduce((mergedRow, rowColumn) => {
+                            return {
+                                ...mergedRow,
+                                [rowColumn]: (mergedRow[rowColumn] || []).concat(row[rowColumn])
+                            };
+                        }, aggRow);
+                    }, (blankRow));
             });
 
 
         // Run binned rows through provided rowMapper then add Lower and Upper values.
         const rows = binnedRows
-            .map(rowMapper || (() => Map()))
-            .map((row, binIndex) => row.merge({
+            .map(rowMapper || (() => {}))
+            .map((row, binIndex) => ({
+                ...row,
                 [`${column}Lower`]: isDate ? new Date(bins[binIndex].x0) : bins[binIndex].x0,
                 [`${column}Upper`]: isDate ? new Date(bins[binIndex].x1) : bins[binIndex].x1
             }));
 
-        // Generate new columns list with `${column}Lower` and `${column}Upper` versions of column
-        const columnDefinitions = this._columnDefinitions()
-            .update((columnList: List<ChartColumnDefinition>): List<ChartColumnDefinition> => {
-                // Maintain ordering of columns when adding new ones
-                const currentIndex = columnList.findIndex((ii) => ii.get('key') === column);
-                return columnList
-                    .set(currentIndex, columnList.get(currentIndex).set('key', `${column}Lower`))
-                    .insert(currentIndex + 1, columnList.get(currentIndex).set('key', `${column}Upper`));
-            });
+        // Add upper and lower columns but maintain index
+        let newColumns = [...this.columns];
+        const columnIndex = this.columns.findIndex(columnName => columnName === column);
+        const columnToReplace = this.columns[columnIndex];
+
+        newColumns.splice(columnIndex, 1, {...columnToReplace, key: `${column}Lower`});
+        newColumns.splice(columnIndex + 1, 0, {...columnToReplace, key: `${column}Upper`});
 
         const columns = columnUpdater
-            ? columnDefinitions.update(columnUpdater)
-            : columnDefinitions;
+            ? columnUpdater(newColumns.map(({key, label, isContinuous}) => ({key, label, isContinuous})))
+            : newColumns;
 
-        return new ChartData(rows, columns);
+        return new ChartData(rows, columns.map(({key, label, isContinuous}) => ({key, label, isContinuous})));
     }
 }
 

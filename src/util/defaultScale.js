@@ -1,21 +1,24 @@
 // @flow
 
 import * as d3Scale from 'd3-scale';
-import {Set} from 'immutable';
 import ChartData from '../chartdata/ChartData';
+import type {ChartRow} from '../definitions';
 
 // create a set of booleans to check if a group is mixing dimension types
-function isContinuous(columns: Set, data: Object): Set {
+function isContinuous<R: ChartRow>(columns: Array<string>, data: ChartData<R>): Array<boolean> {
     return columns
         .map((columnName: string): boolean => {
-            return data.getIn(['columns', columnName, 'isContinuous']);
+            const column = data.columns.find(ii => ii.key === columnName);
+            return !!column && column.isContinuous;
         });
 }
 
-function isDate(columns: Set, data: Object): Set {
+function isDate<R: ChartRow>(columns: Array<string>, data: ChartData<R>): Array<boolean> {
     return columns
         .map((columnName: string): boolean  => {
-            return ChartData.isValueDate(data.getIn(['rows', 0, columnName]));
+            const row = data.rows[0];
+            if(!row) return false;
+            return ChartData.isValueDate(row[columnName]);
         });
 }
 
@@ -30,8 +33,8 @@ export default function defaultScale(scaleProps: Object): Function {
 
 
     // are any of the columns continuous.
-    const continuous = isContinuous(columns, data).get(true);
-    const time = isDate(columns, data).get(true);
+    const continuous = isContinuous(columns, data).includes(true);
+    const time = isDate(columns, data).includes(true);
 
 
     const scaleName = scaleType || (
@@ -43,7 +46,7 @@ export default function defaultScale(scaleProps: Object): Function {
     );
 
     // if the size is greater than one we have multiple data types
-    if(isContinuous(columns, data).size > 1) {
+    if(new Set(isContinuous(columns, data)).size > 1) {
         throw new Error(`A scale cannot share continuous and non continuous data: ${columns.join(', ')}`);
     }
 
@@ -51,7 +54,7 @@ export default function defaultScale(scaleProps: Object): Function {
         // the domain of continuous data can be a plain min max of columns
         ? [time ? data.min(columns) : 0, data.max(columns)]
         // the domain of non-continuous data has to be an array of all unique values of columns
-        : data.getUniqueValues(columns).toArray();
+        : data.getUniqueValues(columns);
 
 
     switch(primitiveDimension) {

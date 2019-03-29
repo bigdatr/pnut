@@ -1,7 +1,4 @@
-import test from 'ava';
 import React from 'react';
-import {shallow} from 'enzyme';
-
 import {scaleLinear, scalePoint} from 'd3-scale';
 import Label, {LabelRenderable} from '../LabelRenderable';
 import ChartData from '../../../chartdata/ChartData';
@@ -221,30 +218,30 @@ const xScale = scalePoint()
 
 
 const scaledData = chartData.rows.map(row => ({
-    x: row.get('month') != null ? xScale(row.get('month')) + xScale.bandwidth() / 2 : null,
-    y: row.get('supply') != null ? 200 - yScale(row.get('supply')) : null
-})).toArray();
+    x: row['month'] != null ? xScale(row['month']) + xScale.bandwidth() / 2 : null,
+    y: row['supply'] != null ? 200 - yScale(row['supply']) : null
+}));
 
-const DefaultLabel = (scaledData: Array): React.Element<> => {
+const DefaultLabel = (scaledData) => {
     return shallow(<LabelRenderable
         width={200}
         height={200}
         scaledData={scaledData}
         data={chartData}
-        labelTextFromRow={row => row.get('month')}
+        labelTextFromRow={row => row['month']}
     />);
 };
 
-test('Default LabelRenderable renders text', tt => {
-    tt.is(DefaultLabel(scaledData).childAt(0).shallow().type(), 'text');
+test('Default LabelRenderable renders text', () => {
+    expect(DefaultLabel(scaledData).childAt(0).shallow().type()).toBe('text');
 });
 
-test('LabelRenderable won\'t render for null points', tt => {
+test('LabelRenderable won\'t render for null points', () => {
     // The second data point won't be rendered because it has no supply value
-    tt.is(DefaultLabel(scaledData).children().length, scaledData.length - 1);
+    expect(DefaultLabel(scaledData).children().length).toBe(scaledData.length - 1);
 });
 
-test('LabelRenderable won\'t render text for NaN points', tt => {
+test('LabelRenderable won\'t render text for NaN points', () => {
     const scaledWithNaN = [...scaledData, {
         x: 100,
         y: NaN,
@@ -252,7 +249,7 @@ test('LabelRenderable won\'t render text for NaN points', tt => {
     }];
 
     // Two points won't render now - one with a null, and one with a NaN value
-    tt.is(DefaultLabel(scaledWithNaN).children().length, scaledWithNaN.length - 2);
+    expect(DefaultLabel(scaledWithNaN).children().length).toBe(scaledWithNaN.length - 2);
 });
 
 const CustomLabel = shallow(<LabelRenderable
@@ -260,27 +257,27 @@ const CustomLabel = shallow(<LabelRenderable
     height={200}
     scaledData={scaledData}
     data={chartData}
-    labelTextFromRow={row => row.get('month')}
+    labelTextFromRow={row => row['month']}
     label={(props) => <text {...props.labelProps} fill={'#ff0000'}/>}
 />);
 
 
-test('LabelRenderable allows custom circle rendering', tt => {
-    tt.is(CustomLabel.childAt(0).shallow().prop('fill'), '#ff0000');
+test('LabelRenderable allows custom circle rendering', () => {
+    expect(CustomLabel.childAt(0).shallow().prop('fill')).toBe('#ff0000');
 });
 
-test('LabelRenderable custom label has x and y params', tt => {
-    tt.is(CustomLabel.childAt(0).shallow().prop('x'), xScale(rows[0].month));
-    tt.is(CustomLabel.childAt(0).shallow().prop('y'), 200 - yScale(rows[0].supply));
+test('LabelRenderable custom label has x and y params', () => {
+    expect(CustomLabel.childAt(0).shallow().prop('x')).toBe(xScale(rows[0].month));
+    expect(CustomLabel.childAt(0).shallow().prop('y')).toBe(200 - yScale(rows[0].supply));
 });
 
 
-test('Label renders a LabelRenderable', tt => {
+test('Label renders a LabelRenderable', () => {
     const canvas = shallow(<Label
         data={{}}
         width={200}
         height={200}
         scaledData={scaledData}
     />);
-    tt.is(canvas.name(), 'LabelRenderable');
+    expect(canvas.name()).toBe('LabelRenderable');
 });

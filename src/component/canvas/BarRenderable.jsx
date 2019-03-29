@@ -2,7 +2,7 @@
 
 import React from 'react';
 import {ColumnRenderable} from './ColumnRenderable';
-
+import type {Node} from 'react';
 export {ColumnRenderable as BarRenderable};
 
 
@@ -18,10 +18,10 @@ export {ColumnRenderable as BarRenderable};
  *     column={(props) => <rect {...props.columnProps} fill='blue'/>}
  * />
  */
-export default class Bar extends React.Component {
+export default class Bar extends React.Component<*> {
     static chartType = 'canvas';
 
-    render(): React.Element<any> {
+    render(): Node {
         return <ColumnRenderable
             {...this.props}
         />;

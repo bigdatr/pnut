@@ -1,7 +1,4 @@
-import test from 'ava';
 import React from 'react';
-import {shallow} from 'enzyme';
-
 import {scaleLinear, scalePoint} from 'd3-scale';
 import Scatter, {ScatterRenderable} from '../ScatterRenderable';
 import ChartData from '../../../chartdata/ChartData';
@@ -224,12 +221,12 @@ const radiusScale = scaleLinear()
     .range([10, 30]);
 
 const scaledData = chartData.rows.map(row => ({
-    x: row.get('month') != null ? xScale(row.get('month')) + xScale.bandwidth() / 2 : null,
-    y: row.get('supply') != null ? 200 - yScale(row.get('supply')) : null,
-    radius: row.get('demand') != null ? radiusScale(row.get('demand')) : null
-})).toArray();
+    x: row['month'] != null ? xScale(row['month']) + xScale.bandwidth() / 2 : null,
+    y: row['supply'] != null ? 200 - yScale(row['supply']) : null,
+    radius: row['demand'] != null ? radiusScale(row['demand']) : null
+}));
 
-const DefaultScatter = (scaledData: Array): React.Element<> => {
+const DefaultScatter = (scaledData) => {
     return shallow(<ScatterRenderable
         width={200}
         height={200}
@@ -238,16 +235,16 @@ const DefaultScatter = (scaledData: Array): React.Element<> => {
     />);
 };
 
-test('Default ScatterRenderable renders circles', tt => {
-    tt.is(DefaultScatter(scaledData).childAt(0).shallow().type(), 'circle');
+test('Default ScatterRenderable renders circles', () => {
+    expect(DefaultScatter(scaledData).childAt(0).shallow().type()).toBe('circle');
 });
 
-test('ScatterRenderable won\'t render a dot for null points', tt => {
+test('ScatterRenderable won\'t render a dot for null points', () => {
     // The second data point won't be rendered because it has no supply value
-    tt.is(DefaultScatter(scaledData).children().length, scaledData.length - 1);
+    expect(DefaultScatter(scaledData).children().length).toBe(scaledData.length - 1);
 });
 
-test('ScatterRenderable won\'t render a dot for NaN points', tt => {
+test('ScatterRenderable won\'t render a dot for NaN points', () => {
     const scaledWithNaN = [...scaledData, {
         x: 100,
         y: NaN,
@@ -255,7 +252,7 @@ test('ScatterRenderable won\'t render a dot for NaN points', tt => {
     }];
 
     // Two points won't render now - one with a null, and one with a NaN value
-    tt.is(DefaultScatter(scaledWithNaN).children().length, scaledWithNaN.length - 2);
+    expect(DefaultScatter(scaledWithNaN).children().length).toBe(scaledWithNaN.length - 2);
 });
 
 const CustomScatter = shallow(<ScatterRenderable
@@ -267,22 +264,22 @@ const CustomScatter = shallow(<ScatterRenderable
 />);
 
 
-test('ScatterRenderable allows custom circle rendering', tt => {
-    tt.is(CustomScatter.childAt(0).shallow().prop('r'), radiusScale(rows[0].demand));
+test('ScatterRenderable allows custom circle rendering', () => {
+    expect(CustomScatter.childAt(0).shallow().prop('r')).toBe(radiusScale(rows[0].demand));
 });
 
-test('ScatterRenderable custom dot has x and y params', tt => {
-    tt.is(CustomScatter.childAt(0).shallow().prop('cx'), xScale(rows[0].month));
-    tt.is(CustomScatter.childAt(0).shallow().prop('cy'), 200 - yScale(rows[0].supply));
+test('ScatterRenderable custom dot has x and y params', () => {
+    expect(CustomScatter.childAt(0).shallow().prop('cx')).toBe(xScale(rows[0].month));
+    expect(CustomScatter.childAt(0).shallow().prop('cy')).toBe(200 - yScale(rows[0].supply));
 });
 
 
-test('Scatter renders a ScatterRenderable', tt => {
+test('Scatter renders a ScatterRenderable', () => {
     const canvas = shallow(<Scatter
         data={{}}
         width={200}
         height={200}
         scaledData={scaledData}
     />);
-    tt.is(canvas.name(), 'ScatterRenderable');
+    expect(canvas.name()).toBe('ScatterRenderable');
 });

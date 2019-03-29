@@ -1,4 +1,3 @@
-import test from 'ava';
 import ChartData from '../ChartData';
 
 // dont show console errors
@@ -8,95 +7,89 @@ console.error = () => {};
 // static
 //
 
-test('ChartData.isValueValid correctly identifies valid values', tt => {
-    tt.true(ChartData.isValueValid(23), 'number is valid');
-    tt.true(ChartData.isValueValid(-123.234), 'negative number is valid');
-    tt.true(ChartData.isValueValid(0), 'zero number is valid');
-    tt.true(ChartData.isValueValid("23"), 'string is valid');
-    tt.true(ChartData.isValueValid(""), 'empty string is valid');
-    tt.true(ChartData.isValueValid(null), 'null is valid');
-    tt.true(ChartData.isValueValid(new Date('2017-01-01')), 'date is valid');
-    tt.false(ChartData.isValueValid(new Date('invalid date')), 'invalid date is not valid');
-    tt.false(ChartData.isValueValid(false), 'boolean (true) is not valid');
-    tt.false(ChartData.isValueValid(true), 'boolean (false) is not valid');
-    tt.false(ChartData.isValueValid(undefined), 'undefined is not valid');
-    tt.false(ChartData.isValueValid({}), 'object is not valid');
-    tt.false(ChartData.isValueValid(() => {}), 'function is not valid');
+test('ChartData.isValueValid correctly identifies valid values', () => {
+    expect(ChartData.isValueValid(23)).toBe(true);
+    expect(ChartData.isValueValid(-123.234)).toBe(true);
+    expect(ChartData.isValueValid(0)).toBe(true);
+    expect(ChartData.isValueValid("23")).toBe(true);
+    expect(ChartData.isValueValid("")).toBe(true);
+    expect(ChartData.isValueValid(null)).toBe(true);
+    expect(ChartData.isValueValid(new Date('2017-01-01'))).toBe(true);
+    expect(ChartData.isValueValid(new Date('invalid date'))).toBe(false);
+    expect(ChartData.isValueValid(false)).toBe(false);
+    expect(ChartData.isValueValid(true)).toBe(false);
+    expect(ChartData.isValueValid(undefined)).toBe(false);
+    expect(ChartData.isValueValid({})).toBe(false);
+    expect(ChartData.isValueValid(() => {})).toBe(false);
 });
 
-test('ChartData.isValueContinuous correctly identifies continuous values', tt => {
-    tt.true(ChartData.isValueContinuous(23), 'number is continuous');
-    tt.true(ChartData.isValueContinuous(-123.234), 'negative number is continuous');
-    tt.true(ChartData.isValueContinuous(0), 'zero number is continuous');
-    tt.true(ChartData.isValueContinuous(new Date('2017-01-01')), 'date is continuous');
-    tt.false(ChartData.isValueContinuous(new Date('invalid date')), 'invalid date is not continuous');
-    tt.false(ChartData.isValueContinuous("23"), 'string is not continuous');
-    tt.false(ChartData.isValueContinuous(""), 'empty string is not continuous');
-    tt.false(ChartData.isValueContinuous(null), 'null is not continuous');
-    tt.false(ChartData.isValueContinuous(false), 'boolean (true) is not continuous');
-    tt.false(ChartData.isValueContinuous(true), 'boolean (false) is not continuous');
-    tt.false(ChartData.isValueContinuous(undefined), 'undefined is not continuous');
-    tt.false(ChartData.isValueContinuous({}), 'object is not continuous');
-    tt.false(ChartData.isValueContinuous(() => {}), 'function is not continuous');
+test('ChartData.isValueContinuous correctly identifies continuous values', () => {
+    expect(ChartData.isValueContinuous(23)).toBe(true);
+    expect(ChartData.isValueContinuous(-123.234)).toBe(true);
+    expect(ChartData.isValueContinuous(0)).toBe(true);
+    expect(ChartData.isValueContinuous(new Date('2017-01-01'))).toBe(true);
+    expect(ChartData.isValueContinuous(new Date('invalid date'))).toBe(false);
+    expect(ChartData.isValueContinuous("23")).toBe(false);
+    expect(ChartData.isValueContinuous("")).toBe(false);
+    expect(ChartData.isValueContinuous(null)).toBe(false);
+    expect(ChartData.isValueContinuous(false)).toBe(false);
+    expect(ChartData.isValueContinuous(true)).toBe(false);
+    expect(ChartData.isValueContinuous(undefined)).toBe(false);
+    expect(ChartData.isValueContinuous({})).toBe(false);
+    expect(ChartData.isValueContinuous(() => {})).toBe(false);
 });
 
 
-test('ChartData.interpolate correctly interpolates values', tt => {
+test('ChartData.interpolate correctly interpolates values', () => {
     // boundaries
-    tt.is(ChartData.interpolate(10, 20, 0), 10, 'blend = 0 returns valueA');
-    tt.is(ChartData.interpolate(10, 20, 1), 20, 'blend = 1 returns valueB');
+    expect(ChartData.interpolate(10, 20, 0)).toBe(10);
+    expect(ChartData.interpolate(10, 20, 1)).toBe(20);
     // invalid blends
-    tt.is(ChartData.interpolate(10, 20, 2), null, 'blend > 1 returns null');
-    tt.is(ChartData.interpolate(10, 20, -1), null, 'blend < 0 returns null');
+    expect(ChartData.interpolate(10, 20, 2)).toBe(null);
+    expect(ChartData.interpolate(10, 20, -1)).toBe(null);
     // nulls
-    tt.is(ChartData.interpolate(null, 20, 0.5), null, 'valueA = null returns null');
-    tt.is(ChartData.interpolate(10, null, 0.5), null, 'valueB = null returns null');
+    expect(ChartData.interpolate(null, 20, 0.5)).toBe(null);
+    expect(ChartData.interpolate(10, null, 0.5)).toBe(null);
     // in the cases below, the data is treated as discrete and should return the nearest value
-    tt.is(ChartData.interpolate("abc", 20, 0.2), "abc", 'valueA is not continous and blend < 0.5 returns valueA');
-    tt.is(ChartData.interpolate("abc", 20, 0.5), 20, 'valueA is not continous and blend >= 0.5 returns valueB');
-    tt.is(ChartData.interpolate(12, "def", 0.2), 12, 'valueB is not continous and blend < 0.5 returns valueA');
-    tt.is(ChartData.interpolate(12, "def", 0.5), "def", 'valueB is not continous and blend >= 0.5 returns valueB');
+    expect(ChartData.interpolate("abc", 20, 0.2)).toBe("abc");
+    expect(ChartData.interpolate("abc", 20, 0.5)).toBe(20);
+    expect(ChartData.interpolate(12, "def", 0.2)).toBe(12);
+    expect(ChartData.interpolate(12, "def", 0.5)).toBe("def");
     // interpolation
-    tt.is(ChartData.interpolate(10, 20, 0.1), 11, 'interpolate works with numbers');
-    tt.is(ChartData.interpolate(10, 20, 0.5), 15, 'interpolate works with numbers');
-    tt.is(ChartData.interpolate(10, 20, 0.9), 19, 'interpolate works with numbers');
-    tt.is(
-        ChartData.interpolate(new Date('2017-01-01'), new Date('2017-01-03'), 0.5).getTime(),
-        new Date('2017-01-02').getTime(),
-        'interpolate works with dates'
-    );
+    expect(ChartData.interpolate(10, 20, 0.1)).toBe(11);
+    expect(ChartData.interpolate(10, 20, 0.5)).toBe(15);
+    expect(ChartData.interpolate(10, 20, 0.9)).toBe(19);
+    expect(
+        ChartData.interpolate(new Date('2017-01-01'), new Date('2017-01-03'), 0.5).getTime()
+    ).toBe(new Date('2017-01-02').getTime());
 });
 
-test('ChartData.interpolateDiscrete correctly interpolates values', tt => {
+test('ChartData.interpolateDiscrete correctly interpolates values', () => {
     // boundaries
-    tt.is(ChartData.interpolateDiscrete(10, 20, 0), 10, 'blend = 0 returns valueA');
-    tt.is(ChartData.interpolateDiscrete(10, 20, 1), 20, 'blend = 1 returns valueB');
+    expect(ChartData.interpolateDiscrete(10, 20, 0)).toBe(10);
+    expect(ChartData.interpolateDiscrete(10, 20, 1)).toBe(20);
     // invalid blends
-    tt.is(ChartData.interpolateDiscrete(10, 20, 2), null, 'blend > 1 returns null');
-    tt.is(ChartData.interpolateDiscrete(10, 20, -1), null, 'blend < 0 returns null');
+    expect(ChartData.interpolateDiscrete(10, 20, 2)).toBe(null);
+    expect(ChartData.interpolateDiscrete(10, 20, -1)).toBe(null);
     // in the cases below, the data is treated as discrete and should return the nearest value
-    tt.is(ChartData.interpolateDiscrete("a", "b", 0.4), "a", 'interpolateDiscrete works with strings');
-    tt.is(ChartData.interpolateDiscrete("a", "b", 0.5), "b", 'interpolateDiscrete works with strings');
-    tt.is(ChartData.interpolateDiscrete(10, 20, 0.4), 10, 'interpolateDiscrete works with numbers');
-    tt.is(ChartData.interpolateDiscrete(10, 20, 0.5), 20, 'interpolateDiscrete works with numbers');
+    expect(ChartData.interpolateDiscrete("a", "b", 0.4)).toBe("a");
+    expect(ChartData.interpolateDiscrete("a", "b", 0.5)).toBe("b");
+    expect(ChartData.interpolateDiscrete(10, 20, 0.4)).toBe(10);
+    expect(ChartData.interpolateDiscrete(10, 20, 0.5)).toBe(20);
 
-    tt.is(
-        ChartData.interpolateDiscrete(new Date('2017-01-01'), new Date('2017-01-03'), 0.2).getTime(),
-        new Date('2017-01-01').getTime(),
-        'interpolating works with dates'
-    );
-    tt.is(
-        ChartData.interpolateDiscrete(new Date('2017-01-01'), new Date('2017-01-03'), 0.8).getTime(),
-        new Date('2017-01-03').getTime(),
-        'interpolating works with dates'
-    );
+    expect(
+        ChartData.interpolateDiscrete(new Date('2017-01-01'), new Date('2017-01-03'), 0.2).getTime()
+    ).toBe(new Date('2017-01-01').getTime());
+    expect(
+        ChartData.interpolateDiscrete(new Date('2017-01-01'), new Date('2017-01-03'), 0.8).getTime()
+    ).toBe(new Date('2017-01-03').getTime());
 });
 
 
-test('ChartData.isValueTime returns true for valid date', tt => {
-    tt.true(ChartData.isValueDate(new Date('2017-01-01')), 'date is date');
-    tt.false(ChartData.isValueDate(new Date('invalid date')), 'invalid date is not date');
-    tt.false(ChartData.isValueDate(1), 'number is not date');
-    tt.false(ChartData.isValueDate('1'), 'string is not date');
-    tt.false(ChartData.isValueDate({}), 'object is not date');
+test('ChartData.isValueTime returns true for valid date', () => {
+    expect(ChartData.isValueDate(new Date('2017-01-01'))).toBe(true);
+    expect(ChartData.isValueDate(new Date('invalid date'))).toBe(false);
+    expect(ChartData.isValueDate(1)).toBe(false);
+    expect(ChartData.isValueDate('1')).toBe(false);
+    expect(ChartData.isValueDate({})).toBe(false);
 });

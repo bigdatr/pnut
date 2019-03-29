@@ -1,5 +1,3 @@
-import test from 'ava';
-import {is, List, Map, fromJS} from 'immutable';
 import ChartData from '../ChartData';
 
 // dont show console errors
@@ -171,9 +169,9 @@ const columnsWithLoadsOfFruit = [
 
 // updateRows
 
-test('ChartData.updateRows should return an updated ChartData', tt => {
+test('ChartData.updateRows should return an updated ChartData', () => {
     const data = new ChartData(rows, columns);
-    const answer = fromJS([
+    const answer = [
         {
             day: 1,
             supply: 34,
@@ -204,60 +202,61 @@ test('ChartData.updateRows should return an updated ChartData', tt => {
             demand:  4,
             fruit: "no fruit"
         }
-    ]);
+    ];
 
     const newData = data.updateRows(rows => {
-        return rows.map(row => row.set('fruit', 'no fruit'))
+        return rows.map(row => ({...row, fruit: 'no fruit'}))
     });
-    tt.deepEqual(newData.rows, answer);
+    expect(newData.rows).toEqual(answer);
 });
 
-test('ChartData.updateRows should retain columns', tt => {
+test('ChartData.updateRows should retain columns', () => {
     const data = new ChartData(rows, columns);
     const newData = data.updateRows(rows => {
-        return rows.map(row => row.set('fruit', 'no fruit'))
+        return rows.map(row => ({...row, fruit: 'no fruit'}))
     });
-    tt.deepEqual(newData.columns, data.columns);
+    expect(newData.columns).toEqual(data.columns);
 });
 
 // updateColumns
 
-test('ChartData.updateColumns should return an updated ChartData', tt => {
+test('ChartData.updateColumns should return an updated ChartData', () => {
     const data = new ChartData(rows, columns);
-    const answer = data.columns.set('month', fromJS({
+
+    const answer = data.columns.concat({
         key: 'month',
         label: 'month',
         isContinuous: false
-    }));
+    });
 
     const newData = data.updateColumns(cols => {
-        return cols.push(Map({
+        return cols.concat({
             key: 'month',
             label: 'month',
             isContinuous: false
-        }));
+        });
     });
 
-    tt.true(is(newData.columns, answer));
+    expect(newData.columns).toEqual(answer);
 });
 
-test('ChartData.updateColumns should retain rows', tt => {
+test('ChartData.updateColumns should retain rows', () => {
     const data = new ChartData(rows, columns);
     const newData = data.updateColumns(cols => {
-        return cols.push(Map({
+        return cols.concat({
             key: 'month',
             label: 'month',
             isContinuous: false
-        }));
+        });
     });
-    tt.true(is(newData.rows, data.rows));
+    expect(newData.rows).toEqual(data.rows);
 });
 
 // mapRows
 
-test('ChartData.mapRows should return an updated ChartData', tt => {
+test('ChartData.mapRows should return an updated ChartData', () => {
     const data = new ChartData(rows, columns);
-    const answer = fromJS([
+    const answer = [
         {
             day: 1,
             supply: 134,
@@ -288,94 +287,88 @@ test('ChartData.mapRows should return an updated ChartData', tt => {
             demand:  104,
             fruit: "pear"
         }
-    ]);
+    ];
 
-    const newData = data.mapRows(row => row
-        .update('supply', n => n + 100)
-        .update('demand', n => n + 100)
-    );
-    tt.deepEqual(newData.rows, answer);
+    const newData = data.mapRows(row => ({
+        ...row,
+        supply: row.supply + 100,
+        demand: row.demand + 100
+    }));
+    expect(newData.rows).toEqual(answer);
 });
 
-test('ChartData.mapRows should retain columns', tt => {
+test('ChartData.mapRows should retain columns', () => {
     const data = new ChartData(rows, columns);
-    const newData = data.mapRows(row => row.set('fruit', 'no fruit'));
-    tt.deepEqual(newData.columns, data.columns);
+    const newData = data.mapRows(row => ({...row, fruit: 'no fruit'}));
+    expect(newData.columns).toEqual(data.columns);
 });
 
 // getColumnData
 
-test('ChartData.getColumnData should return a List of data in a column', tt => {
+test('ChartData.getColumnData should return an array of data in a column', () => {
     const data = new ChartData(rows, columns);
-    tt.deepEqual(data.getColumnData('fruit'), List(["apple", "apple", "orange", "peach", "pear"]));
+    expect(data.getColumnData('fruit')).toEqual(["apple", "apple", "orange", "peach", "pear"]);
 });
 
-test('ChartData.getColumnData should return null if given a column name that doesnt exist', tt => {
+test('ChartData.getColumnData should return null if given a column name that doesnt exist', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.getColumnData('not here'), null);
+    expect(data.getColumnData('not here')).toBe(null);
 });
 
-test('ChartData.getColumnData should use memoization', tt => {
+test('ChartData.getColumnData should use memoization', () => {
     const data = new ChartData(rows, columns);
-    tt.true(data.getColumnData('fruit') === data.getColumnData('fruit'));
+    expect(data.getColumnData('fruit') === data.getColumnData('fruit')).toBe(true);
 });
 
-test('ChartData.getColumnData should memoize per column', tt => {
+test('ChartData.getColumnData should memoize per column', () => {
     const data = new ChartData(rows, columns);
     data.getColumnData('demand');
-    tt.deepEqual(data.getColumnData('fruit'), List(["apple", "apple", "orange", "peach", "pear"]));
+    expect(data.getColumnData('fruit')).toEqual(["apple", "apple", "orange", "peach", "pear"]);
 });
 
 // getUniqueValues
 
-test('ChartData.getUniqueValues should return a list of unique values from a column', tt => {
+test('ChartData.getUniqueValues should return a list of unique values from a column', () => {
     const data = new ChartData(rows, columns);
-    tt.true(is(
-        data.getUniqueValues('fruit'),
-        List(["apple", "orange", "peach", "pear"])
-    ));
+    expect(data.getUniqueValues('fruit')).toEqual( ["apple", "orange", "peach", "pear"]);
 });
 
-test('ChartData.getUniqueValues should return null when provided a column that doesnt exist', tt => {
+test('ChartData.getUniqueValues should return null when provided a column that doesnt exist', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.getUniqueValues('not here'), null);
+    expect(data.getUniqueValues('not here')).toBe(null);
 });
 
-test('ChartData.getUniqueValues should use memoization', tt => {
+test('ChartData.getUniqueValues should use memoization', () => {
     const data = new ChartData(rows, columns);
-    tt.true(data.getUniqueValues('fruit') === data.getUniqueValues('fruit'));
+    expect(data.getUniqueValues('fruit') === data.getUniqueValues('fruit')).toBe(true);
 });
 
-test('ChartData.getUniqueValues should memoize per column', tt => {
+test('ChartData.getUniqueValues should memoize per column', () => {
     const data = new ChartData(rows, columns);
     data.getUniqueValues('demand');
-    tt.true(is(
-        data.getUniqueValues('fruit'),
-        List(["apple", "orange", "peach", "pear"])
-    ));
+    expect(data.getUniqueValues('fruit')).toEqual(["apple", "orange", "peach", "pear"]);
 });
 
 
-test('ChartData.getUniqueValues should return a list of unique values from mutiple columns', tt => {
+test('ChartData.getUniqueValues should return a list of unique values from mutiple columns', () => {
     const data = new ChartData(rowsWithLoadsOfFruit, columnsWithLoadsOfFruit);
-    tt.true(is(
-        data.getUniqueValues(['fruit', 'fruit2']),
-        List(["apple", "orange", "peach", "pear", "fish", "pumpkin"])
-    ));
+    expect(data.getUniqueValues(['fruit', 'fruit2'])).toEqual(["apple", "orange", "peach", "pear", "fish", "pumpkin"]);
 });
 
-test('ChartData.getUniqueValues should return null when provided mutiple columns and a column doesnt exist', tt => {
+test('ChartData.getUniqueValues should return null when provided mutiple columns and a column doesnt exist', () => {
     const data = new ChartData(rowsWithLoadsOfFruit, columnsWithLoadsOfFruit);
-    tt.is(data.getUniqueValues(['fruit2', 'not here']), null);
+    expect(data.getUniqueValues(['fruit2', 'not here'])).toBe(null);
 });
 
-test('ChartData.getUniqueValues should use memoization with multiple columns', tt => {
+test('ChartData.getUniqueValues should use memoization with multiple columns', () => {
     const data = new ChartData(rowsWithLoadsOfFruit, columnsWithLoadsOfFruit);
-    tt.true(data.getUniqueValues(['fruit', 'fruit2']) === data.getUniqueValues(['fruit', 'fruit2']));
+    expect(
+        data.getUniqueValues(['fruit', 'fruit2']) === data.getUniqueValues(['fruit', 'fruit2'])
+    ).toBe(true);
 });
 
-test('ChartData.getUniqueValues should memoize per column with multiple columns', tt => {
+test('ChartData.getUniqueValues should memoize per column with multiple columns', () => {
     const data = new ChartData(rowsWithLoadsOfFruit, columnsWithLoadsOfFruit);
     data.getUniqueValues(['fruit', 'demand']);
-    tt.deepEqual(data.getUniqueValues(['fruit', 'fruit2']), List(["apple", "orange", "peach", "pear", "fish", "pumpkin"]));
+    expect(data.getUniqueValues(['fruit', 'fruit2'])).toEqual(["apple", "orange", "peach", "pear", "fish", "pumpkin"]);
 });

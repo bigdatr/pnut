@@ -1,25 +1,25 @@
 // @flow
 
 import PropTypes from 'prop-types';
-
+import type {Node} from 'react';
 import React from 'react';
 import ChartData from '../../chartdata/ChartData';
 
-function DefaultAxisLine(props: Object): React.Element<any> {
+function DefaultAxisLine(props: Object): Node {
     return <line
         stroke='inherit'
         {...props.axisLineProps}
     />;
 }
 
-function DefaultTick(props: Object): React.Element<any> {
+function DefaultTick(props: Object): Node {
     return <line
         stroke='inherit'
         {...props.tickLineProps}
     />;
 }
 
-function DefaultText(props: Object): React.Element<any> {
+function DefaultText(props: Object): Node {
     return <text
         fontSize={12}
         children={props.tick}
@@ -46,7 +46,7 @@ function DefaultText(props: Object): React.Element<any> {
  * />
  *
  */
-export class AxisRenderable extends React.PureComponent {
+export class AxisRenderable extends React.PureComponent<*> {
 
     static defaultProps = {
         axisLine: DefaultAxisLine,
@@ -54,12 +54,14 @@ export class AxisRenderable extends React.PureComponent {
         axisLineWidth: 1,
         overlap: 0,
         text: DefaultText,
-        textFormat: (text) => ChartData.isValueDate(text) ? text.toISOString().slice(0,10) : text,
+        textFormat: (text: string | Date) => ChartData.isValueDate(text) && typeof text.toISOString === 'function'
+            ? text.toISOString().slice(0,10)
+            : text,
         textPadding: 6,
         textProps: {},
         tickLine: DefaultTick,
         tickLineProps: {},
-        ticks: (scale) => scale.ticks ? scale.ticks() : scale.domain(),
+        ticks: (scale: {ticks: () => Array<mixed>, domain: () => Array<mixed>}) => scale.ticks ? scale.ticks() : scale.domain(),
         tickSize: 6
     };
 
@@ -134,7 +136,7 @@ export class AxisRenderable extends React.PureComponent {
         height: PropTypes.number.isRequired
     };
 
-    drawTicks(): Array<React.Element<any>> {
+    drawTicks(): Array<Node> {
         const {
             axisLineWidth,
             text: Text,
@@ -149,7 +151,7 @@ export class AxisRenderable extends React.PureComponent {
 
         return this.props
             .ticks(scale)
-            .map((tick: any, index: number): React.Element<any> => {
+            .map((tick: any, index: number): Node => {
                 const distance = scale(tick) + offset;
                 const formattedTick = this.props.textFormat(tick);
 
@@ -200,7 +202,7 @@ export class AxisRenderable extends React.PureComponent {
             });
     }
 
-    drawAxisLine(): React.Element<any> {
+    drawAxisLine(): Node {
         const {
             axisLine: AxisLine,
             overlap,
@@ -301,7 +303,7 @@ export class AxisRenderable extends React.PureComponent {
         }
     }
 
-    render(): React.Element<any> {
+    render(): Node {
         return <g>
             <g>
                 {this.drawAxisLine()}
@@ -314,7 +316,7 @@ export class AxisRenderable extends React.PureComponent {
 }
 
 
-export default class Axis extends React.Component {
+export default class Axis extends React.Component<*> {
     static chartType = 'axis';
     static propTypes = {
         /**
@@ -327,7 +329,7 @@ export default class Axis extends React.Component {
          */
         position: PropTypes.oneOf(['top', 'right', 'bottom', 'left'])
     }
-    render(): React.Element<any> {
+    render(): Node {
         const {dimension, position} = this.props;
         const defaultPosition = (dimension === 'x') ? 'bottom' : 'left';
 
