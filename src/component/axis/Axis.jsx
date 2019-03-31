@@ -29,23 +29,6 @@ function DefaultText(props: Object): Node {
 }
 
 
-/**
- *
- * @component
- *
- * Axis renders the top, bottom, left, or right axis for a chart.
- *
- * @example
- *
- * <AxisRenderable
- *     width={this.props.eqWidth - 100}
- *     height={50}
- *     position='bottom'
- *     ticks={['category1', 'category2', 'category3']}
- *     scale={scaleX}
- * />
- *
- */
 export class AxisRenderable extends React.PureComponent<*> {
 
     static defaultProps = {
@@ -66,73 +49,28 @@ export class AxisRenderable extends React.PureComponent<*> {
     };
 
     static propTypes = {
-        /** {'top'|'right'|'bottom'|'left'} The position of the axis */
         position: PropTypes.oneOf(['top', 'right', 'bottom', 'left']).isRequired,
-
-        /** Domain value of opposite scale at which to render the axis */
         location: PropTypes.oneOfType([
             PropTypes.number,
             PropTypes.string,
             PropTypes.instanceOf(Date)
         ]),
-
-        /** Custom axisLine renderer */
         axisLine: PropTypes.func,
-
-        /** {Object} An object of props that are passed to the axis line - the line that sits against the chart edge. */
         axisLineProps: PropTypes.object,
-
         axisLineWidth: PropTypes.number,
-
-        /** Custom tickLine renderer */
         tickLine: PropTypes.func,
-
-        /** {Object} An object of props that are passed to the each tick */
         tickLineProps: PropTypes.object,
-
-        /** Custom text renderer */
         text: PropTypes.func,
-
-        /** {Object} An object of props that are passed to the each text node */
         textProps: PropTypes.object,
-
-        /**
-         * {Function} a function that is called for each tick and is passed the tick value. This can
-         * be used for example to add a percent symbol to the tick: `(value) => value + '%'`
-         */
         textFormat: PropTypes.func,
-
-        /** The length of the tick line. */
         tickSize: PropTypes.number,
-
-        /** The padding between a tick line and the tick text */
         textPadding: PropTypes.number,
-
-        /**
-         * The distance the axis line should extend past its bounds. This can be used to make two
-         * perpendicular axis lines overlap where they meet.
-         */
         overlap: PropTypes.number,
-
-        /** {Scale} The [d3-scale](https://github.com/d3/d3-scale) for the axis */
         scale: PropTypes.func.isRequired,
-
-        /** {Scale} The [d3-scale](https://github.com/d3/d3-scale) for the axis */
         xScale: PropTypes.func,
-
-        /** {Scale} The [d3-scale](https://github.com/d3/d3-scale) for the axis */
         yScale: PropTypes.func,
-
-        /**
-         * An array of ticks to display on the axis. In most cases this can be constructed by
-         * calling the scale's [`ticks`](https://github.com/d3/d3-scale#continuous_ticks) function.
-         */
         ticks: PropTypes.func,
-
-        /** The width of the axis */
         width: PropTypes.number.isRequired,
-
-        /** The height of the axis */
         height: PropTypes.number.isRequired
     };
 
@@ -319,14 +257,7 @@ export class AxisRenderable extends React.PureComponent<*> {
 export default class Axis extends React.Component<*> {
     static chartType = 'axis';
     static propTypes = {
-        /**
-         * The dimension to base this axis off. Probably x or y
-         */
         dimension: PropTypes.string.isRequired,
-
-        /**
-         * Position the axis will stick to.
-         */
         position: PropTypes.oneOf(['top', 'right', 'bottom', 'left'])
     }
     render(): Node {

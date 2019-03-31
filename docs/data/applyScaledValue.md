@@ -2,31 +2,16 @@
 title: applyScaledValue
 ---
 
+Because primitive dimensions correlate to an onScreen pixel value the need
+a slightly different calculation when applying the scale. This is abstracted away
+to save the headache of knowing to recaclulate.
 
-## Props
-
-### propName
-**type:** `string`
-**default:** `string`
-
-Description
-
-```jsx
-Example of prop
+```flow
+(
+	dimensionName: string,
+	scale: Scale,
+	value: any
+	props: Object
+) => any
 ```
-
-
-
-
-## Examples
-
-
-### Example 1
-Description
-
-```jsx
-Code
-```
-
-[ChartData]: /docs/data/ChartData
 

@@ -32,9 +32,6 @@
       "renderable/Axis": {
         "title": "Axis"
       },
-      "renderable/Bar": {
-        "title": "Bar"
-      },
       "renderable/Column": {
         "title": "Column"
       },

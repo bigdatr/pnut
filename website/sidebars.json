@@ -14,7 +14,6 @@
     "Renderables": [
       "renderable/Area",
       "renderable/Axis",
-      "renderable/Bar",
       "renderable/Column",
       "renderable/Gridlines",
       "renderable/Histogram",

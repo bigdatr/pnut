@@ -2,31 +2,16 @@
 title: Area
 ---
 
-
-## Props
-
-### propName
-**type:** `string`
-**default:** `string`
-
-Description
+Component used to render area charts. This component is just an alias for [Line] with
+the `area` prop set to `true`
 
 ```jsx
-Example of prop
+<Area
+    line={(props) => <path {...props.lineProps} strokeWidth={3}/>}
+    curve={(curves) => curves.curveMonotoneX}
+/>
 ```
 
 
-
-
-## Examples
-
-
-### Example 1
-Description
-
-```jsx
-Code
-```
-
-[ChartData]: /docs/data/ChartData
+[Line]: /docs/renderable/Line
 

@@ -52,92 +52,22 @@ function DefaultColumn(props: Object): Node {
 
 const isNumber = (value) => typeof value === 'number' && !isNaN(value);
 
-/**
- *
- * @component
- *
- * ColumnRenderable is the low-level svg renderer for Column charts and Bar Charts.
- * Bar is an alias of Column and BarRenderable is an alias of ColumnRenderable
- *
- * @example
- *
- * const scaledData = [
- *     {x: 1, y: 200},
- *     {x: 2, y: 400},
- *     {x: 3, y: 600},
- *     {x: 4, y: 800},
- * ];
- *
- * return <ColumnRenderable
- *     height={1000}
- *     xScale={xScale}
- *     yScale={yScale}
- *     scaledData={scaledData}
- *     columnProps={{
- *          strokeWidth: '2'
- *     }}
- *     column={(props) => <rect {...props.columnProps} stroke="red"/>}
- * />;
- *
- *
- */
-
-
 // @TODO switch to flow types
 export class ColumnRenderable extends React.PureComponent<*> {
 
     static propTypes = {
-        /**
-         * The height of the canvas.
-         */
         height: PropTypes.number.isRequired,
-
-        /**
-         * The width of the canvas.
-         */
         width: PropTypes.number,
-
-        /**
-         * {ChartData} The `ChartData` Record that contains the data for the chart.
-         */
         data: PropTypes.object,
-
-        /**
-         * {Object} The pre-scaled data that is used to render columns
-         */
         scaledData: PropTypes.arrayOf(PropTypes.shape({
             x: PropTypes.number,
             y: PropTypes.number
         })).isRequired,
-
-        /**
-         * {Scale} A [d3 scale](https://github.com/d3/d3-scale) for the x axis.
-         */
         xScale: PropTypes.func.isRequired,
-
-        /**
-         * {Scale} A [d3 scale](https://github.com/d3/d3-scale) for the y axis.
-         */
         yScale: PropTypes.func.isRequired,
-
-        /**
-         * An object of props that will be spread onto the svg element used to render the bar/column
-         * By default the svg element is a [`<rect>`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/rect)
-         */
         columnProps: PropTypes.object,
-
-        /**
-         * {Column} An optional custom column renderer component.
-         */
         column: PropTypes.func,
-
-        /**
-         * Force a particular orientation for the chart. `'vertical'` will render a column chart
-         * and `'horizontal'` will render a bar chart. This is likely not required – in almost all
-         * cases the orientation can be inferred from the scales.
-         */
         orientation: PropTypes.string
-
     };
 
     static defaultProps = {
@@ -206,41 +136,12 @@ export class ColumnRenderable extends React.PureComponent<*> {
 }
 
 
-/**
- *
- * @component
- *
- * Component used to render column charts. This component requires further props to define what pieces
- * of data it uses. @see `Chart` for details.
- * @name Column
- *
- * @example
- * <Column
- *     column={(props) => <rect {...props.columnProps} fill='blue'/>}
- * />
- *
- */
-
 export default class Column extends React.Component<*> {
     static chartType = 'canvas';
 
     static propTypes = {
-        /**
-         * An object of props that will be spread onto the svg element used to render the bar/column
-         * By default the svg element is a [`<rect>`](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/rect)
-         */
         columnProps: PropTypes.object,
-
-        /**
-         * {Column} An optional custom column renderer component.
-         */
         column: PropTypes.func,
-
-        /**
-         * Force a particular orientation for the chart. `'vertical'` will render a column chart
-         * and `'horizontal'` will render a bar chart. This is likely not required – in almost all
-         * cases the orientation can be inferred from the scales.
-         */
         orientation: PropTypes.string
     };
 
