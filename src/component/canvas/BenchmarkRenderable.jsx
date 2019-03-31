@@ -1,17 +1,17 @@
 // @flow
 
 import PropTypes from 'prop-types';
-
+import type {Node} from 'react';
 import React from 'react';
 
-function DefaultLine(props: Object): React.Element<any> {
+function DefaultLine(props: Object): Node {
     return <line
         stroke='inherit'
         {...props.lineProps}
     />;
 }
 
-function DefaultText(props: Object): React.Element<any> {
+function DefaultText(props: Object): Node {
     return <text
         fontSize={12}
         children={props.children}
@@ -36,7 +36,7 @@ function DefaultText(props: Object): React.Element<any> {
  * />
  *
  */
-export class BenchmarkRenderable extends React.PureComponent {
+export class BenchmarkRenderable extends React.PureComponent<*> {
 
     static defaultProps = {
         textPosition: 'top',
@@ -97,7 +97,7 @@ export class BenchmarkRenderable extends React.PureComponent {
     //
     // Text
 
-    drawText(): React.Element<any> {
+    drawText(): Node {
         const {
             text: Text,
             location,
@@ -148,7 +148,7 @@ export class BenchmarkRenderable extends React.PureComponent {
         }
     }
 
-    drawLine(): React.Element<any> {
+    drawLine(): Node {
         const {
             line: Line,
             location,
@@ -174,7 +174,7 @@ export class BenchmarkRenderable extends React.PureComponent {
     }
 
 
-    render(): React.Element<any> {
+    render(): Node {
         return <g>
             {this.props.label && this.drawText()}
             {this.drawLine()}
@@ -183,8 +183,8 @@ export class BenchmarkRenderable extends React.PureComponent {
 }
 
 
-export default class Benchmark extends React.Component {
-    render(): React.Element<any> {
+export default class Benchmark extends React.Component<*> {
+    render(): Node {
         return <BenchmarkRenderable {...this.props} />;
     }
 }

@@ -1,7 +1,4 @@
-import test from 'ava';
 import React from 'react';
-import {shallow} from 'enzyme';
-import sinon from 'sinon';
 import {scaleLog, scaleBand} from 'd3-scale';
 import Bar, {BarRenderable} from '../BarRenderable';
 import ChartData from '../../../chartdata/ChartData';
@@ -75,9 +72,9 @@ const yScale = scaleBand()
     .range([0, 100]);
 
 const scaledData = chartData.rows.map(row => ({
-    y: row.get('property_type') != null ? xScale(row.get('property_type')) + yScale.bandwidth() / 2 : null,
-    x: row.get('supply') != null ? 140 - yScale(row.get('supply')) : null
-})).toArray();
+    y: row['property_type'] != null ? xScale(row['property_type']) + yScale.bandwidth() / 2 : null,
+    x: row['supply'] != null ? 140 - yScale(row['supply']) : null
+}));
 
 const BarElement = shallow(<Bar
     width={140}
@@ -91,6 +88,6 @@ const BarElement = shallow(<Bar
     }}
 />);
 
-test('Bar renders a ColumnRenderable', tt => {
-    tt.is(BarElement.at(0).name(), 'ColumnRenderable');
+test('Bar renders a ColumnRenderable', () => {
+    expect(BarElement.at(0).name()).toBe('ColumnRenderable');
 });

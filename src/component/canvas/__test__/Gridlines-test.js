@@ -1,6 +1,4 @@
-import test from 'ava';
 import React from 'react';
-import {shallow} from 'enzyme';
 import {scaleLinear, scaleBand} from 'd3-scale';
 import Gridlines, {GridlinesRenderable} from '../Gridlines';
 
@@ -20,8 +18,8 @@ const basicGridlinesRenderable = shallow(<GridlinesRenderable
 />);
 
 
-test('GridlinesRenderable draws lines by default', tt => {
-    tt.is(basicGridlinesRenderable.childAt(0).childAt(0).shallow().type(), 'line');
+test('GridlinesRenderable draws lines by default', () => {
+    expect(basicGridlinesRenderable.childAt(0).childAt(0).shallow().type()).toBe('line');
 });
 
 const xScaleBand = scaleBand()
@@ -43,12 +41,12 @@ const customGridlinesRenderable = shallow(<GridlinesRenderable
     }}
 />);
 
-test('GridlinesRenderable accepts a custom rect for vertical line', tt => {
-    tt.is(customGridlinesRenderable.childAt(1).childAt(0).shallow().type(), 'rect');
+test('GridlinesRenderable accepts a custom rect for vertical line', () => {
+    expect(customGridlinesRenderable.childAt(1).childAt(0).shallow().type()).toBe('rect');
 });
 
-test('GridlinesRenderable accepts a custom line for horizontal line', tt => {
-    tt.is(customGridlinesRenderable.childAt(0).childAt(0).shallow().prop('stroke'), 'rgba(0,0,0,0.2)');
+test('GridlinesRenderable accepts a custom line for horizontal line', () => {
+    expect(customGridlinesRenderable.childAt(0).childAt(0).shallow().prop('stroke')).toBe('rgba(0,0,0,0.2)');
 });
 
 const withBandwidth = shallow(<GridlinesRenderable
@@ -58,22 +56,22 @@ const withBandwidth = shallow(<GridlinesRenderable
     yTicks={() => ['category 1', 'category 2']}
 />);
 
-test('GridlinesRenderable renders vertical line in middle of bandwidth', tt => {
-    tt.is(withBandwidth.childAt(1).childAt(0).shallow().prop('x1'), 200 / 4);
+test('GridlinesRenderable renders vertical line in middle of bandwidth', () => {
+    expect(withBandwidth.childAt(1).childAt(0).shallow().prop('x1')).toBe(200 / 4);
 });
 
-test('GridlinesRenderable renders horizontal line in middle of bandwidth', tt => {
-    tt.is(withBandwidth.childAt(0).childAt(0).shallow().prop('y1'), 200 - (200 / 4));
+test('GridlinesRenderable renders horizontal line in middle of bandwidth', () => {
+    expect(withBandwidth.childAt(0).childAt(0).shallow().prop('y1')).toBe(200 - (200 / 4));
 });
 
-test('Gridlines renders a GridlinesRenderable', tt => {
+test('Gridlines renders a GridlinesRenderable', () => {
     const scale = scaleLinear().range([0,1]).domain([0,1]);
     const canvas = shallow(<Gridlines xScale={scale} yScale={scale} />);
-    tt.is(canvas.name(), 'GridlinesRenderable');
+    expect(canvas.name()).toBe('GridlinesRenderable');
 });
 
 
-test('GridlinesRenderable with discrete scales will use domain for ticks. Other will use ticks', tt => {
+test('GridlinesRenderable with discrete scales will use domain for ticks. Other will use ticks', () => {
     const linear = scaleLinear()
         .domain([0, 100])
         .range([0, 200]);
@@ -85,7 +83,7 @@ test('GridlinesRenderable with discrete scales will use domain for ticks. Other 
     const linearAxis = shallow(<GridlinesRenderable xScale={linear} yScale={linear}/>);
     const bandAxis = shallow(<GridlinesRenderable xScale={band} yScale={band}/>);
 
-    tt.is(linearAxis.childAt(0).children().length, 11);
-    tt.is(bandAxis.childAt(0).children().length, 2);
+    expect(linearAxis.childAt(0).children().length).toBe(11);
+    expect(bandAxis.childAt(0).children().length).toBe(2);
 
 });

@@ -1,7 +1,4 @@
-import test from 'ava';
 import ChartData from '../ChartData';
-import Immutable, {Map, List} from 'immutable';
-
 // dont show console errors
 console.error = () => {};
 
@@ -199,469 +196,465 @@ const rowsDates = [
 
 // min
 
-test('ChartData.min should return the minimum value for a column', tt => {
+test('ChartData.min should return the minimum value for a column', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.min('supply'), 12);
+    expect(data.min('supply')).toBe(12);
 });
 
-test('ChartData.min should return the minimum value for multiple columns', tt => {
+test('ChartData.min should return the minimum value for multiple columns', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.min(['supply', 'demand']), 4);
+    expect(data.min(['supply', 'demand'])).toBe(4);
 });
 
-test('ChartData.min should return the minimum value for a column, even with null values', tt => {
+test('ChartData.min should return the minimum value for a column, even with null values', () => {
     const data = new ChartData(rowsWithNulls, columns);
-    tt.is(data.min('supply'), 32);
+    expect(data.min('supply')).toBe(32);
 });
 
-test('ChartData.min should return the minimum value for a column, even with strings', tt => {
+test('ChartData.min should return the minimum value for a column, even with strings', () => {
     const data = new ChartData(rowsMonths, columnsMonths);
-    tt.is(data.min('month'), "2014-01-01");
+    expect(data.min('month')).toBe("2014-01-01");
 });
 
-test('ChartData.min should return null when there are no values to compare', tt => {
+test('ChartData.min should return null when there are no values to compare', () => {
     const data = new ChartData(allNulls, columns);
-    tt.is(data.min('supply'), null);
+    expect(data.min('supply')).toBe(null);
 });
 
-test('ChartData.min should memoize per column', tt => {
+test('ChartData.min should memoize per column', () => {
     const data = new ChartData(rows, columns);
     data.min('demand');
-    tt.is(data.min('supply'), 12);
+    expect(data.min('supply')).toBe(12);
 });
 
-test('ChartData.min should return null when provided a column that doesnt exist', tt => {
+test('ChartData.min should return null when provided a column that doesnt exist', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.min('not here'), null);
+    expect(data.min('not here')).toBe(null);
 });
 
 // max
 
-test('ChartData.max should return the maximum value for a column', tt => {
+test('ChartData.max should return the maximum value for a column', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.max('day'), 19);
+    expect(data.max('day')).toBe(19);
 });
 
-test('ChartData.max should return the maximum value for multiple columns', tt => {
+test('ChartData.max should return the maximum value for multiple columns', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.max(['supply', 'demand']), 99);
+    expect(data.max(['supply', 'demand'])).toBe(99);
 });
 
 
-test('ChartData.max should return the maximum value for a column, even with null values', tt => {
+test('ChartData.max should return the maximum value for a column, even with null values', () => {
     const data = new ChartData(rowsWithNulls, columns);
-    tt.is(data.max('supply'), 34);
+    expect(data.max('supply')).toBe(34);
 });
 
-test('ChartData.max should return the maximum value for a column, even with strings', tt => {
+test('ChartData.max should return the maximum value for a column, even with strings', () => {
     const data = new ChartData(rowsMonths, columnsMonths);
-    tt.is(data.max('month'), "2016-12-01");
+    expect(data.max('month')).toBe("2016-12-01");
 });
 
-test('ChartData.max should return null when there are no values to compare', tt => {
+test('ChartData.max should return null when there are no values to compare', () => {
     const data = new ChartData(allNulls, columns);
-    tt.is(data.max('supply'), null);
+    expect(data.max('supply')).toBe(null);
 });
 
-test('ChartData.max should memoize per column', tt => {
+test('ChartData.max should memoize per column', () => {
     const data = new ChartData(rows, columns);
     data.max('demand');
-    tt.is(data.max('day'), 19);
+    expect(data.max('day')).toBe(19);
 });
 
-test('ChartData.max should return null when provided a column that doesnt exist', tt => {
+test('ChartData.max should return null when provided a column that doesnt exist', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.max('not here'), null);
+    expect(data.max('not here')).toBe(null);
 });
 
 
 // extent
 
-test('ChartData.extent should return the min and max value for a column', tt => {
+test('ChartData.extent should return the min and max value for a column', () => {
     const data = new ChartData(rows, columns);
-    tt.deepEqual(data.extent('supply'), [12, 34]);
+    expect(data.extent('supply')).toEqual([12, 34]);
 });
 
-test('ChartData.extent should return the min and max value for multiple columns', tt => {
+test('ChartData.extent should return the min and max value for multiple columns', () => {
     const data = new ChartData(rows, columns);
-    tt.deepEqual(data.extent(['supply', 'demand']), [4, 99]);
+    expect(data.extent(['supply', 'demand'])).toEqual([4, 99]);
 });
 
-test('ChartData.extent should return the min and max value for a column, even with null values', tt => {
+test('ChartData.extent should return the min and max value for a column, even with null values', () => {
     const data = new ChartData(rowsWithNulls, columns);
-    tt.deepEqual(data.extent('supply'), [32, 34]);
+    expect(data.extent('supply')).toEqual([32, 34]);
 });
 
-test('ChartData.extent should return the min and max value for a column, even with strings', tt => {
+test('ChartData.extent should return the min and max value for a column, even with strings', () => {
     const data = new ChartData(rowsMonths, columnsMonths);
-    tt.deepEqual(data.extent('month'), ["2014-01-01", "2016-12-01"]);
+    expect(data.extent('month')).toEqual(["2014-01-01", "2016-12-01"]);
 });
 
-test('ChartData.extent should return [null, null] when there are no values to compare', tt => {
+test('ChartData.extent should return [null, null] when there are no values to compare', () => {
     const data = new ChartData(allNulls, columns);
-    tt.deepEqual(data.extent('supply'), [null, null]);
+    expect(data.extent('supply')).toEqual([null, null]);
 });
 
-test('ChartData.extent should return [null, null] when provided a column that doesnt exist', tt => {
+test('ChartData.extent should return [null, null] when provided a column that doesnt exist', () => {
     const data = new ChartData(rows, columns);
-    tt.deepEqual(data.extent('not here'), [null, null]);
+    expect(data.extent('not here')).toEqual([null, null]);
 });
 
 
 // sum
 
-test('ChartData.sum should return the sum of values of a column', tt => {
+test('ChartData.sum should return the sum of values of a column', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.sum('demand'), 302);
+    expect(data.sum('demand')).toBe(302);
 });
 
-test('ChartData.sum should return the sum of values for multiple columns', tt => {
+test('ChartData.sum should return the sum of values for multiple columns', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.sum(['supply', 'demand']), 415);
+    expect(data.sum(['supply', 'demand'])).toBe(415);
 });
 
-test('ChartData.sum should return the sum of values of a column, even with null values', tt => {
+test('ChartData.sum should return the sum of values of a column, even with null values', () => {
     const data = new ChartData(rowsWithNulls, columns);
-    tt.is(data.sum('demand'), 77 + 88 + 99);
+    expect(data.sum('demand')).toBe(77 + 88 + 99);
 });
 
-test('ChartData.sum should return zero when there are no values to compare', tt => {
+test('ChartData.sum should return zero when there are no values to compare', () => {
     const data = new ChartData(allNulls, columns);
-    tt.is(data.sum('supply'), 0);
+    expect(data.sum('supply')).toBe(0);
 });
 
-test('ChartData.sum should memoize per column', tt => {
+test('ChartData.sum should memoize per column', () => {
     const data = new ChartData(rows, columns);
     data.sum('supply');
-    tt.is(data.sum('demand'), 302);
+    expect(data.sum('demand')).toBe(302);
 });
 
-test('ChartData.sum should return null when provided a column that doesnt exist', tt => {
+test('ChartData.sum should return null when provided a column that doesnt exist', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.sum('not here'), null);
+    expect(data.sum('not here')).toBe(null);
 });
 
 // average
 
-test('ChartData.average should return the average of values of a column', tt => {
+test('ChartData.average should return the average of values of a column', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.average('supply'), 22.6);
+    expect(data.average('supply')).toBe(22.6);
 });
 
-test('ChartData.average should return the average of values for multiple columns', tt => {
+test('ChartData.average should return the average of values for multiple columns', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.average(['supply', 'demand']), 41.5);
+    expect(data.average(['supply', 'demand'])).toBe(41.5);
 });
 
-test('ChartData.average should return the average of values of a column, even with null values', tt => {
+test('ChartData.average should return the average of values of a column, even with null values', () => {
     const data = new ChartData(rowsWithNulls, columns);
-    tt.is(data.average('supply'), 33);
+    expect(data.average('supply')).toBe(33);
 });
 
-test('ChartData.average should return null when there are no values to compare', tt => {
+test('ChartData.average should return null when there are no values to compare', () => {
     const data = new ChartData(allNulls, columns);
-    tt.is(data.average('supply'), null);
+    expect(data.average('supply')).toBe(null);
 });
 
-test('ChartData.average should memoize per column', tt => {
+test('ChartData.average should memoize per column', () => {
     const data = new ChartData(rows, columns);
     data.average('demand');
-    tt.is(data.average('supply'), 22.6);
+    expect(data.average('supply')).toBe(22.6);
 });
 
-test('ChartData.average should return null when provided a column that doesnt exist', tt => {
+test('ChartData.average should return null when provided a column that doesnt exist', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.average('not here'), null);
+    expect(data.average('not here')).toBe(null);
 });
 
 // median
 
-test('ChartData.median should return the median of values of a column', tt => {
+test('ChartData.median should return the median of values of a column', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.median('demand'), 56);
+    expect(data.median('demand')).toBe(56);
 });
 
-test('ChartData.median should return the median of values for multiple columns', tt => {
+test('ChartData.median should return the median of values for multiple columns', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.median(['supply', 'demand']), 33);
+    expect(data.median(['supply', 'demand'])).toBe(33);
 });
 
-test('ChartData.median should return the median of values of a column, even with null values', tt => {
+test('ChartData.median should return the median of values of a column, even with null values', () => {
     const data = new ChartData(rowsWithNulls, columns);
-    tt.is(data.median('demand'), 88);
+    expect(data.median('demand')).toBe(88);
 });
 
-test('ChartData.median should return null when there are no values to compare', tt => {
+test('ChartData.median should return null when there are no values to compare', () => {
     const data = new ChartData(allNulls, columns);
-    tt.is(data.median('supply'), null);
+    expect(data.median('supply')).toBe(null);
 });
 
-test('ChartData.median should memoize per column', tt => {
+test('ChartData.median should memoize per column', () => {
     const data = new ChartData(rows, columns);
     data.median('supply');
-    tt.is(data.median('demand'), 56);
+    expect(data.median('demand')).toBe(56);
 });
 
-test('ChartData.median should return null when provided a column that doesnt exist', tt => {
+test('ChartData.median should return null when provided a column that doesnt exist', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.median('not here'), null);
+    expect(data.median('not here')).toBe(null);
 });
 
 
 // quantile
 
-test('ChartData.quantile with a p value of 0.5 should match the median of values of a column', tt => {
+test('ChartData.quantile with a p value of 0.5 should match the median of values of a column', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.median('demand'), data.quantile('demand', 0.5));
+    expect(data.median('demand')).toBe(data.quantile('demand', 0.5));
 });
 
-test('ChartData.quantile with a p value of 0.5 should match the median of values for multiple columns', tt => {
+test('ChartData.quantile with a p value of 0.5 should match the median of values for multiple columns', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.median(['supply', 'demand']), data.quantile(['supply', 'demand'], 0.5));
+    expect(data.median(['supply', 'demand'])).toBe(data.quantile(['supply', 'demand'], 0.5));
 });
 
-test('ChartData.quantile with a p value of 0 should match the min of values of a column', tt => {
+test('ChartData.quantile with a p value of 0 should match the min of values of a column', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.min('demand'), data.quantile('demand', 0));
+    expect(data.min('demand')).toBe(data.quantile('demand', 0));
 });
 
-test('ChartData.quantile with a p value of 0 should match the min of values for multiple columns', tt => {
+test('ChartData.quantile with a p value of 0 should match the min of values for multiple columns', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.min(['supply', 'demand']), data.quantile(['supply', 'demand'], 0));
+    expect(data.min(['supply', 'demand'])).toBe(data.quantile(['supply', 'demand'], 0));
 });
 
-test('ChartData.quantile with a p value of 1 should match the max of values of a column', tt => {
+test('ChartData.quantile with a p value of 1 should match the max of values of a column', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.max('demand'), data.quantile('demand', 1));
+    expect(data.max('demand')).toBe(data.quantile('demand', 1));
 });
 
-test('ChartData.quantile with a p value of 1 should match the max of values for multiple columns', tt => {
+test('ChartData.quantile with a p value of 1 should match the max of values for multiple columns', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.max(['supply', 'demand']), data.quantile(['supply', 'demand'], 1));
+    expect(data.max(['supply', 'demand'])).toBe(data.quantile(['supply', 'demand'], 1));
 });
 
-test('ChartData.quantile should return the quantile of values of a column, even with null values', tt => {
+test('ChartData.quantile should return the quantile of values of a column, even with null values', () => {
     const data = new ChartData(rowsWithNulls, columns);
-    tt.is(data.quantile('demand', 0.5), 88);
+    expect(data.quantile('demand', 0.5)).toBe(88);
 });
 
-test('ChartData.quantile should return null when there are no values to compare', tt => {
+test('ChartData.quantile should return null when there are no values to compare', () => {
     const data = new ChartData(allNulls, columns);
-    tt.is(data.quantile('supply', 0.5), null);
+    expect(data.quantile('supply', 0.5)).toBe(null);
 });
 
-test('ChartData.quantile should memoize per column', tt => {
+test('ChartData.quantile should memoize per column', () => {
     const data = new ChartData(rows, columns);
     data.quantile('supply', 0.5);
-    tt.is(data.quantile('demand', 0.5), 56);
+    expect(data.quantile('demand', 0.5)).toBe(56);
 });
 
-test('ChartData.quantile should return null when provided a column that doesnt exist', tt => {
+test('ChartData.quantile should return null when provided a column that doesnt exist', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.quantile('not here', 0.5), null);
+    expect(data.quantile('not here', 0.5)).toBe(null);
 });
 
-test('ChartData.quantile with a p value of 0.25 should return the lower quartile', tt => {
+test('ChartData.quantile with a p value of 0.25 should return the lower quartile', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.quantile('demand', 0.25), 55);
+    expect(data.quantile('demand', 0.25)).toBe(55);
 });
 
 
 // summary
 
-test('ChartData.summary should return a five figure summary of values of a column', tt => {
+test('ChartData.summary should return a five figure summary of values of a column', () => {
     const data = new ChartData(rows, columns);
     const summary = data.summary('demand');
-    tt.is(typeof summary, 'object');
-    tt.is(summary.get('min'), data.min('demand'));
-    tt.is(summary.get('lowerQuartile'), data.quantile('demand', 0.25));
-    tt.is(summary.get('median'), data.median('demand'));
-    tt.is(summary.get('upperQuartile'), data.quantile('demand', 0.75));
-    tt.is(summary.get('max'), data.max('demand'));
+    expect(typeof summary).toBe('object');
+    expect(summary.min).toBe(data.min('demand'));
+    expect(summary.lowerQuartile).toBe(data.quantile('demand', 0.25));
+    expect(summary.median).toBe(data.median('demand'));
+    expect(summary.upperQuartile).toBe(data.quantile('demand', 0.75));
+    expect(summary.max).toBe(data.max('demand'));
 });
 
-test('ChartData.median should return the five figure summary of values for multiple columns', tt => {
+test('ChartData.median should return the five figure summary of values for multiple columns', () => {
     const data = new ChartData(rows, columns);
     const summary = data.summary(['supply', 'demand']);
-    tt.is(typeof summary, 'object');
-    tt.is(summary.get('min'), data.min(['supply', 'demand']));
-    tt.is(summary.get('lowerQuartile'), data.quantile(['supply', 'demand'], 0.25));
-    tt.is(summary.get('median'), data.median(['supply', 'demand']));
-    tt.is(summary.get('upperQuartile'), data.quantile(['supply', 'demand'], 0.75));
-    tt.is(summary.get('max'), data.max(['supply', 'demand']));
+    expect(typeof summary).toBe('object');
+    expect(summary.min).toBe(data.min(['supply', 'demand']));
+    expect(summary.lowerQuartile).toBe(data.quantile(['supply', 'demand'], 0.25));
+    expect(summary.median).toBe(data.median(['supply', 'demand']));
+    expect(summary.upperQuartile).toBe(data.quantile(['supply', 'demand'], 0.75));
+    expect(summary.max).toBe(data.max(['supply', 'demand']));
 });
 
-test('ChartData.summary should return a five figure summary of values of a column, even with null values', tt => {
+test('ChartData.summary should return a five figure summary of values of a column, even with null values', () => {
     const data = new ChartData(rowsWithNulls, columns);
     const summary = data.summary('demand');
-    tt.is(typeof summary, 'object');
-    tt.is(summary.get('min'), data.min('demand'));
-    tt.is(summary.get('lowerQuartile'), data.quantile('demand', 0.25));
-    tt.is(summary.get('median'), data.median('demand'));
-    tt.is(summary.get('upperQuartile'), data.quantile('demand', 0.75));
-    tt.is(summary.get('max'), data.max('demand'));
+    expect(typeof summary).toBe('object');
+    expect(summary.min).toBe(data.min('demand'));
+    expect(summary.lowerQuartile).toBe(data.quantile('demand', 0.25));
+    expect(summary.median).toBe(data.median('demand'));
+    expect(summary.upperQuartile).toBe(data.quantile('demand', 0.75));
+    expect(summary.max).toBe(data.max('demand'));
 });
 
-test('ChartData.summary should return a map with nulls when there are no values to compare', tt => {
+test('ChartData.summary should return a map with nulls when there are no values to compare', () => {
     const data = new ChartData(allNulls, columns);
-    tt.true(Immutable.is(data.summary('demand'), Map({
+    expect(data.summary('demand')).toEqual({
         min: null,
         lowerQuartile: null,
         median: null,
         upperQuartile: null,
         max: null
-    })));
+    })
 });
 
-test('ChartData.summary should memoize per column', tt => {
+test('ChartData.summary should memoize per column', () => {
     const data = new ChartData(rows, columns);
-    tt.false(Immutable.is(data.summary('supply'), data.summary('demand')));
+    expect(data.summary('supply')).not.toEqual(data.summary('demand'));
 });
 
-test('ChartData.summary should return null when provided a column that doesnt exist', tt => {
+test('ChartData.summary should return null when provided a column that doesnt exist', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.summary('not here'), null);
+    expect(data.summary('not here')).toBe(null);
 });
 
 
 // variance/deviation
 
-test('ChartData.variance for a column should be equal to the deviation squared', tt => {
+test('ChartData.variance for a column should be equal to the deviation squared', () => {
     const data = new ChartData(rows, columns);
     const variance = data.variance('demand');
     const deviation = data.deviation('demand');
-    tt.true(Math.abs(variance - Math.pow(deviation, 2)) < 0.01); // Allow for floating point errors
+    expect(Math.abs(variance - Math.pow(deviation, 2)) < 0.01).toBe(true); // Allow for floating point errors
 });
 
-test('ChartData.variance for a multiple columns should be equal to the deviation squared', tt => {
+test('ChartData.variance for a multiple columns should be equal to the deviation squared', () => {
     const data = new ChartData(rows, columns);
     const variance = data.variance(['supply', 'demand']);
     const deviation = data.deviation(['supply', 'demand']);
-    tt.true(Math.abs(variance - Math.pow(deviation, 2)) < 0.01); // Allow for floating point errors
+    expect(Math.abs(variance - Math.pow(deviation, 2)) < 0.01).toBe(true); // Allow for floating point errors
 });
 
-test('ChartData.variance for a column should be equal to the deviation squared, even with null values', tt => {
+test('ChartData.variance for a column should be equal to the deviation squared, even with null values', () => {
     const data = new ChartData(rowsWithNulls, columns);
     const variance = data.variance('demand');
     const deviation = data.deviation('demand');
-    tt.true(Math.abs(variance - Math.pow(deviation, 2)) < 0.01); // Allow for floating point errors
+    expect(Math.abs(variance - Math.pow(deviation, 2)) < 0.01).toBe(true); // Allow for floating point errors
 });
 
-test('ChartData.variance should return null when there are no values to compare', tt => {
+test('ChartData.variance should return null when there are no values to compare', () => {
     const data = new ChartData(allNulls, columns);
-    tt.is(data.variance('supply'), null);
+    expect(data.variance('supply')).toBe(null);
 });
 
-test('ChartData.deviation should return null when there are no values to compare', tt => {
+test('ChartData.deviation should return null when there are no values to compare', () => {
     const data = new ChartData(allNulls, columns);
-    tt.is(data.deviation('supply'), null);
+    expect(data.deviation('supply')).toBe(null);
 });
 
-test('ChartData.variance should memoize per column', tt => {
+test('ChartData.variance should memoize per column', () => {
     const data = new ChartData(rows, columns);
-    tt.false(data.variance('demand') ==  data.variance('supply'));
+    expect(data.variance('demand') ==  data.variance('supply')).toBe(false);
 });
 
-test('ChartData.deviation should memoize per column', tt => {
+test('ChartData.deviation should memoize per column', () => {
     const data = new ChartData(rows, columns);
-    tt.false(data.deviation('demand') ==  data.deviation('supply'));
+    expect(data.deviation('demand') ==  data.deviation('supply')).toBe(false);
 });
 
-test('ChartData.variance should return null when provided a column that doesnt exist', tt => {
+test('ChartData.variance should return null when provided a column that doesnt exist', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.variance('not here'), null);
+    expect(data.variance('not here')).toBe(null);
 });
 
-test('ChartData.deviation should return null when provided a column that doesnt exist', tt => {
+test('ChartData.deviation should return null when provided a column that doesnt exist', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.deviation('not here'), null);
+    expect(data.deviation('not here')).toBe(null);
 });
 
 
 // binning
 
-test('ChartData.bin returns bins with only column specified', tt => {
+test('ChartData.bin returns bins with only column specified', () => {
     const data = new ChartData(rows, columns);
-    tt.true(data.bin('demand').rows.size < data.rows.size);
+    expect(data.bin('demand').rows.length < data.rows.length).toBe(true);
 });
 
-test('ChartData.bin adds Lower and Upper columns', tt => {
+test('ChartData.bin adds Lower and Upper columns', () => {
     const data = new ChartData(rows, columns);
     const binned = data.bin('demand');
-    tt.true(typeof binned.rows.getIn([0, 'demandLower']) !== 'undefined');
-    tt.true(typeof binned.rows.getIn([0, 'demandUpper']) !== 'undefined');
+    expect(typeof binned.rows[0]['demandLower'] !== 'undefined').toBe(true);
+    expect(typeof binned.rows[0]['demandUpper'] !== 'undefined').toBe(true);
 });
 
-test('ChartData.bin should return null when provided a column that doesnt exist', tt => {
+test('ChartData.bin should return null when provided a column that doesnt exist', () => {
     const data = new ChartData(rows, columns);
-    tt.is(data.bin('not here'), null);
+    expect(data.bin('not here')).toBe(null);
 });
 
-test('ChartData.bin allows setting custom thresholds with a threshold generator function', tt => {
+test('ChartData.bin allows setting custom thresholds with a threshold generator function', () => {
     const data = new ChartData(rows, columns);
     const binned = data.bin('demand', (values, min, max) => {
         return [80, 100];
     });
 
-    tt.is(binned.rows.size, 2);
+    expect(binned.rows.length).toBe(2);
 });
 
-test('ChartData.bin allows setting custom thresholds with a threshold generator function that returns a list', tt => {
+test('ChartData.bin allows setting custom thresholds with a threshold generator function that returns a list', () => {
     const data = new ChartData(rows, columns);
     const binned = data.bin('demand', (values, min, max) => {
-        return List([80, 100]);
+        return [80, 100];
     });
 
-    tt.is(binned.rows.size, 2);
+    expect(binned.rows.length).toBe(2);
 });
 
-test('ChartData.bin accepts a count for thresholds', tt => {
+test('ChartData.bin accepts a count for thresholds', () => {
     const data = new ChartData(rows, columns);
     const binned = data.bin('demand', 4); // Works the same as d3 ticks where number is bounds so specifying 4 thresholds will give you 3 bins
 
-    tt.is(binned.rows.size, 3);
+    expect(binned.rows.length).toBe(3);
 });
 
-test('ChartData.bin accepts a list for thresholds', tt => {
+test('ChartData.bin accepts a list for thresholds', () => {
     const data = new ChartData(rows, columns);
-    const binned = data.bin('demand', List([10, 100]));
-    tt.is(binned.rows.size, 2);
+    const binned = data.bin('demand', [10, 100]);
+    expect(binned.rows.length).toBe(2);
 });
 
-test('ChartData.bin allows setting a custom domain', tt => {
+test('ChartData.bin allows setting a custom domain', () => {
     const data = new ChartData(rows, columns);
     const binned = data.bin('demand', null, [10, 100]);
 
-    tt.is(binned.rows.getIn([0, 'demandLower']), 10);
+    expect(binned.rows[0]['demandLower']).toBe(10);
 });
 
-test('ChartData.bin allows setting a custom domain as a List', tt => {
+test('ChartData.bin allows setting a custom domain as a List', () => {
     const data = new ChartData(rows, columns);
-    const binned = data.bin('demand', null, List([10, 100]));
+    const binned = data.bin('demand', null, [10, 100]);
 
-    tt.is(binned.rows.getIn([0, 'demandLower']), 10);
+    expect(binned.rows[0]['demandLower']).toBe(10);
 });
 
-test('ChartData.bin works with dates', tt => {
+test('ChartData.bin works with dates', () => {
     const data = new ChartData(rowsDates, columnsDates);
     const binned = data.bin('month');
-    tt.true(binned.rows.getIn([0, 'monthLower']) instanceof Date);
-    tt.true(binned.rows.getIn([0, 'monthUpper']) instanceof Date);
+    expect(binned.rows[0]['monthLower'] instanceof Date).toBe(true);
+    expect(binned.rows[0]['monthUpper'] instanceof Date).toBe(true);
 });
 
-test('ChartData.bin allows updating of columns', tt => {
+test('ChartData.bin allows updating of columns', () => {
     const data = new ChartData(rowsDates, columnsDates);
     const binned = data.bin(
         'month',
         null,
         null,
         null,
-        (columns) => columns.map(column => column.set('key', 'updated'))
+        (columns) => columns.map(column => ({...column, key: 'updated'}))
     );
 
-    tt.is(binned.columns.getIn(['updated', 'key']), 'updated');
+    expect(binned.columns.find(ii => ii.key === 'updated').key).toBe('updated');
 });
-
-
-
-

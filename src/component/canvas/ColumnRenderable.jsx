@@ -1,8 +1,8 @@
 // @flow
 
 import PropTypes from 'prop-types';
-
 import React from 'react';
+import type {Node} from 'react';
 
 /**
  *
@@ -43,7 +43,7 @@ import React from 'react';
  *
  */
 
-function DefaultColumn(props: Object): React.Element<any> {
+function DefaultColumn(props: Object): Node {
     return <rect
         fill='black'
         {...props.columnProps}
@@ -83,7 +83,8 @@ const isNumber = (value) => typeof value === 'number' && !isNaN(value);
  */
 
 
-export class ColumnRenderable extends React.PureComponent {
+// @TODO switch to flow types
+export class ColumnRenderable extends React.PureComponent<*> {
 
     static propTypes = {
         /**
@@ -149,7 +150,7 @@ export class ColumnRenderable extends React.PureComponent {
         index: number,
         orientation: 'vertical'|'horizontal',
         bandwidth: number
-    ): ?React.Element<any> {
+    ): Node {
         if(!isNumber(row.x) || !isNumber(row.y)) return null;
         const {column: Column} = this.props;
 
@@ -184,20 +185,20 @@ export class ColumnRenderable extends React.PureComponent {
         />;
     }
 
-    render(): ?React.Element<any> {
+    render(): Node {
         const {xScale, yScale} = this.props;
         const orientation = this.props.orientation || xScale.bandwidth
             ? 'vertical'
             :  yScale.bandwidth
                 ? 'horizontal'
+                // eslint-disable-next-line no-console
                 : console.error('Column chart must have at least one band scale');
 
         if(!orientation) return null;
-
         const bandwidth = orientation === 'vertical' ? xScale.bandwidth() : yScale.bandwidth();
 
         return <g>
-            {this.props.scaledData.map((row: Object, index: number): ?React.Element<any> => {
+            {this.props.scaledData.map((row: Object, index: number): Node => {
                 return this.buildColumn(row, index, orientation, bandwidth);
             })}
         </g>;
@@ -220,7 +221,7 @@ export class ColumnRenderable extends React.PureComponent {
  *
  */
 
-export default class Column extends React.Component {
+export default class Column extends React.Component<*> {
     static chartType = 'canvas';
 
     static propTypes = {
@@ -243,7 +244,7 @@ export default class Column extends React.Component {
         orientation: PropTypes.string
     };
 
-    render(): React.Element<any> {
+    render(): Node {
         return <ColumnRenderable {...this.props} />;
     }
 }

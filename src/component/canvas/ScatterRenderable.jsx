@@ -1,7 +1,7 @@
 // @flow
 
 import PropTypes from 'prop-types';
-
+import type {Node} from 'react';
 import React from 'react';
 
 
@@ -37,7 +37,7 @@ import React from 'react';
  * The full array of pre scaled data.
  */
 
-const defaultDot = (props: Object): React.Element<any> => {
+const defaultDot = (props: Object): Node => {
     return <circle fill='black' r={3} {...props.dotProps}/>;
 };
 
@@ -69,7 +69,7 @@ const isNumber = (value) => typeof value === 'number' && !isNaN(value);
  *
  */
 
-export class ScatterRenderable extends React.PureComponent {
+export class ScatterRenderable extends React.PureComponent<*> {
     static defaultProps = {
         dot: defaultDot
     };
@@ -101,17 +101,14 @@ export class ScatterRenderable extends React.PureComponent {
         dot: PropTypes.func
     };
 
-    buildDot: any; // shut up flow
-
     constructor(props: Object) {
         super(props);
-        this.buildDot = this.buildDot.bind(this);
     }
 
     buildDot(
         row: Object,
         index: number
-    ): ?React.Element<any> {
+    ): ?Node {
         if(!isNumber(row.x) || !isNumber(row.y)) return null;
         const {dot: Dot, dotProps} = this.props;
         return <Dot
@@ -128,9 +125,9 @@ export class ScatterRenderable extends React.PureComponent {
         />;
     }
 
-    render(): React.Element<any> {
+    render(): Node {
         return <g>
-            {this.props.scaledData.map(this.buildDot)}
+            {this.props.scaledData.map((row, index) => this.buildDot(row, index))}
         </g>;
     }
 }
@@ -150,7 +147,7 @@ export class ScatterRenderable extends React.PureComponent {
  *
  */
 
-export default class Scatter extends React.Component {
+export default class Scatter extends React.Component<*> {
     static chartType = 'canvas';
 
     static propTypes = {
@@ -166,7 +163,7 @@ export default class Scatter extends React.Component {
         dot: PropTypes.func
     };
 
-    render(): React.Element<any> {
+    render(): Node {
         return <ScatterRenderable {...this.props} />;
     }
 }
