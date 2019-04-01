@@ -9,6 +9,9 @@
     "rename-version": "docusaurus-rename-version"
   },
   "devDependencies": {
-    "docusaurus": "^1.7.2"
+    "d3-scale": "^3.0.0",
+    "docusaurus": "^1.7.2",
+    "pnut": "^0.6.0",
+    "stampy": "^0.44.0"
   }
 }

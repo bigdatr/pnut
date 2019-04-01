@@ -1,4 +1,4 @@
-import {ChartData} from 'pnut';
+const {ChartData} = require('pnut');
 
 const columns = [
     {
@@ -199,4 +199,4 @@ const rows = [
 ];
 
 
-export default new ChartData(rows, columns);
+module.exports = new ChartData(rows, columns);

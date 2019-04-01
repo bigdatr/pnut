@@ -25,5 +25,10 @@
       "data/ChartData",
       "data/applyScaledValue"
     ]
+  },
+  "examples": {
+      "Foo": [
+        "example/area"
+      ]
   }
 }
