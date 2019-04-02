@@ -1,6 +1,6 @@
 // @flow
 
-export type ChartColumnInput<R> = {key: $Keys<R>, label: string, isContinuous?: ?boolean};
+export type ChartColumnInput<R> = {key: $Keys<R>, label?: string, isContinuous?: ?boolean};
 export type ChartColumnInputList<R> = Array<ChartColumnInput<R>>;
 export type ChartColumn<R> = {key: $Keys<R>, label: string, isContinuous: boolean};
 export type ChartColumnList<R> = Array<ChartColumn<R>>;

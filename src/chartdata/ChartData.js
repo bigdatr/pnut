@@ -87,13 +87,13 @@ class ChartData<R: ChartRow> {
         columns: ChartColumnInputList<R>,
         rows: Array<R>
     ): ChartColumnList<R> {
-        return columns.map(column => ChartData._addContinuous(column, rows));
+        return columns.map(column => ChartData._formatColumn(column, rows));
     }
 
-    static _addContinuous(col: ChartColumnInput<R>, rows: Array<R>): ChartColumn<R> {
+    static _formatColumn(col: ChartColumnInput<R>, rows: Array<R>): ChartColumn<R> {
         if(typeof col.isContinuous === 'boolean') return {
             key: col.key,
-            label: col.label,
+            label: col.label || col.key,
             isContinuous: col.isContinuous
         };
 
@@ -104,7 +104,7 @@ class ChartData<R: ChartRow> {
 
         return {
             key: col.key,
-            label: col.label,
+            label: col.label || col.key,
             isContinuous: isContinuous
         };
     }
