@@ -1,5 +1,4 @@
 // @flow
-import PropTypes from 'prop-types';
 import React, {Component, Children, cloneElement} from 'react';
 import Svg from './Svg';
 import ChartData from '../chartdata/ChartData';
@@ -137,39 +136,6 @@ export type ChartDimension = {
 class Chart<R: Object> extends Component<Props<R>> {
     dimensions: ChartDimensionList;
     scaledData: Array<{[key: string]: {[key: string]: number | string}}>;
-
-    static propTypes = {
-        /**
-         * Dimensions to construct scales off
-         */
-        dimensions: PropTypes.arrayOf(PropTypes.string),
-
-        /**
-         * Total height of the chart.
-         */
-        height: PropTypes.number,
-
-        /**
-         * Total width of the chart
-         */
-        width: PropTypes.number,
-
-        /**
-         * [top, right, bottom, left] Padding for axis and things.
-         * Renderable height is: height - top - bottom.
-         * Renderable width is: width - left - right.
-         */
-        padding: PropTypes.arrayOf(PropTypes.number),
-
-        className: PropTypes.string,
-        modifier: PropTypes.string,
-        spruceName: PropTypes.string,
-        wrapper: PropTypes.Element,
-        wrapperProps: PropTypes.Object,
-        childWrapper: PropTypes.Element,
-        childWrapperProps: PropTypes.Object,
-        childChart: PropTypes.Element
-    };
 
     static chartType: string = 'canvas';
 
