@@ -4,6 +4,10 @@
           "browser": true
         }]
     ],
+    "plugins": [
+        ["babel-plugin-extract-flow-types", {"outDir": "lib", "srcDir": "src"}],
+        "flow-react-proptypes"
+    ],
     "ignore": [
         "example/**",
         "**/*-test.js"
