@@ -1306,6 +1306,22 @@ babel-messages@^6.23.0:
   dependencies:
     babel-runtime "^6.22.0"
 
+babel-plugin-extract-flow-types@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/babel-plugin-extract-flow-types/-/babel-plugin-extract-flow-types-1.0.1.tgz#caf604d776783924f4dee0ae73ee6990b43956ef"
+  integrity sha512-U+kNAuvKOFArYt06klpDUhCKTdutOyoA4XUpWI4kIarf4v8YN2fC48Rzhi14UF3qDhiRw9+BdjarQXPUmSUVww==
+  dependencies:
+    fs-extra "^4.0.1"
+
+babel-plugin-flow-react-proptypes@^25.0.0:
+  version "25.0.0"
+  resolved "https://registry.yarnpkg.com/babel-plugin-flow-react-proptypes/-/babel-plugin-flow-react-proptypes-25.0.0.tgz#88c922f5c109aa564f8ac52effc084ec21bf2dcc"
+  integrity sha512-3HLRFvd0+cbyeIkGMpzoTVQIpt4ZpVxWGWJ/iMR2+hkJ1Js6uS3fNiGncVsuFiNP+zu/CXEb4sLjnmB3oV38zA==
+  dependencies:
+    "@babel/template" "^7.2.2"
+    "@babel/traverse" "^7.0.0"
+    "@babel/types" "^7.3.0"
+
 babel-plugin-istanbul@^4.1.6:
   version "4.1.6"
   resolved "https://registry.yarnpkg.com/babel-plugin-istanbul/-/babel-plugin-istanbul-4.1.6.tgz#36c59b2192efce81c5b378321b74175add1c9a45"
@@ -3012,6 +3028,15 @@ fs-exists-sync@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/fs-exists-sync/-/fs-exists-sync-0.1.0.tgz#982d6893af918e72d08dec9e8673ff2b5a8d6add"
   integrity sha1-mC1ok6+RjnLQjeyehnP/K1qNat0=
+
+fs-extra@^4.0.1:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-4.0.3.tgz#0d852122e5bc5beb453fb028e9c0c9bf36340c94"
+  integrity sha512-q6rbdDd1o2mAnQreO7YADIxf/Whx4AHBiRf6d+/cVT8h44ss+lHgxf1FemcqDnQt9X3ct4McHr+JMGlYSsK7Cg==
+  dependencies:
+    graceful-fs "^4.1.2"
+    jsonfile "^4.0.0"
+    universalify "^0.1.0"
 
 fs-extra@^6.0.0:
   version "6.0.1"
