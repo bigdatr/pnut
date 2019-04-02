@@ -99,11 +99,7 @@ export class ColumnRenderable extends React.PureComponent<*> {
         }
 
         return <Column
-            key={
-                orientation === 'vertical'
-                    ? this.props.xScale.domain()[index]
-                    : this.props.yScale.domain()[index]
-            }
+            key={index}
             columnProps={{
                 x, y, width, height,
                 ...this.props.columnProps
