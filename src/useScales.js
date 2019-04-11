@@ -1,42 +1,40 @@
 // @flow
 import type ChartData from './chartdata/ChartData';
-import type {Scale} from './definitions';
 import type {ChartRow} from './definitions';
+import type {ScaleConfig} from './util/createScale';
 
-import applyDefaultScale from './util/defaultScale';
+import createScale from './util/createScale';
 
-type Config = {
-    column: string,
-    updateScale: (scale: Scale) => Scale
-};
-
-export function useScales<R: ChartRow>(configList: Array<Config>) {
+export default function useScales<R: ChartRow>(configList: Array<ScaleConfig<R>>) {
     return (data: ChartData<R>) => {
         let dimensions = [];
-        let scaledData = [];
 
 
         for (let cc = 0; cc < configList.length; cc++) {
             const config = configList[cc];
+            let scaledData = [];
             const {updateScale = aa => aa} = config;
-            const {column} = config;
-            const scale = updateScale(applyDefaultScale(config, data));
+            const {columns} = config;
+            const scale = updateScale(createScale({
+                ...config,
+                data
+            }));
 
-            scaledData[cc] = [];
 
             for(let rr = 0; rr < data.rows.length; rr++) {
                 let row = data.rows[rr];
 
-                scaledData[cc][rr] = scale(row[column]);
+
+                scaledData[rr] = columns.map(column => scale(row[column]));
 
             }
 
             dimensions[cc] = {
                 scale,
                 scaledData
-            }
+            };
         }
 
         return dimensions;
-    }
+    };
 }
