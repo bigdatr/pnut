@@ -13,20 +13,23 @@ export type ScaleConfig<R> = {
     data: ChartData<R>,
     scaleType?: string,
     updateScale?: Scale => Scale,
-    upperBound?: number
+    range: [number, number],
+    stack?: boolean
 };
 
 export default function createScale<R: ChartRow>(config: ScaleConfig<R>): Function {
     const {columns} = config;
     const {scaleType} = config;
     const {data} = config;
-    const {upperBound} = config;
+    const {range} = config;
+    const {stack} = config;
 
     const continuousList = isContinuous(columns, data);
 
     // are any of the columns continuous.
     const continuous = continuousList.includes(true);
     const time = isDate(columns, data).includes(true);
+    let domainArray;
 
 
     const scaleName = scaleType || (
@@ -42,16 +45,27 @@ export default function createScale<R: ChartRow>(config: ScaleConfig<R>): Functi
         throw new Error(`A scale cannot share continuous and non continuous data: ${columns.join(', ')}`);
     }
 
-    const domainArray = continuous
-        // the domain of continuous data can be a plain min max of columns
-        ? [time ? data.min(columns) : 0, data.max(columns)]
-        // the domain of non-continuous data has to be an array of all unique values of columns
-        : data.getUniqueValues(columns);
+    if (continuous) {
+        const continuousMin = (time) ? data.min(columns) : 0;
+        const continuousMax = (stack)
+            ? data.rows.reduce((rr, row) => {
+                const sum = columns.reduce((rr, cc) => rr + (row[cc] || 0), 0);
+                return sum > rr ? sum : rr;
+            }, 0)
+            : data.max(columns)
+        ;
 
-    if(upperBound) {
+        domainArray = [continuousMin, continuousMax];
+    } else {
+        // the domain of non-continuous data has to be an array of all unique values of columns
+        domainArray = data.getUniqueValues(columns);
+    }
+
+
+    if(range) {
         return d3Scale[scaleName]()
             .domain(domainArray)
-            .range([0, upperBound]);
+            .range(range);
     }
 
     return d3Scale[scaleName]()

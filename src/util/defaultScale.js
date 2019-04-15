@@ -22,7 +22,7 @@ export default function defaultScale(scaleProps: Object): Function {
                 data,
                 columns,
                 scaleType,
-                upperBound: bound
+                range: [0, bound]
             });
 
         default:
