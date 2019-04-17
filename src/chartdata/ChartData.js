@@ -53,7 +53,6 @@ const fastGroupByToMap = <K, R>(rows: Array<R>, grouper: (R) => K): Map<K, Array
 
 type BinThreshold = Array<ChartScalar> | number;
 type BinThresholdGenerator = (values: Array<ChartScalar>, min: ?ChartScalar, max: ?ChartScalar, generators: Object) => BinThreshold;
-type BinRow = <V>() => ?Array<V>;
 
 /**
  * ChartData is a Class used by pnut charts to represent chart data.
@@ -652,7 +651,7 @@ class ChartData<R: ChartRow> {
         column: C,
         thresholds?: BinThreshold | BinThresholdGenerator,
         domain?: [number, number],
-        rowMapper?: (row: $ObjMap<R, BinRow>) => $ObjMap<R, BinRow>,
+        rowMapper?: (row: $Shape<R>) => $Shape<R>,
         columnUpdater?: (ChartColumnList<R>) => ChartColumnList<R>
     ): ?ChartData<{[key: string]: ChartScalar}> {
         if(this._columnError(column)) {
@@ -719,31 +718,31 @@ class ChartData<R: ChartRow> {
             .sort((rowA, rowB) => {
                 return rowA.binIndex - rowB.binIndex;
             })
-            .map(({binRows}: {binIndex: number, binRows: Array<R>}): $ObjMap<R, BinRow> => {
+            .map(({binRows}: {binIndex: number, binRows: Array<R>}): $Shape<R> => {
                 // Generate blank starting row map with bin column nulled
                 const columns: Array<$Keys<R>> = Object.keys(binRows[0]);
 
                 const blankRow = columns.reduce((
-                    row: $ObjMap<R, BinRow>,
+                    row: $Shape<R>,
                     rowColumn: string
                 ) => {
                     return {
                         ...row,
                         [rowColumn]: rowColumn === column ? null : []
                     };
-                }, ({}: $ObjMap<R, BinRow>));
+                }, ({}: $Shape<R>));
 
                 return binRows
                     .reduce((
-                        aggRow: $ObjMap<R, BinRow>,
+                        aggRow: $Shape<R>,
                         row: R
-                    ): $ObjMap<R, BinRow> => {
+                    ): $Shape<R> => {
                         const columns: Array<$Keys<R>> = Object.keys(row);
 
                         return columns.reduce((mergedRow, rowColumn) => {
                             return {
                                 ...mergedRow,
-                                [rowColumn]: (mergedRow[rowColumn] || []).concat(row[rowColumn])
+                                [rowColumn]: [].concat(mergedRow[rowColumn] || []).concat(row[rowColumn])
                             };
                         }, aggRow);
                     }, (blankRow));
