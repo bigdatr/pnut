@@ -31,6 +31,7 @@
     "babel-preset-blueflag": "^1.0.0",
     "babel-runtime": "^6.5.0",
     "blueflag-test": "^0.22.0",
+    "flow-bin": "^0.96.0",
     "react": "^16.8.5",
     "react-dom": "^16.8.5"
   },
