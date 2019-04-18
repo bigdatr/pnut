@@ -9,6 +9,10 @@
     "rename-version": "docusaurus-rename-version"
   },
   "devDependencies": {
-    "docusaurus": "^1.7.2"
+    "docusaurus": "^1.7.2",
+    "poi": "^12.6.4"
+  },
+  "dependencies": {
+    "chance": "^1.0.18"
   }
 }

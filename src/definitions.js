@@ -6,3 +6,5 @@ export type ChartColumn<R> = {key: $Keys<R>, label: string, isContinuous: boolea
 export type ChartColumnList<R> = Array<ChartColumn<R>>;
 export type ChartScalar = string|number|null|Date;
 export type ChartRow = {[key: string]: ChartScalar};
+
+export type Scale = Function;
