@@ -1,7 +1,6 @@
 // @flow
 import type ChartData from './chartdata/ChartData';
 import type {ChartRow} from './definitions';
-import type {ScaleConfig} from './util/createScale';
 
 import createScale from './util/createScale';
 import * as d3Shape from 'd3-shape';
@@ -13,12 +12,10 @@ export type Dimension = {
     range: [number, number]
 };
 
-const notNull = (scale) => (value) => value == null ? null : scale(value);
 
 export default function useScales<R: ChartRow>(configList: Array<*>) {
     return (data: ChartData<R>): Array<Dimension> => {
         let dimensions = [];
-        dimensions.type = 'dimensions';
 
 
         for (let cc = 0; cc < configList.length; cc++) {
@@ -51,7 +48,7 @@ export default function useScales<R: ChartRow>(configList: Array<*>) {
                         });
                     } else {
                         let data = row[key];
-                        scaledRow[rr] = [notNull(scale)(data)]
+                        scaledRow[rr] = [data == null ? null : scale(data)];
                     }
 
                 }

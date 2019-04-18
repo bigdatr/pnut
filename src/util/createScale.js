@@ -49,7 +49,11 @@ export default function createScale<R: ChartRow>(config: ScaleConfig<R>): Functi
         const continuousMin = (time) ? data.min(columns) : 0;
         const continuousMax = (stack)
             ? data.rows.reduce((rr, row) => {
-                const sum = columns.reduce((rr, cc) => rr + (row[cc] || 0), 0);
+                const sum = columns.reduce((rr, cc) => {
+                    const value = row[cc] || 0;
+                    if(typeof value !== 'number') throw 'Stacked columns must be numerical';
+                    return rr + value;
+                }, 0);
                 return sum > rr ? sum : rr;
             }, 0)
             : data.max(columns)
@@ -61,14 +65,7 @@ export default function createScale<R: ChartRow>(config: ScaleConfig<R>): Functi
         domainArray = data.getUniqueValues(columns);
     }
 
-
-    if(range) {
-        return d3Scale[scaleName]()
-            .domain(domainArray)
-            .range(range);
-    }
-
     return d3Scale[scaleName]()
         .domain(domainArray)
-        .range(domainArray);
+        .range(range);
 }

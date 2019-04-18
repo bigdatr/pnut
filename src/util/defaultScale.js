@@ -26,6 +26,6 @@ export default function defaultScale(scaleProps: Object): Function {
             });
 
         default:
-            return createScale({data, columns, scaleType});
+            return createScale({range: [0, 0], data, columns, scaleType});
     }
 }

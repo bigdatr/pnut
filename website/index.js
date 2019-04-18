@@ -1,12 +1,11 @@
 // @flow
 import React from 'react';
-import ReactDom from 'react-dom';
+import ReactDOM from 'react-dom';
 
 import Line from '../src/component/canvas/Line';
 import ChartData from '../src/chartdata/ChartData';
 import useScales from '../src/useScales';
 
-import {curveStepAfter} from 'd3-shape';
 
 
 const data = new ChartData(
@@ -39,8 +38,9 @@ function Chart() {
 
     return <svg width="522" height="522" style={{stroke: 'black'}}>
         <Line x={x} y={y} area={true} color={['#ca333391', '#6933ca91', '#ccc']}/>
-    </svg>
+    </svg>;
 }
 
 
-ReactDom.render(<Chart />, document.body);
+// $FlowFixMe - Flow doesn't know that react dom has a render function
+ReactDOM.render(<Chart />, document.getElementById('app'));
