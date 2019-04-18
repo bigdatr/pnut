@@ -32,6 +32,7 @@ export default class Svg extends React.PureComponent<*> {
             height={this.props.height}
             x={this.props.x}
             y={this.props.y}
+            {...this.props.svgProps}
         >
             {this.props.children}
         </svg>;

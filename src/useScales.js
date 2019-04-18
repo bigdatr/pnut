@@ -1,20 +1,28 @@
 // @flow
 import type ChartData from './chartdata/ChartData';
 import type {ChartRow} from './definitions';
+import type {Scale} from './definitions';
 
 import createScale from './util/createScale';
 import * as d3Shape from 'd3-shape';
 
 export type Dimension = {
-    scale: Function,
-    scaledData: Array<Array<number>>,
+    scale: Scale,
+    scaledData: Array<Array<Array<number|null>>>,
     stack?: boolean,
     range: [number, number]
 };
 
+export type DimensionConfig = {
+    columns: Array<string>,
+    stack?: boolean,
+    updateScale?: (scale: Scale) => Scale,
+    range: [number, number]
+};
 
-export default function useScales<R: ChartRow>(configList: Array<*>) {
-    return (data: ChartData<R>): Array<Dimension> => {
+
+export default function useScales(configList: Array<DimensionConfig>) {
+    return <R: ChartRow>(data: ChartData<R>): Array<Dimension> => {
         let dimensions = [];
 
 
