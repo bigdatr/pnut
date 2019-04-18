@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 
 import Line from '../src/component/canvas/Line';
 import ChartData from '../src/chartdata/ChartData';
-import useScales from '../src/useScales';
+import Chart from '../src/component/Chart';
 
 
 
@@ -30,17 +30,24 @@ const data = new ChartData(
 );
 
 
-function Chart() {
-    const [x, y] = useScales([
-        {columns: ['date'], range: [0, 522]},
-        {columns: ['bar', 'foo'], range: [522, 0], stack: false}
-    ])(data);
+function App() {
+    return <Chart
+        width={1000}
+        height={1000}
+        padding={[64,65,128,64]}
+        data={data}
+        style={{stroke: '1px solid'}}
+        dimensions={[
+            {columns: ['date'], range: [0, 1000]},
+            {columns: ['bar', 'foo'], range: [1000, 0], stack: false}
+        ]}
+        children={([x,y]) => <>
+            <Line x={x} y={y} area={true} color={['#ca333391', '#6933ca91', '#ccc']}/>
+        </>}
 
-    return <svg width="522" height="522" style={{stroke: 'black'}}>
-        <Line x={x} y={y} area={true} color={['#ca333391', '#6933ca91', '#ccc']}/>
-    </svg>;
+    />;
 }
 
 
 // $FlowFixMe - Flow doesn't know that react dom has a render function
-ReactDOM.render(<Chart />, document.getElementById('app'));
+ReactDOM.render(<App />, document.getElementById('app'));
