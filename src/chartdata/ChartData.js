@@ -351,7 +351,24 @@ class ChartData<R: ChartRow> {
             return null;
         }
         return this._memoize(`getUniqueValues.${columnList.join(',')}`, (): Array<ChartScalar> => {
-            return [...new Set(this._allValuesForColumns(columnList))];
+            // @intent use a custom method for getting unique values here otherwise dates
+            // will always be considered to be different
+            return this._allValuesForColumns(columnList).reduce((uniques, value) => {
+                let comparableValue = value;
+                if(value instanceof Date) {
+                    comparableValue = value.getTime();
+                }
+
+                if(!uniques.set.has(comparableValue)) {
+                    uniques.set.add(comparableValue);
+                    uniques.output.push(value);
+                }
+
+                return uniques;
+            }, {
+                set: new Set(),
+                output: []
+            }).output;
         });
     }
 

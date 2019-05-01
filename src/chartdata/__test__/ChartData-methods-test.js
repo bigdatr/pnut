@@ -338,6 +338,15 @@ test('ChartData.getUniqueValues should return null when provided a column that d
     expect(data.getUniqueValues('not here')).toBe(null);
 });
 
+test('ChartData.getUniqueValues should be able to compare dates', () => {
+    const data = new ChartData(
+        [{day: new Date('2018-01-01')}, {day: new Date('2018-01-01')}, {day: new Date('2018-01-02')}],
+        [{key: 'day'}]
+    );
+    expect(data.getUniqueValues('day').length).toBe(2);
+});
+
+
 test('ChartData.getUniqueValues should use memoization', () => {
     const data = new ChartData(rows, columns);
     expect(data.getUniqueValues('fruit') === data.getUniqueValues('fruit')).toBe(true);
