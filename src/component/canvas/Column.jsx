@@ -33,8 +33,6 @@ export default class ColumnRenderable extends React.PureComponent<Props> {
     render(): Node {
         const {x} = this.props;
         const {y} = this.props;
-        const {color} = this.props;
-        const {group} = this.props;
 
         let dimension = x;
         let metric = y;
@@ -44,39 +42,6 @@ export default class ColumnRenderable extends React.PureComponent<Props> {
             column = false;
             dimension = y;
             metric = x;
-        }
-
-
-
-        if(group) {
-            return <g>{group.scale.domain().map((groupKey, index) => {
-                const currentPositon = group.scale(groupKey);
-
-                // map groups
-                // => collect safe indexes
-                // => map dimension
-                // => map metrics
-                // => render columns
-                const filteredIndexes = group.scaledData[0].flatMap((ii, index) => {
-                    return ii[0] === currentPositon ? [index] : [];
-                });
-
-                const scaledData = metric.scaledData.map((set) => filteredIndexes.map(ii => set[ii]));
-
-                console.log(filteredIndexes, scaledData);
-                return <g
-                    transform={`translate(${group.scale.bandwidth() * index},0)`}
-                    children={this.renderColumnSet({
-                        dimension: {
-                            ...group,
-                            scaledData,
-                            scale: group.scale.range([0, group.scale.bandwidth()])
-                        },
-                        metric,
-                        column
-                    })}
-                />
-            })}</g>;
         }
 
         return <g>{this.renderColumnSet({
@@ -111,7 +76,7 @@ export default class ColumnRenderable extends React.PureComponent<Props> {
                 />;
 
             });
-        })
+        });
     }
 }
 
