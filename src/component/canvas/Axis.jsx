@@ -179,31 +179,34 @@ export default class AxisRenderable extends React.PureComponent<Props> {
     }
 
     getPointPosition(position: Position, distance: number, offset: number): Array<number> {
-        let location = 0;
-        const {x, y} = this.props;
+        let locationValue = 0;
+        let {location} = this.props;
+        const {x, y, dimension} = this.props;
         const width = max(x.range);
         const height = max(y.range);
 
         if(this.props.location != undefined) {
-            if(position === 'top' || position === 'bottom') {
-                location = x.scale(this.props.location);
+            if(dimension === 'y') {
+                locationValue = x.scale(this.props.location);
             } else {
-                location = y.scale(this.props.location);
+                locationValue = y.scale(this.props.location);
             }
         }
 
         switch(position) {
             case 'top':
-                return [distance, location - offset];
+                return [distance, locationValue - offset];
+
             case 'bottom':
-                location = location || height;
-                return [distance, location + offset];
+                locationValue = location != null ? locationValue : height;
+                return [distance, locationValue + offset];
 
             case 'left':
-                return [location - offset, distance];
+                return [locationValue - offset, distance];
+
             case 'right':
-                location = location || width;
-                return [location + offset, distance];
+                locationValue = location != null ? locationValue : width;
+                return [locationValue + offset, distance];
 
             default:
                 throw new Error(`unknown position: ${position}`);
