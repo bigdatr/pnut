@@ -17,12 +17,41 @@ export type ScaleConfig<R> = {
     stack?: boolean
 };
 
+function min(data, columns, stack) {
+    return stack
+        ? data.rows.reduce((rr, row) => {
+            const sum = columns.reduce((rr, cc) => {
+                const value = row[cc] || 0;
+                if(typeof value !== 'number') throw 'Stacked columns must be numerical';
+                return rr - value;
+            }, 0);
+            return sum < rr ? sum : rr;
+        }, 0)
+        : data.min(columns)
+    ;
+}
+
+function max(data, columns, stack) {
+    return stack
+        ? data.rows.reduce((rr, row) => {
+            const sum = columns.reduce((rr, cc) => {
+                const value = row[cc] || 0;
+                if(typeof value !== 'number') throw 'Stacked columns must be numerical';
+                return rr + value;
+            }, 0);
+            return sum > rr ? sum : rr;
+        }, 0)
+        : data.max(columns)
+    ;
+}
+
 export default function createScale<R: ChartRow>(config: ScaleConfig<R>): Function {
     const {columns} = config;
     const {scaleType} = config;
     const {data} = config;
     const {range} = config;
     const {stack} = config;
+    const {zero} = config;
 
     const continuousList = isContinuous(columns, data);
 
@@ -46,20 +75,13 @@ export default function createScale<R: ChartRow>(config: ScaleConfig<R>): Functi
     }
 
     if (continuous) {
-        const continuousMin = (time) ? data.min(columns) : 0;
-        const continuousMax = (stack)
-            ? data.rows.reduce((rr, row) => {
-                const sum = columns.reduce((rr, cc) => {
-                    const value = row[cc] || 0;
-                    if(typeof value !== 'number') throw 'Stacked columns must be numerical';
-                    return rr + value;
-                }, 0);
-                return sum > rr ? sum : rr;
-            }, 0)
-            : data.max(columns)
-        ;
+        const continuousMin = (zero) ? 0 : min(data, columns, stack)
+        const continuousMax = max(data, columns, stack);
 
-        domainArray = [continuousMin, continuousMax];
+        domainArray = [
+            zero ? 0 : min(data, columns, stack),
+            max(data, columns, stack)
+        ];
     } else {
         // the domain of non-continuous data has to be an array of all unique values of columns
         domainArray = data.getUniqueValues(columns);

@@ -10,6 +10,7 @@ export type Dimension = {
     scale: Scale,
     scaledData: Array<Array<Array<number|null>>>,
     stack?: boolean,
+    zero?: boolean,
     range: [number, number]
 };
 
@@ -46,7 +47,6 @@ export default function useScales(configList: Array<DimensionConfig>) {
 
                 for(let rr = 0; rr < data.rows.length; rr++) {
                     let row = data.rows[rr];
-
 
                     if(config.stack) {
                         const stackedRow = stackedData[index];
