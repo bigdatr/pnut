@@ -1,5 +1,6 @@
 // @flow
 import type {Node} from 'react';
+import type {ComponentType} from 'react';
 import type {LinePosition} from '../../definitions';
 import type {TextPosition} from '../../definitions';
 import type {Dimension} from '../../useScales';
@@ -45,12 +46,11 @@ type Props = {
     overlap: number,
     ticks: Function,
     textFormat: Function,
-    axisLine: Function,
+    axisLine: ComponentType<*>,
     axisLineWidth: number,
-    text?: Function,
+    text: ComponentType<*>,
     textPadding: number,
-    tickLine: Function,
-    tickLineProps: *,
+    tickLine: ComponentType<*>,
     tickSize: number,
 
     // optional
@@ -140,7 +140,7 @@ export default class AxisRenderable extends React.PureComponent<Props> {
         } = this.props;
 
         const [x1, y1] = this.getPointPosition(position, overlap * -1, 0);
-        const [x2, y2] = this.getPointPosition(position, this.getLength(position) + overlap, 0);
+        const [x2, y2] = this.getPointPosition(position, this.getLength() + overlap, 0);
 
         return <AxisLine position={{x1, y1, x2, y2}} />;
     }
@@ -173,7 +173,7 @@ export default class AxisRenderable extends React.PureComponent<Props> {
         }
     }
 
-    getLength(position: Position): number {
+    getLength(): number {
         const {dimension} = this.props;
         return max(this.props[dimension].range);
     }

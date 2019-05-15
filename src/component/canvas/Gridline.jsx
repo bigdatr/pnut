@@ -52,4 +52,4 @@ type GridlineProps = {
 
 function DefaultGridline(props: GridlineProps): Node {
     return <line stroke='black' {...props.position}/>;
-};
+}
