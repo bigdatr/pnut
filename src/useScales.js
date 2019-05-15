@@ -17,9 +17,20 @@ export type Dimension = {
 export type DimensionConfig = {
     columns: Array<string>,
     stack?: boolean,
+    offset?: 'expand' | 'diverging' | 'none' | 'silhouette' | 'wiggle',
     updateScale?: (scale: Scale) => Scale,
     range: [number, number]
 };
+
+
+const offsetTypes = {
+    expand: d3Shape.stackOffsetExpand,
+    diverging: d3Shape.stackOffsetDiverging,
+    none: d3Shape.stackOffsetNone,
+    silhouette: d3Shape.stackOffsetSilhouette,
+    wiggle: d3Shape.stackOffsetWiggle
+};
+
 
 
 export default function useScales(configList: Array<DimensionConfig>) {
@@ -33,14 +44,22 @@ export default function useScales(configList: Array<DimensionConfig>) {
             let stackedData;
             const {updateScale = aa => aa} = config;
             const {columns} = config;
+            const {offset = 'none'} = config;
+
+            if(config.stack) {
+                let layout = d3Shape.stack()
+                    .keys(columns)
+                    .offset(offsetTypes[offset]);
+
+                stackedData = layout(data.rows);
+            }
+
             const scale = updateScale(createScale({
                 ...config,
+                stackedData,
                 data
             }));
 
-            if(config.stack) {
-                stackedData = d3Shape.stack().keys(columns)(data.rows);
-            }
 
             scaledData = columns.map((key, index) => {
                 let scaledRow = [];
