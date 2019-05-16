@@ -9,9 +9,9 @@ import * as array from 'd3-array';
 import isContinuous from './isContinuous';
 import isDate from './isDate';
 
-export type ScaleConfig<R> = {
+export type ScaleConfig<Data> = {
     columns: Array<string>,
-    data: ChartData<R>,
+    data: Data,
     scaleType?: string,
     updateScale?: Scale => Scale,
     range: [number, number],
@@ -35,7 +35,8 @@ function max(data, columns, stackedData) {
     ;
 }
 
-export default function createScale<R: ChartRow>(config: ScaleConfig<R>): Function {
+export default function createScale<Data: ChartData<ChartRow>>(config: ScaleConfig<Data>): Function {
+
     const {columns} = config;
     const {scaleType} = config;
     const {data} = config;

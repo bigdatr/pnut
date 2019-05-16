@@ -10,9 +10,9 @@ import ChartData from '../chartdata/ChartData';
 
 
 
-type Props<R: ChartRow> = {
+type Props<Data> = {
     children: Function,
-    data: ChartData<R>,
+    data: Data,
     dimensions: Array<DimensionConfig>,
     height: number,
     padding: [number, number, number, number],
@@ -21,7 +21,7 @@ type Props<R: ChartRow> = {
     style?: Object
 };
 
-class Chart<Row: ChartRow> extends React.PureComponent<Props<Row>> {
+class Chart<Data: ChartData<ChartRow>> extends React.PureComponent<Props<Data>> {
     render(): Node {
         const {data} = this.props;
         const {width} = this.props;

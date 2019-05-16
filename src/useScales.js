@@ -34,7 +34,7 @@ const offsetTypes = {
 
 
 export default function useScales(configList: Array<DimensionConfig>) {
-    return <R: ChartRow>(data: ChartData<R>): Array<Dimension> => {
+    return (data: ChartData<ChartRow>): Array<Dimension> => {
         let dimensions = [];
 
 
