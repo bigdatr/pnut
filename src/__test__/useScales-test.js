@@ -28,7 +28,7 @@ describe('useScales', () => {
 
     it('can scale one column', () => {
         const [foo] = useScales([
-            {columns: ['foo'], range: [0, 100]},
+            {columns: ['foo'], range: [0, 100], zero: true},
         ])(data);
 
         expect(foo.scaledData).toEqual([[[25], [50], [75], [100]]]);
@@ -36,7 +36,7 @@ describe('useScales', () => {
 
     it('can scale multiple columns', () => {
         const [foo] = useScales([
-            {columns: ['foo', 'bar'], range: [0, 14]},
+            {columns: ['foo', 'bar'], range: [0, 14], zero: true},
         ])(data);
 
         expect(foo.scaledData).toEqual([
@@ -54,7 +54,7 @@ describe('useScales', () => {
 
             const data = new ChartData(rows, columns);
             const [foo] = useScales([
-                {columns: ['foo', 'bar'], range: [0, 6]},
+                {columns: ['foo', 'bar'], range: [0, 6], zero: true},
             ])(data);
 
             expect(foo.scaledData).toEqual([
@@ -83,7 +83,7 @@ describe('stacking', () => {
 
             const data = new ChartData(rows, columns);
             const [foo] = useScales([
-                {columns: ['foo', 'bar'], range: [0, 6], stack: true},
+                {columns: ['foo', 'bar'], range: [0, 6], stack: true, zero: true},
             ])(data);
 
             expect(foo.scaledData).toEqual([
@@ -101,7 +101,7 @@ describe('stacking', () => {
 
             const data = new ChartData(rows, columns);
             const [foo] = useScales([
-                {columns: ['foo', 'bar'], range: [0, 6], stack: true},
+                {columns: ['foo', 'bar'], range: [0, 6], stack: true, zero: true},
             ])(data);
 
             expect(foo.scaledData).toEqual([

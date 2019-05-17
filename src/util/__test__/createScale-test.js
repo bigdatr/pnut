@@ -1,5 +1,6 @@
 import createScale from '../createScale';
 import ChartData from '../../chartdata/ChartData';
+import {stack} from 'd3-shape';
 
 const columns = [
     {key: 'foo'},
@@ -26,7 +27,17 @@ describe('linear', () => {
         expect(typeof scale.invert).toEqual('function');
     });
 
-    it('will set the domain bounds to 0 and max of the columns', () => {
+    it('will set the domain bounds to min and max of the columns', () => {
+        expect(scale.domain()).toEqual([1, 3]);
+    });
+
+    it('will set the domain bounds to 0 and max of the columns if config.zero is set', () => {
+        const scale = createScale({
+            columns: ['foo'],
+            data,
+            zero: true,
+            range: [0, 1]
+        });
         expect(scale.domain()).toEqual([0, 3]);
     });
 
@@ -34,15 +45,24 @@ describe('linear', () => {
 
 describe('stacked linear', () => {
 
-    it('will set the domain bounds to 0 and the maxiumum of the sum of each rows column', () => {
+    it('will set the domain bounds to minimum and the maxiumum of the sum of each rows column', () => {
+        const rows = [
+            {foo: -1, bar: -2, baz: new Date('1970-01-01')},
+            {foo: 2, bar: 2, baz: new Date('1970-01-02')},
+            {foo: 3, bar: 3, baz: new Date('1970-01-03')}
+        ];
+
+        const data = new ChartData(rows, columns);
+        const stackedData = stack().keys(['foo', 'bar'])(rows);
         const scale = createScale({
-            columns: ['foo', 'foo'],
+            columns: ['foo', 'bar'],
             data,
             range: [0, 1],
             stack: true,
+            stackedData
         });
 
-        expect(scale.domain()).toEqual([0, 6]);
+        expect(scale.domain()).toEqual([-1, 6]);
     });
 
     it('can find the highest number even if they are out of order', () => {
@@ -53,38 +73,44 @@ describe('stacked linear', () => {
         ];
 
         const data = new ChartData(rows, columns);
+        const stackedData = stack().keys(['foo', 'foo'])(rows);
         const scale = createScale({
             columns: ['foo', 'foo'],
             data,
             range: [0, 1],
             stack: true,
+            stackedData
         });
         expect(scale.domain()).toEqual([0, 8]);
     });
 
     it('wont choke on null values', () => {
         const rows = [
-            {foo: 2, bar: 'b', baz: new Date('1970-01-02')},
-            {foo: null, bar: 'a', baz: new Date('1970-01-01')},
-            {foo: 4, bar: 'c', baz: new Date('1970-01-03')}
+            {foo: 2, bar: 2, baz: new Date('1970-01-02')},
+            {foo: null, bar: null, baz: new Date('1970-01-01')},
+            {foo: 4, bar: 4, baz: new Date('1970-01-03')}
         ];
 
         const data = new ChartData(rows, columns);
+        const stackedData = stack().keys(['foo', 'bar'])(rows);
         const scale = createScale({
-            columns: ['foo', 'foo'],
+            columns: ['foo', 'bar'],
             data,
             range: [0, 1],
             stack: true,
+            stackedData
         });
         expect(scale.domain()).toEqual([0, 8]);
     });
 
     it('will throw if you try and stack dates', () => {
+        const stackedData = stack().keys(['baz', 'baz'])(rows);
         const scale = () => createScale({
             columns: ['baz', 'baz'],
             data,
             range: [0, 1],
             stack: true,
+            stackedData
         });
         expect(scale).toThrow('Stacked columns must be numerical');
     });
