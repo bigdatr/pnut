@@ -40,9 +40,12 @@ export default function createScale<Data: ChartData<ChartRow>>(config: ScaleConf
     const {columns} = config;
     const {scaleType} = config;
     const {data} = config;
+    const {stack} = config;
     const {range} = config;
     const {zero} = config;
     const {stackedData} = config;
+
+    if(stack && !stackedData) throw 'You cant stack a scale without stackedData';
 
     const continuousList = isContinuous(columns, data);
 
@@ -66,6 +69,7 @@ export default function createScale<Data: ChartData<ChartRow>>(config: ScaleConf
     }
 
     if (continuous) {
+        if(time && stack) throw 'Stacked columns must be numerical';
         domainArray = [
             zero ? 0 : min(data, columns, stackedData),
             max(data, columns, stackedData)
