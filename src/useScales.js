@@ -73,7 +73,8 @@ export default function useScales(configList: Array<DimensionConfig>) {
                         scaledRow[rr] = stackedColumn.map(value => {
                             return stackedColumn.data[stackedRow.key] == null ? null : scale(value);
                         });
-                    } else {
+                    }
+                    else {
                         let data = row[key];
                         scaledRow[rr] = [data == null ? null : scale(data)];
                     }
