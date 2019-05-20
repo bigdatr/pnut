@@ -3,6 +3,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import Line from '../src/component/canvas/Line';
+import Scatter from '../src/component/canvas/Scatter';
+import Axis from '../src/component/canvas/Axis';
 import ChartData from '../src/chartdata/ChartData';
 import Chart from '../src/component/Chart';
 
@@ -38,11 +40,14 @@ function App() {
         data={data}
         style={{stroke: '1px solid'}}
         dimensions={[
-            {columns: ['date'], range: [0, 1000]},
-            {columns: ['bar', 'foo'], range: [1000, 0], stack: false}
+            {columns: ['foo'], range: [0, 640]},
+            {columns: ['bar', 'foo'], range: [640, 0], stack: true}
         ]}
         children={([x,y]) => <>
             <Line x={x} y={y} area={true} color={['#ca333391', '#6933ca91', '#ccc']}/>
+            <Scatter x={x} y={y} color={['#ca333391', '#6933ca91', '#ccc']}/>
+            <Axis x={x} y={y} position="bottom" dimension="x" />
+            <Axis x={x} y={y} position="left" dimension="y" />
         </>}
 
     />;
