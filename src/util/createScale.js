@@ -70,6 +70,7 @@ export default function createScale<Data: ChartData<ChartRow>>(config: ScaleConf
 
     if (continuous) {
         if(stack) {
+            if(time) throw 'Stacked columns must be numerical';
             domainArray = [
                 zero ? 0 : min(data, columns, stackedData),
                 max(data, columns, stackedData)
