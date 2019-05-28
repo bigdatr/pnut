@@ -11,4 +11,5 @@ export type ChartRow = {[key: string]: ChartScalar};
 export type Scale = Function;
 
 export type LinePosition = {x1: number, x2: number, y1: number, y2: number};
+export type PathPosition = {d: string};
 export type TextPosition = {x: number, y: number, children: Node};
