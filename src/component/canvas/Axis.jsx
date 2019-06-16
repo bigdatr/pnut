@@ -7,7 +7,6 @@ import type {Dimension} from '../../useScales';
 
 import React from 'react';
 import {max} from 'd3-array';
-import ChartData from '../../chartdata/ChartData';
 
 function DefaultAxisLine(props: {position: LinePosition}): Node {
     return <line
@@ -38,7 +37,6 @@ type DimensionKey = 'x' | 'y';
 type Props = {
     // required
     position: Position,
-    dimension: DimensionKey,
     x: Dimension,
     y: Dimension,
 
@@ -65,15 +63,20 @@ export default class AxisRenderable extends React.PureComponent<Props> {
         axisLineWidth: 1,
         overlap: 0,
         text: DefaultText,
-        textFormat: (text: string | Date) => ChartData.isValueDate(text) && typeof text.toISOString === 'function'
-            ? text.toISOString().slice(0,10)
-            : text,
+        textFormat: (text: mixed) => text,
         textPadding: 6,
         tickLine: DefaultTick,
         ticks: (scale: {ticks: () => Array<mixed>, domain: () => Array<mixed>}) => scale.ticks ? scale.ticks() : scale.domain(),
         tickSize: 6
     };
 
+    dimension(): DimensionKey {
+        const {position} = this.props;
+        return (position === 'top' || position === 'bottom')
+            ? 'x'
+            : 'y'
+        ;
+    }
 
     drawTicks(): Array<Node> {
         const {
@@ -85,7 +88,7 @@ export default class AxisRenderable extends React.PureComponent<Props> {
             position
         } = this.props;
 
-        const {dimension} = this.props;
+        const dimension = this.dimension();
         const {textFormat} = this.props;
         const {x, y} = this.props;
         const {ticks} = this.props;
@@ -153,9 +156,8 @@ export default class AxisRenderable extends React.PureComponent<Props> {
             case 'top':
                 return 'auto';
             case 'bottom':
-                return 'hanging';
             default:
-                throw new Error(`unknown position: ${position}`);
+                return 'hanging';
         }
     }
 
@@ -167,21 +169,20 @@ export default class AxisRenderable extends React.PureComponent<Props> {
             case 'left':
                 return 'end';
             case 'right':
-                return 'start';
             default:
-                throw new Error(`unknown position: ${position}`);
+                return 'start';
         }
     }
 
     getLength(): number {
-        const {dimension} = this.props;
-        return max(this.props[dimension].range);
+        return max(this.props[this.dimension()].range);
     }
 
     getPointPosition(position: Position, distance: number, offset: number): Array<number> {
         let locationValue = 0;
         let {location} = this.props;
-        const {x, y, dimension} = this.props;
+        const {x, y} = this.props;
+        const dimension = this.dimension();
         const width = max(x.range);
         const height = max(y.range);
 
