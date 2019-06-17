@@ -239,8 +239,6 @@ test('Area renders a LineRenderable', () => {
 });
 
 test('Area LineRenderable is a closed path', () => {
-    // console.log(AreaElement.at(0).shallow().props());
     const areaPath = AreaElement.at(0).shallow().childAt(0).prop('lineProps').d;
-    // console.log('afdsdfa', areaPath);
     expect(areaPath[areaPath.length - 1]).toBe('Z')
 });

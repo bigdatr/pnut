@@ -27,22 +27,28 @@ export default function Gridlines(props: Props) {
     const {xLine: LineVertical = DefaultGridline} = props;
     const {yLine: LineHorizontal = DefaultGridline} = props;
 
-    return <g>
-        {xTicks(x.scale).map((tick) => {
-            const value = x.scale(tick);
-            const [y1, y2] = y.range;
-            return <LineVertical
-                position={{x1: value, x2: value, y1, y2}}
-            />;
-        })}
-        {yTicks(y.scale).map((tick) => {
-            const value = y.scale(tick);
-            const [x1, x2] = x.range;
-            return <LineHorizontal
-                position={{x1, x2, y1: value, y2: value}}
-            />;
-        })}
-    </g>;
+    return <>
+        <g>
+            {xTicks(x.scale).map((tick, index) => {
+                const value = x.scale(tick);
+                const [y1, y2] = y.range;
+                return <LineVertical
+                    key={`x${index}`}
+                    position={{x1: value, x2: value, y1, y2}}
+                />;
+            })}
+        </g>
+        <g>
+            {yTicks(y.scale).map((tick, index) => {
+                const value = y.scale(tick);
+                const [x1, x2] = x.range;
+                return <LineHorizontal
+                    key={`y${index}`}
+                    position={{x1, x2, y1: value, y2: value}}
+                />;
+            })}
+        </g>
+    </>;
 }
 
 
