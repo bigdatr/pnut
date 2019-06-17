@@ -69,11 +69,20 @@ export default function createScale<Data: ChartData<ChartRow>>(config: ScaleConf
     }
 
     if (continuous) {
-        if(time && stack) throw 'Stacked columns must be numerical';
-        domainArray = [
-            zero ? 0 : min(data, columns, stackedData),
-            max(data, columns, stackedData)
-        ];
+        if(stack) {
+            if(time) throw 'Stacked columns must be numerical';
+            domainArray = [
+                zero ? 0 : min(data, columns, stackedData),
+                max(data, columns, stackedData)
+            ];
+        }
+        // binned and normal
+        else {
+            domainArray = [
+                zero ? 0 : min(data, columns),
+                max(data, columns)
+            ];
+        }
     } else {
         // the domain of non-continuous data has to be an array of all unique values of columns
         domainArray = data.getUniqueValues(columns);

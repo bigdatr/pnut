@@ -53,8 +53,9 @@ export default class ColumnRenderable extends React.PureComponent<Props> {
 
     renderColumnSet({dimension, metric, column}: Object): Node {
         const {stack} = metric;
-        const bandwidth = dimension.scale.bandwidth();
+        const bandwidth = dimension.scale.bandwidth && dimension.scale.bandwidth();
         const {color} = this.props;
+
         return dimension.scaledData[0].map((dData, dIndex) => {
             return metric.scaledData.map((mData, mIndex) => {
                 const pair = mData[dIndex];
@@ -63,7 +64,9 @@ export default class ColumnRenderable extends React.PureComponent<Props> {
                 const dd = dData[0];
                 if(!isNumber(mm0) || !isNumber(mm1) || !isNumber(dd)) return null;
 
-                const span = bandwidth;
+                const span = dimension.scaledData.length > 1
+                    ? dimension.scaledData[1][dIndex] - dimension.scaledData[0][dIndex]
+                    : bandwidth;
                 const {y, height} = safeRect(mm0, mm1);
 
                 return <rect
