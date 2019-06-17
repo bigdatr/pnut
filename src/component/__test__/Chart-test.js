@@ -1,6 +1,5 @@
 import React from 'react';
 import Chart from '../Chart';
-import Line from '../canvas/LineRenderable';
 import ChartData from '../../chartdata/ChartData';
 
 const columns = [
