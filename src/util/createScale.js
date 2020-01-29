@@ -20,6 +20,8 @@ export type ScaleConfig<Data> = {
     stackedData: Array<Array<Array<number>>>
 };
 
+type AnyChartData = ChartData<ChartRow>;
+
 
 function min(data, columns, stackedData) {
     return stackedData
@@ -35,13 +37,12 @@ function max(data, columns, stackedData) {
     ;
 }
 
-export default function createScale<Data: ChartData<ChartRow>>(config: ScaleConfig<Data>): Function {
-
+export default function createScale<Data: AnyChartData>(config: ScaleConfig<Data>): Function {
     const {columns} = config;
     const {scaleType} = config;
     const {data} = config;
     const {stack} = config;
-    const {range} = config;
+    const {range = []} = config;
     const {zero} = config;
     const {stackedData} = config;
 
@@ -50,10 +51,9 @@ export default function createScale<Data: ChartData<ChartRow>>(config: ScaleConf
     const continuousList = isContinuous(columns, data);
 
     // are any of the columns continuous.
-    const continuous = continuousList.includes(true);
+    const continuous = continuousList.includes(true) && scaleType !== 'scaleBand';
     const time = isDate(columns, data).includes(true);
     let domainArray;
-
 
     const scaleName = scaleType || (
         time
@@ -87,6 +87,7 @@ export default function createScale<Data: ChartData<ChartRow>>(config: ScaleConf
         // the domain of non-continuous data has to be an array of all unique values of columns
         domainArray = data.getUniqueValues(columns);
     }
+
 
     return d3Scale[scaleName]()
         .domain(domainArray)
