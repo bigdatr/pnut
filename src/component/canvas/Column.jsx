@@ -13,7 +13,7 @@ type Props = {
     x: Dimension,
     y: Dimension,
     color: Array<string>,
-    column?: (line: ComponentType<*>, props: Object) => Node,
+    column?: ComponentType<*>,
     stack?: boolean,
     horizontal?: boolean
 };
@@ -27,6 +27,8 @@ function safeRect(mm0, mm1) {
     }
     return {y, height};
 }
+
+const DefaultColumn = ({position, color}: {color: string, position: {}}) => <rect fill={color} {...position} />;
 
 export default class ColumnRenderable extends React.PureComponent<Props> {
 
@@ -55,6 +57,7 @@ export default class ColumnRenderable extends React.PureComponent<Props> {
         const {stack} = metric;
         const bandwidth = dimension.scale.bandwidth && dimension.scale.bandwidth();
         const {color} = this.props;
+        const {column: Column = DefaultColumn} = this.props;
 
         return dimension.scaledData[0].map((dData, dIndex) => {
             return metric.scaledData.map((mData, mIndex) => {
@@ -69,13 +72,16 @@ export default class ColumnRenderable extends React.PureComponent<Props> {
                     : bandwidth;
                 const {y, height} = safeRect(mm0, mm1);
 
-                return <rect
-                    fill={color[mIndex]}
-                    key={`${dIndex}.${mIndex}`}
-                    x={column ? dd : y}
-                    y={column ? y : dd}
-                    height={column ? height : span}
-                    width={column ? span : height}
+
+                return <Column
+                    color={color[metric.scaledData.length > 1 ? mIndex : dIndex]}
+                    position={{
+                        key: `$dIndex.$mIndex`,
+                        x: column ? dd :  y,
+                        y: column ? y :  dd,
+                        height: column ? height :  span,
+                        width: column ? span :  height
+                    }}
                 />;
 
             });
