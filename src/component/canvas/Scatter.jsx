@@ -23,6 +23,7 @@ type Props = {
 export default function Scatter(props: Props) {
     const {y} = props;
     const {x} = props;
+    const {color} = props;
     const {Dot = defaultDot} = props;
 
 
@@ -34,6 +35,7 @@ export default function Scatter(props: Props) {
             if(!isNumber(yValue) || !isNumber(xValue)) return null;
             return <Dot
                 key={`${seriesIndex}.${index}`}
+                color={color[seriesIndex]}
                 position={{
                     cx: x.scaledData[0][index],
                     cy: yValue
