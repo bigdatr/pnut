@@ -31,16 +31,17 @@ export default function createScale<Data: Data[]>(config: ScaleConfig<Data>): Fu
     const {zero = false} = config;
     const {range = []} = config;
 
-    const isNumber = data.every(ii => typeof ii[column] === 'number');
-    const isDate = data.every(ChartData.isValueDate);
+    const isNumber = data.every(ii => typeof ii[column] === 'number' || ii[column] == null);
+    const isDate = data.every(ii => ChartData.isValueDate(ii[column]));
+    const value = (row) => row[column];
 
-    if(!isNumber || !isDate) throw new Error('Continuous scales must be all numbers or all dates');
+    if(!isNumber && !isDate) throw new Error('Continuous scales must be all numbers or all dates');
 
 
     const scaleName = isDate ? 'scaleTime' : 'scaleLinear';
     const domainArray = [
-        zero ? 0 : array.min(data, column),
-        array.max(data, column)
+        zero ? 0 : array.min(data, value),
+        array.max(data, value)
     ];
 
     return {

@@ -8,6 +8,7 @@ import Column from '../src/component/canvas/Column';
 import Axis from '../src/component/canvas/Axis';
 import ChartData from '../src/chartdata/ChartData';
 import Chart from '../src/component/Chart';
+import Svg from '../src/component/Svg';
 
 import groupedSeries from '../src/series/groupedSeries';
 import {stack} from '../src/series/groupedSeries';
@@ -17,50 +18,37 @@ import continuousScale from '../src/scale/continuousScale';
 
 
 
-const data = new ChartData(
-    [
-        {spend: 0, type: 'foo', date: new Date('1970-01-01')},
-        {spend: 10, type: 'bar', date: new Date('1970-01-01')},
-        {spend: 20, type: 'foo', date: new Date('1970-01-02')},
-        {spend: 30, type: 'bar', date: new Date('1970-01-02')},
-        {spend: 40, type: 'foo', date: new Date('1970-01-03')},
-        {spend: null, type: 'bar', date: new Date('1970-01-03')},
-        {spend: 70, type: 'foo', date: new Date('1970-01-04')},
-        {spend: 80, type: 'bar', date: new Date('1970-01-04')},
-        {spend: 90, type: 'foo', date: new Date('1970-01-05')},
-        {spend: 100, type: 'bar', date: new Date('1970-01-05')},
-    ],
-    [
-        {key: 'foo'},
-        {key: 'bar'},
-        {key: 'date'}
-    ]
-);
+const data = [
+    {spend: 0, type: 'foo', date: new Date('1970-01-01')},
+    {spend: 10, type: 'bar', date: new Date('1970-01-01')},
+    {spend: 20, type: 'foo', date: new Date('1970-01-02')},
+    {spend: 30, type: 'bar', date: new Date('1970-01-02')},
+    {spend: 40, type: 'foo', date: new Date('1970-01-03')},
+    {spend: null, type: 'bar', date: new Date('1970-01-03')},
+    {spend: 70, type: 'foo', date: new Date('1970-01-04')},
+    {spend: 80, type: 'bar', date: new Date('1970-01-04')},
+    {spend: 90, type: 'foo', date: new Date('1970-01-05')},
+    {spend: 100, type: 'bar', date: new Date('1970-01-05')},
+];
 
 
 function App() {
-    const x = continuousScale({column: 'date'});
-    const y = continuousScale({column: 'spend'});
-    //const x = usea();
-    //const y = useContinuous();
-    //const line = useLine({x, y});
-    //const useAxis = useLine({x, y});
+    const width = 600;
+    const height = 400;
+    const x = continuousScale({data, column: 'date', range: [0, width]});
+    const y = continuousScale({data, column: 'spend', range: [height, 0]});
 
     const series = groupedSeries({
-        data: data.rows,
+        data,
         groupBy: x => x.type,
         //process: stack({column: 'spend'})
     });
 
-
     console.log(series);
 
-    const range = [0, 640];
-    const inverseRange = range.slice().reverse();
 
-
-    return <Svg width={1000} height={1000}>
-        <Line scales={{x,y series}} />
+    return <Svg style={{border: '1px solid'}} width={width} height={height}>
+        <Line scales={{x,y, series}} />
     </Svg>;
 
     //const x = useStacked({data, columns: ['foo'], range});

@@ -16,7 +16,6 @@ type Config<A> = {
 export default function GroupedSeries<A>(config: Config<A>): Series<A> {
     const {data, groupBy, process = s => s} = config;
     let items = process(groupByArray(groupBy, data));
-    console.log(items);
 
     return {
         _type: 'groupedSeries',

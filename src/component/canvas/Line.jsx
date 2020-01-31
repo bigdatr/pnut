@@ -9,64 +9,60 @@ import * as d3Shape from 'd3-shape';
 
 
 type Props = {
+    scales: {
+        x: ContinuousScale,
+        y: ContinuousScale,
+        series: GroupedSeries|SingleSeries
+    },
     x: Dimension,
     y: Dimension,
     color: Array<string>,
-    line?: ComponentType<*>,
     area?: boolean,
     stack?: boolean,
     curve?: Function
 };
 
-export class Line extends React.PureComponent<Props> {
+export default class Line extends React.PureComponent<Props> {
     render(): Node {
-        const {x} = this.props;
-        const {y} = this.props;
-        const {color = ['#ccc']} = this.props;
-        const {line: Line = DefaultLine} = this.props;
-        const {curve = (_) => _.curveLinear} = this.props;
-        const {area = false} = this.props;
+        const {x, y, series} = this.props.scales;
+        const {area} = this.props;
+        const {stack} = series;
+        const {curve = shape => shape.curveLinear} = series;
+        const {column} = series;
 
-        const getX = (_, index) => x.scaledData[0][index];
-        const getY1 = (data) => y.stack ? data[1] : data[0];
+        console.log(x);
+        const getX = (row) => x.scale(row[column]);
+        const getY0 = (row) => y.scale(stack ? row[column][0] : y.range[0]);
+        const getY1 = (row) => y.scale(stack ? row[column][1] : row[column]);
         const isDefined = (value) => typeof value === 'number' && !isNaN(value);
 
+        console.log(this.props);
 
-        const generator = (area)
-            ? d3Shape.area()
-                .x(getX)
-                .y0((data) => y.stack ? data[0] : y.range[0])
-                .y1(getY1)
-                .defined((data) => isDefined(data[0]))
-                .curve(curve(d3Shape))
+        let generator = area
+            ? d3Shape.area().y0(getY0).y1(getY1)
             : d3Shape.line()
-                .x(getX)
-                .y(getY1)
-                .defined((data) => isDefined(y.stack ? data[1] : data[0]))
+                .x(row => console.log(row[x.column]) || x.scale(row[x.column]))
+                .y(row => y.scale(row[y.column]))
+                .defined(row => isDefined(row[y.column]))
                 .curve(curve(d3Shape))
         ;
 
 
-        return <g>
-            {y.scaledData.map((set, index) => <Line
-                key={index}
-                position={{d: generator(set)}}
-                area={area}
-                color={color[index]}
-            />)}
+        return <g className="Line">
+            {[].concat(series.items)
+                .map((series, key) => this.renderPath({series, key, generator, area, color: '#ccc'}))}
         </g>;
     }
+
+    renderPath({series, key, generator, area, color}) {
+        console.log({d: generator(series)});
+        return <path
+            key={key}
+            d={generator(series)}
+            fill={area ? color : 'none'}
+            stroke={area ? 'none' : color}
+        />;
+    }
+
 }
 
-function DefaultLine(props: {position: PathPosition, area: boolean, color: string}): Node {
-    const {position, area, color} = props;
-    return <path
-        {...position}
-        fill={area ? color : 'none'}
-        stroke={area ? 'none' : color}
-    />;
-}
-
-
-
-export default Line;
