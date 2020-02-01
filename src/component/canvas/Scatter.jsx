@@ -29,11 +29,11 @@ export default function Scatter(props: Props): Node {
             const cy = y.scale(y.get(item));
             const r = radius.scale(radius.get(item));
             const fill = color.scale(color.get(item));
-        console.log(fill);
+
             if(!isNumber(cx) || !isNumber(cy) || !isNumber(r)) return null;
             return <circle
                 key={key}
-                fill={fill}
+                fill={fill || '#000'}
                 r={r}
                 cx={cx}
                 cy={cy}

@@ -38,19 +38,29 @@ const data = [
 function App() {
     const width = 600;
     const height = 400;
-    const x = continuousScale({data, column: 'date', range: [0, width]});
-    const y = continuousScale({data, column: 'spend', range: [height, 0]});
-    const radius = continuousScale({data, column: 'spend', range: [0, 10]});
-    const color = colorScale({data, column: 'type', range: ['#ff1122aa', '#2211ffaa']});
-    //const color = colorScale({data, column: 'spend', interpolate: interpolateViridis});
+
+    const columnSeries = groupedSeries({
+        data,
+        groupBy: x => x.date,
+        process: stack({column: 'spend', type: 'inner'})
+    });
 
     const series = groupedSeries({
         data,
         groupBy: x => x.type,
-        //process: stack({column: 'spend'})
+        process: stack({column: 'spend', type: 'outer'})
     });
 
     console.log(series);
+
+    const x = continuousScale({series, column: 'date', range: [0, width]});
+    const y = continuousScale({series, column: 'spend', range: [height, 0]});
+    const xColumns = categoricalScale({series: columnSeries, column: 'date', range: [0, width]});
+    const radius = continuousScale({series, column: 'spend', range: [0, 10]});
+    //const color = colorScale({series, column: 'type', range: ['#ff1122aa', '#2211ffaa']});
+    const color = colorScale({series, column: 'spend', interpolate: interpolateViridis});
+
+
 
     const scales = {x, y, radius, color, series};
 
@@ -58,30 +68,8 @@ function App() {
     return <Svg style={{border: '1px solid'}} width={width} height={height}>
         <Line scales={scales} />
         <Scatter scales={scales} />
+        <Column scales={{x: xColumns, y, color, series: columnSeries}} />
     </Svg>;
-
-    //const x = useStacked({data, columns: ['foo'], range});
-    //const x = useStacked({data, columns: ['foo'], range});
-    return <div>foo</div>;
-    return <Chart
-        width={1000}
-        height={1000}
-        padding={[64,65,128,64]}
-        data={data}
-        style={{stroke: '1px solid'}}
-        dimensions={[
-            {columns: ['date'], range},
-            {columns: ['bar', 'foo'], range: inverseRange, stack: true},
-            {columns: ['size'], range: [0, 3]},
-        ]}
-        children={([x,y, radius]) => <>
-            <Column x={x} y={y} color={['#ca333391', '#6933ca91', '#ccc']}/>
-            <Scatter x={x} y={y} radius={radius} color={['#ca333391', '#6933ca91', '#ccc']}/>
-            <Axis x={x} y={y} position="bottom" dimension="x" />
-            <Axis x={x} y={y} position="left" dimension="y" />
-        </>}
-
-    />;
 }
 
 

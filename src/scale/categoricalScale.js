@@ -15,19 +15,21 @@ export type CategoricalScale = {
 
 export default function categoricalScale<Data>(config: ScaleConfig<Data>): CategoricalScale {
     const {column} = config;
-    const {data} = config;
+    const {series} = config;
     const {range = []} = config;
+    const data = series.items.flat();
 
     const domain = new Set();
     data.forEach(item => domain.add(item[column]));
+    const get = (item) => item[column];
+    const scale = d3Scale.scaleOrdinal().domain([...domain]).range(range);
 
     return {
         type: 'categorical',
         column,
-        get: (item) => item[column],
-        scale: d3Scale.scaleOrdinal()
-            .domain([...domain])
-            .range(range)
+        get,
+        scale,
+        scaleRow: (row) => scale(get(row))
     };
 
 }

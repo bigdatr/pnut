@@ -1,4 +1,5 @@
 // @flow
+import mapSeries from '../util/mapSeries';
 
 function groupByArray(getter, data) {
     return Object.values(data.reduce((rr, item) => {
@@ -15,22 +16,35 @@ type Config<A> = {
 
 export default function GroupedSeries<A>(config: Config<A>): Series<A> {
     const {data, groupBy, process = s => s} = config;
-    let items = process(groupByArray(groupBy, data));
+    let items = groupByArray(groupBy, data);
 
-    return {
+    return process({
         _type: 'groupedSeries',
         groupBy,
         data,
         items
-    };
+    });
 }
 
 export function stack(config) {
     const {column} = config;
-    return (series) => series.map(data => data.map((ii, index, list) => {
-        if(index > 0) {
-            ii[column] = ii[column] + list[index -1][column];
-        }
-        return ii;
-    }));
+    const {type} = config;
+    return (rootSeries) => {
+        rootSeries.stack = true;
+        rootSeries.items = mapSeries(rootSeries, (rr, key, {index, seriesIndex, series}) => {
+            let row = Object.assign({}, rr);
+
+            if(type === 'outer') {
+                if(seriesIndex > 0) {
+                    row[column] = row[column] + rootSeries.items[seriesIndex - 1][index][column];
+                }
+            } else {
+                if(index > 0) {
+                    row[column] = row[column] + series[index - 1][column];
+                }
+            }
+            return row;
+        });
+        return rootSeries;
+    };
 }

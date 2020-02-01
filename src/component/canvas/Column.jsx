@@ -4,18 +4,19 @@ import type {ComponentType} from 'react';
 import type {Dimension} from '../../useScales';
 
 import React from 'react';
+import {scaleBand} from 'd3-scale';
 
 function isNumber(value): boolean %checks {
     return typeof value === 'number' && !isNaN(value);
 }
 
 type Props = {
-    x: Dimension,
-    y: Dimension,
-    color: Array<string>,
-    column?: ComponentType<*>,
-    stack?: boolean,
-    horizontal?: boolean
+    scales: {
+        x: CategoricalScale,
+        y: ContinuousScale,
+        color: ColorScale
+    },
+    padding?: number
 };
 
 function safeRect(mm0, mm1) {
@@ -25,31 +26,55 @@ function safeRect(mm0, mm1) {
         y = mm0;
         height = mm1 - mm0;
     }
-    return {y, height};
+    return [y, height];
 }
 
-const DefaultColumn = ({position, color}: {color: string, position: {}}) => <rect fill={color} {...position} />;
 
-export default class ColumnRenderable extends React.PureComponent<Props> {
+export default class Column extends React.PureComponent<Props> {
 
     render(): Node {
-        const {x} = this.props;
-        const {y} = this.props;
+        const {x, y, color, series} = this.props.scales;
+        const {padding = 0.1} = this.props;
 
-        let dimension = x;
-        let metric = y;
-        let column = true;
+        return <g className="Column">{series.items.map((columnSet, index) => {
+            x.scale = scaleBand(x.scale.domain(), x.scale.range()).padding(padding);
 
-        if(y.scale.bandwidth) {
-            column = false;
-            dimension = y;
-            metric = x;
-        }
+            return columnSet.map((item, columnIndex) => {
+                const fill = color.scaleRow(item);
+                const xValue = x.scale(x.get(item));
 
-        return <g>{this.renderColumnSet({
-            dimension,
-            metric,
-            column
+                console.log(y);
+                let yValue, height;
+                if(series.stack) {
+                    let previousItem = columnSet[columnIndex - 1];
+                    console.log(
+                        previousItem ? y.scaleRow(previousItem) : y.range[0],
+                        y.scaleRow(item)
+                    );
+
+                    [yValue, height] = safeRect(
+                        previousItem ? y.scaleRow(previousItem) : y.range[0],
+                        y.scaleRow(item)
+                    );
+                } else {
+                    [yValue, height] = safeRect(y.range[0], y.scaleRow(item));
+                }
+
+                //console.log(y);
+                //console.log(item, columnSet[columnIndex -1]);
+                //const [yValue, height] = safeRect(
+                    //y.stack ? y.scale(y.get(columnSet[columnIndex - 1] || item)) : y.range[0],
+                    //y.scale(y.get(item))
+                //);
+                return <rect
+                    key={index + '-' + columnIndex}
+                    fill={fill}
+                    x={xValue}
+                    y={yValue}
+                    width={x.scale.bandwidth()}
+                    height={height}
+                />;
+            });
         })}</g>;
     }
 

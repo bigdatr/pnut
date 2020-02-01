@@ -51,7 +51,6 @@ export default class Line extends React.PureComponent<Props> {
     }
 
     renderPath({series, key, generator, area, color}) {
-        console.log({d: generator(series)});
         return <path
             key={key}
             d={generator(series)}

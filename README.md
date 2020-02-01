@@ -15,8 +15,6 @@ See [Contributing](/CONTRIBUTING.md) for contribution guidelines.
 ## TODO
 * Line - Area
 * Line - Area Stacking
-* Scatter
-* Color
 * Column
 * Axis
 * Tooltip

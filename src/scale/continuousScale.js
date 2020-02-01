@@ -27,9 +27,11 @@ export type ContinuousScale = {
 
 export default function continuousScale<Data: Data[]>(config: ScaleConfig<Data>): Function {
     const {column} = config;
-    const {data} = config;
+    const {series} = config;
     const {zero = false} = config;
     const {range = []} = config;
+
+    const data = series.items.flat();
 
     const isNumber = data.every(ii => typeof ii[column] === 'number' || ii[column] == null);
     const isDate = data.every(ii => ChartData.isValueDate(ii[column]));
@@ -44,10 +46,14 @@ export default function continuousScale<Data: Data[]>(config: ScaleConfig<Data>)
         array.max(data, value)
     ];
 
+    const scale = d3Scale[scaleName]().domain(domainArray).range(range);
+    const get = x => x[column];
+
     return {
         type: 'continuous',
-        scale: d3Scale[scaleName]().domain(domainArray).range(range),
-        get: x => x[column],
+        scale,
+        get,
+        scaleRow: (row) => scale(get(row)),
         range,
         column,
         zero,

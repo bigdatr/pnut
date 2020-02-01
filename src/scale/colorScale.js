@@ -26,7 +26,7 @@ export type ColorScale = {
 
 
 export default function colorScale<Data: Data[]>(config: ScaleConfig<Data>): Function {
-    const {interpolate, range, column, data} = config;
+    const {interpolate, range, column} = config;
     let scale;
 
     if(interpolate) {
@@ -37,11 +37,14 @@ export default function colorScale<Data: Data[]>(config: ScaleConfig<Data>): Fun
         scale = baseScale.range(range);
     }
 
+    const get = (row) => row[column];
+
 
     return {
         type: 'color',
-        get: (row) => row[column],
-        scale
+        get,
+        scale,
+        scaleRow: (row) => scale(get(row))
     };
 
 }
