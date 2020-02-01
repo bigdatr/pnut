@@ -25,7 +25,7 @@ export type ContinuousScale = {
 };
 
 
-export default function createScale<Data: Data[]>(config: ScaleConfig<Data>): Function {
+export default function continuousScale<Data: Data[]>(config: ScaleConfig<Data>): Function {
     const {column} = config;
     const {data} = config;
     const {zero = false} = config;
@@ -47,6 +47,7 @@ export default function createScale<Data: Data[]>(config: ScaleConfig<Data>): Fu
     return {
         type: 'continuous',
         scale: d3Scale[scaleName]().domain(domainArray).range(range),
+        get: x => x[column],
         range,
         column,
         zero,

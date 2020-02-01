@@ -4,8 +4,7 @@ import * as d3Scale from 'd3-scale';
 type ScaleConfig<Data> = {
     column: string,
     data: Data,
-    range: [number, number],
-    padding?: number
+    range: [number, number]
 };
 
 export type CategoricalScale = {
@@ -17,7 +16,6 @@ export type CategoricalScale = {
 export default function categoricalScale<Data>(config: ScaleConfig<Data>): CategoricalScale {
     const {column} = config;
     const {data} = config;
-    const {padding = 0.1} = config;
     const {range = []} = config;
 
     const domain = new Set();
@@ -26,8 +24,8 @@ export default function categoricalScale<Data>(config: ScaleConfig<Data>): Categ
     return {
         type: 'categorical',
         column,
-        scale: d3Scale.bandScale()
-            .padding(padding)
+        get: (item) => item[column],
+        scale: d3Scale.scaleOrdinal()
             .domain([...domain])
             .range(range)
     };

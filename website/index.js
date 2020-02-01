@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {interpolateViridis} from 'd3-scale-chromatic';
 
 import Line from '../src/component/canvas/Line';
 import Scatter from '../src/component/canvas/Scatter';
@@ -14,6 +15,8 @@ import groupedSeries from '../src/series/groupedSeries';
 import {stack} from '../src/series/groupedSeries';
 
 import continuousScale from '../src/scale/continuousScale';
+import categoricalScale from '../src/scale/categoricalScale';
+import colorScale from '../src/scale/colorScale';
 
 
 
@@ -37,6 +40,9 @@ function App() {
     const height = 400;
     const x = continuousScale({data, column: 'date', range: [0, width]});
     const y = continuousScale({data, column: 'spend', range: [height, 0]});
+    const radius = continuousScale({data, column: 'spend', range: [0, 10]});
+    const color = colorScale({data, column: 'type', range: ['#ff1122aa', '#2211ffaa']});
+    //const color = colorScale({data, column: 'spend', interpolate: interpolateViridis});
 
     const series = groupedSeries({
         data,
@@ -46,9 +52,12 @@ function App() {
 
     console.log(series);
 
+    const scales = {x, y, radius, color, series};
+
 
     return <Svg style={{border: '1px solid'}} width={width} height={height}>
-        <Line scales={{x,y, series}} />
+        <Line scales={scales} />
+        <Scatter scales={scales} />
     </Svg>;
 
     //const x = useStacked({data, columns: ['foo'], range});
