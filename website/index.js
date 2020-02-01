@@ -72,9 +72,9 @@ function App() {
     };
 
 
+        //<Column scales={columnScales} />
     return <Svg style={{border: '1px solid'}} width={width} height={height}>
-        <Column scales={columnScales} />
-        <Line scales={scales} />
+        <Line area={true} scales={scales} />
         <Scatter scales={scales} />
     </Svg>;
 }

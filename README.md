@@ -13,13 +13,12 @@ See [Contributing](/CONTRIBUTING.md) for contribution guidelines.
 
 
 ## TODO
-* Line - Area
-* Line - Area Stacking
 * Axis
 * Tooltip
 * Bar
 * Histogram
 * Binning
+* series y movement
 
 
 ## Scales

@@ -22,38 +22,54 @@ type Props = {
 
 export default class Line extends React.PureComponent<Props> {
     render(): Node {
-        const {x, y, series} = this.props.scales;
+        const {x, y, color, series} = this.props.scales;
         const {area} = this.props;
         const {stack} = series;
         const {curve = shape => shape.curveLinear} = series;
         const {column} = series;
 
-        const getX = (row) => x.scale(row[column]);
         const getY0 = (row) => y.scale(stack ? row[column][0] : y.range[0]);
         const getY1 = (row) => y.scale(stack ? row[column][1] : row[column]);
         const isDefined = (value) => typeof value === 'number' && !isNaN(value);
 
 
         let generator = area
-            ? d3Shape.area().y0(getY0).y1(getY1)
+            ? d3Shape.area()
+                .x(x.scaleRow)
+                .y0((_, index, {seriesIndex}) => {
+                    if(!stack || seriesIndex === 0) return y.range[0];
+                    return y.scaleRow(series.items[seriesIndex - 1][index]);
+                })
+                .y1(y.scaleRow)
+                .defined(row => isDefined(y.get(row)))
+                .curve(curve(d3Shape))
             : d3Shape.line()
-                .x(row => x.scale(row[x.column]))
-                .y(row => y.scale(row[y.column]))
-                .defined(row => isDefined(row[y.column]))
+                .x(x.scaleRow)
+                .y(y.scaleRow)
+                .defined(row => isDefined(y.get(row)))
                 .curve(curve(d3Shape))
         ;
 
 
         return <g className="Line">
-            {[].concat(series.items)
-                .map((series, key) => this.renderPath({series, key, generator, area, color: '#ccc'}))}
+            {series.items.map((series, key) => {
+                // we need to bind the current seriesIndex
+                // to our array for use in y0
+                series.seriesIndex = key;
+                return this.renderPath({
+                    key,
+                    d: generator(series),
+                    area,
+                    color: color.scaleRow(series[0])
+                });
+            })}
         </g>;
     }
 
-    renderPath({series, key, generator, area, color}) {
+    renderPath({d, key, area, color}) {
         return <path
             key={key}
-            d={generator(series)}
+            d={d}
             fill={area ? color : 'none'}
             stroke={area ? 'none' : color}
         />;
