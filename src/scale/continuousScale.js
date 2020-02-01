@@ -4,6 +4,7 @@ import type {Scale} from '../definitions';
 import ChartData from '../chartdata/ChartData';
 import * as d3Scale from 'd3-scale';
 import * as array from 'd3-array';
+import sortBy from 'unmutable/sortBy';
 
 
 type ScaleConfig<Data> = {
@@ -54,6 +55,13 @@ export default function continuousScale<Data: Data[]>(config: ScaleConfig<Data>)
         scale,
         get,
         scaleRow: (row) => scale(get(row)),
+        invert: (value, smallSet) => {
+            const inverted = scale.invert(value);
+            const sorted = sortBy(get)(smallSet || data);
+            const bisect = array.bisector(get);
+            const index = bisect.right(sorted, inverted);
+            return sorted[Math.max(0, index - 1)];
+        },
         range,
         column,
         zero,

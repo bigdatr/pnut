@@ -10,6 +10,7 @@ import Axis from '../src/component/canvas/Axis';
 import ChartData from '../src/chartdata/ChartData';
 import Chart from '../src/component/Chart';
 import Svg from '../src/component/Svg';
+import Interaction from '../src/component/Interaction';
 
 import groupedSeries from '../src/series/groupedSeries';
 import {stack} from '../src/series/groupedSeries';
@@ -52,7 +53,7 @@ function App() {
         process: stack({column: 'spend', type: 'outer'})
     });
 
-    console.log({columnSeries, series});
+    //console.log({columnSeries, series});
 
     const x = continuousScale({series, column: 'date', range: [0, width]});
     const y = continuousScale({series, column: 'spend', range: [height, 0]});
@@ -76,6 +77,7 @@ function App() {
     return <Svg style={{border: '1px solid'}} width={width} height={height}>
         <Line area={true} scales={scales} />
         <Scatter scales={scales} />
+        <Interaction scales={scales} width={width} height={height} />
     </Svg>;
 }
 
