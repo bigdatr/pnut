@@ -23,14 +23,15 @@ import colorScale from '../src/scale/colorScale';
 
 const data = [
     {spend: 0, type: 'foo', date: new Date('1970-01-01')},
-    {spend: 10, type: 'bar', date: new Date('1970-01-01')},
     {spend: 20, type: 'foo', date: new Date('1970-01-02')},
-    {spend: 30, type: 'bar', date: new Date('1970-01-02')},
     {spend: 40, type: 'foo', date: new Date('1970-01-03')},
-    {spend: null, type: 'bar', date: new Date('1970-01-03')},
     {spend: 70, type: 'foo', date: new Date('1970-01-04')},
-    {spend: 80, type: 'bar', date: new Date('1970-01-04')},
     {spend: 90, type: 'foo', date: new Date('1970-01-05')},
+
+    {spend: 10, type: 'bar', date: new Date('1970-01-01')},
+    {spend: 30, type: 'bar', date: new Date('1970-01-02')},
+    {spend: null, type: 'bar', date: new Date('1970-01-03')},
+    {spend: 80, type: 'bar', date: new Date('1970-01-04')},
     {spend: 100, type: 'bar', date: new Date('1970-01-05')},
 ];
 
@@ -51,24 +52,30 @@ function App() {
         process: stack({column: 'spend', type: 'outer'})
     });
 
-    console.log(series);
+    console.log({columnSeries, series});
 
     const x = continuousScale({series, column: 'date', range: [0, width]});
     const y = continuousScale({series, column: 'spend', range: [height, 0]});
-    const xColumns = categoricalScale({series: columnSeries, column: 'date', range: [0, width]});
-    const radius = continuousScale({series, column: 'spend', range: [0, 10]});
-    //const color = colorScale({series, column: 'type', range: ['#ff1122aa', '#2211ffaa']});
-    const color = colorScale({series, column: 'spend', interpolate: interpolateViridis});
+    const xColumns = categoricalScale({series, column: 'date', range: [0, width]});
+    const radius = continuousScale({series, column: 'spend', range: [3, 3]});
+    const color = colorScale({series, column: 'type', range: ['#ff1122aa', '#2211ffaa']});
+    //const color = colorScale({series, column: 'spend', interpolate: interpolateViridis});
 
 
 
     const scales = {x, y, radius, color, series};
+    const columnScales = {
+        color,
+        x: xColumns,
+        y,
+        series: columnSeries
+    };
 
 
     return <Svg style={{border: '1px solid'}} width={width} height={height}>
+        <Column scales={columnScales} />
         <Line scales={scales} />
         <Scatter scales={scales} />
-        <Column scales={{x: xColumns, y, color, series: columnSeries}} />
     </Svg>;
 }
 

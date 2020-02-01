@@ -43,14 +43,13 @@ export default class Column extends React.PureComponent<Props> {
                 const fill = color.scaleRow(item);
                 const xValue = x.scale(x.get(item));
 
-                console.log(y);
                 let yValue, height;
                 if(series.stack) {
-                    let previousItem = columnSet[columnIndex - 1];
-                    console.log(
-                        previousItem ? y.scaleRow(previousItem) : y.range[0],
-                        y.scaleRow(item)
-                    );
+                    const previousSeries = series.items[index - 1];
+                    // @todo this complex series y movement should be put somewhere else
+                    let previousItem = series.stackType === 'outer'
+                        ? previousSeries && previousSeries[columnIndex]
+                        : columnSet[columnIndex - 1];
 
                     [yValue, height] = safeRect(
                         previousItem ? y.scaleRow(previousItem) : y.range[0],
@@ -60,12 +59,6 @@ export default class Column extends React.PureComponent<Props> {
                     [yValue, height] = safeRect(y.range[0], y.scaleRow(item));
                 }
 
-                //console.log(y);
-                //console.log(item, columnSet[columnIndex -1]);
-                //const [yValue, height] = safeRect(
-                    //y.stack ? y.scale(y.get(columnSet[columnIndex - 1] || item)) : y.range[0],
-                    //y.scale(y.get(item))
-                //);
                 return <rect
                     key={index + '-' + columnIndex}
                     fill={fill}
@@ -78,40 +71,6 @@ export default class Column extends React.PureComponent<Props> {
         })}</g>;
     }
 
-    renderColumnSet({dimension, metric, column}: Object): Node {
-        const {stack} = metric;
-        const bandwidth = dimension.scale.bandwidth && dimension.scale.bandwidth();
-        const {color} = this.props;
-        const {column: Column = DefaultColumn} = this.props;
-
-        return dimension.scaledData[0].map((dData, dIndex) => {
-            return metric.scaledData.map((mData, mIndex) => {
-                const pair = mData[dIndex];
-                const mm0 = stack ? pair[0] : metric.range[0];
-                const mm1 = stack ? pair[1] : pair[0];
-                const dd = dData[0];
-                if(!isNumber(mm0) || !isNumber(mm1) || !isNumber(dd)) return null;
-
-                const span = dimension.scaledData.length > 1
-                    ? dimension.scaledData[1][dIndex] - dimension.scaledData[0][dIndex]
-                    : bandwidth;
-                const {y, height} = safeRect(mm0, mm1);
-
-
-                return <Column
-                    color={color[metric.scaledData.length > 1 ? mIndex : dIndex]}
-                    position={{
-                        key: `$dIndex.$mIndex`,
-                        x: column ? dd :  y,
-                        y: column ? y :  dd,
-                        height: column ? height :  span,
-                        width: column ? span :  height
-                    }}
-                />;
-
-            });
-        });
-    }
 }
 
 

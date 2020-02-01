@@ -31,6 +31,8 @@ export function stack(config) {
     const {type} = config;
     return (rootSeries) => {
         rootSeries.stack = true;
+        rootSeries.stackType = type;
+        let lastItem;
         rootSeries.items = mapSeries(rootSeries, (rr, key, {index, seriesIndex, series}) => {
             let row = Object.assign({}, rr);
 
@@ -40,9 +42,10 @@ export function stack(config) {
                 }
             } else {
                 if(index > 0) {
-                    row[column] = row[column] + series[index - 1][column];
+                    row[column] = row[column] + lastItem[column];
                 }
             }
+            lastItem = row;
             return row;
         });
         return rootSeries;
