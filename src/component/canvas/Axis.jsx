@@ -10,7 +10,7 @@ import {max} from 'd3-array';
 
 function DefaultAxisLine(props: {position: LinePosition}): Node {
     return <line
-        stroke='#ccc'
+        stroke='currentColor'
         strokeWidth={1}
         {...props.position}
     />;
@@ -18,14 +18,14 @@ function DefaultAxisLine(props: {position: LinePosition}): Node {
 
 function DefaultTick(props: {position: LinePosition}): Node {
     return <line
-        stroke='#ccc'
+        stroke='black'
         {...props.position}
     />;
 }
 
 function DefaultText(props: {position: TextPosition}): Node {
     return <text
-        fontSize={12}
+        fontSize={10}
         stroke="none"
         {...props.position}
     />;
@@ -72,10 +72,7 @@ export default class AxisRenderable extends React.PureComponent<Props> {
 
     dimension(): DimensionKey {
         const {position} = this.props;
-        return (position === 'top' || position === 'bottom')
-            ? 'x'
-            : 'y'
-        ;
+        return (position === 'top' || position === 'bottom') ? 'x' : 'y';
     }
 
     drawTicks(): Array<Node> {
@@ -90,7 +87,7 @@ export default class AxisRenderable extends React.PureComponent<Props> {
 
         const dimension = this.dimension();
         const {textFormat} = this.props;
-        const {x, y} = this.props;
+        const {x, y} = this.props.scales;
         const {ticks} = this.props;
         const scale = dimension === 'x' ? x.scale : y.scale;
 
@@ -175,13 +172,13 @@ export default class AxisRenderable extends React.PureComponent<Props> {
     }
 
     getLength(): number {
-        return max(this.props[this.dimension()].range);
+        return max(this.props.scales[this.dimension()].range);
     }
 
     getPointPosition(position: Position, distance: number, offset: number): Array<number> {
         let locationValue = 0;
         let {location} = this.props;
-        const {x, y} = this.props;
+        const {x, y} = this.props.scales;
         const dimension = this.dimension();
         const width = max(x.range);
         const height = max(y.range);

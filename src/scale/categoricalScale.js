@@ -32,6 +32,7 @@ export default function categoricalScale<Data>(config: ScaleConfig<Data>): Categ
         type: 'categorical',
         column,
         get,
+        range,
         invert: (value) => {
             const inverted = scale.invert(value);
             const sorted = sortBy(get)(data);

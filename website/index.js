@@ -18,6 +18,7 @@ import {stack} from '../src/series/groupedSeries';
 import continuousScale from '../src/scale/continuousScale';
 import categoricalScale from '../src/scale/categoricalScale';
 import colorScale from '../src/scale/colorScale';
+import {timeFormat} from 'd3-time-format';
 
 
 
@@ -36,10 +37,18 @@ const data = [
     {spend: 100, type: 'bar', date: new Date('1970-01-05')},
 ];
 
+function dimensions(pp = {}) {
+    const {width = 0, height = 0, top = 0, bottom = 0, left = 0, right = 0} = pp;
+    return {
+        width: width - left - right,
+        height: height - top - bottom,
+        padding: {bottom, top, left, right}
+    };
+};
 
 function App() {
-    const width = 600;
-    const height = 400;
+
+    const {width, height, padding} = dimensions({width: 600, height: 400, left: 50, bottom: 50});
 
     const columnSeries = groupedSeries({
         data,
@@ -64,7 +73,7 @@ function App() {
 
 
 
-    const scales = {x, y, radius, color, series};
+    const scales = {x: xColumns, y, radius, color, series};
     const columnScales = {
         color,
         x: xColumns,
@@ -73,12 +82,14 @@ function App() {
     };
 
 
-        //<Column scales={columnScales} />
-    return <Svg style={{border: '1px solid'}} width={width} height={height}>
-        <Line area={true} scales={scales} />
+        //<Line area={true} scales={scales} />
+        //<Line scales={scales} />
+    return <Chart padding={padding} width={width} height={height} style={{fontFamily: 'sans-serif'}}>
+        <Column scales={columnScales} />
+        <Axis scales={columnScales} position="bottom" textFormat={timeFormat('%x')} />
+        <Axis scales={scales} position="left" />
         <Scatter scales={scales} />
-        <Interaction scales={scales} width={width} height={height} />
-    </Svg>;
+    </Chart>;
 }
 
 
