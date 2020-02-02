@@ -2,25 +2,59 @@
 import React, {useEffect, useState} from 'react';
 import useMousePosition from '@react-hook/mouse-position';
 
-type Props = {
+type Props<A> = {
     scales: {
         x: ContinuousScale|CategoricalScale,
         y: ContinuousScale|CategoricalScale
     },
     height: number,
-    width: number
+    width: number,
+    fps?: number,
+    children: ({
+        nearestRow: A,
+        position: {
+            x: number,
+            y: number,
+            pageX: number,
+            pageY: number,
+            clientX: number,
+            clientY: number,
+            screenX: number,
+            screenY: number,
+            elementWidth: number,
+            elementHeight: number,
+            isOver: boolean,
+            isDown: boolean
+        },
+        items: Array<A>
+    }) => Node
 };
-export default function Interaction(props: Props) {
-    const [items, setItems] = useState([]);
-    const [position, ref] = useMousePosition(0, 0, 5);
+export default function Interaction<A>(props: Props<A>) {
+    const [item, setItem] = useState(null);
+    const [position, ref] = useMousePosition(0, 0, props.fps || 60);
     const {width, height} = props;
-    const {x, y, series} = props.scales;
+    const {x, y} = props.scales;
+    const {children = () => null} = props;
 
     useEffect(() => {
-        const xValue = x.invert(position.x);
-        const possibleY = series.data.filter(ii => x.get(ii).getTime() === x.get(xValue).getTime());
-        const yValue = y.invert(position.y, possibleY);
-        console.log(yValue);
+        const xValues = x.invert(position.x);
+
+        const yValue = y.scale.invert(position.y);
+        const nearestValue = xValues.map(y.get).reduce((prev, curr) => Math.abs(curr - yValue) < Math.abs(prev - yValue) ? curr : prev);
+        const nearestRow = xValues.find(row => y.get(row) === nearestValue);
+
+        const nextValue = {
+            position,
+            nearestRow,
+            items: xValues.map(row => ({
+                x: x.scaleRow(row),
+                y: y.scaleRow(row),
+                row
+            }))
+        };
+
+        props.onChange && props.onChange(nextValue);
+        setItem(nextValue);
     }, [position]);
 
     //const ref = null;
@@ -33,5 +67,6 @@ export default function Interaction(props: Props) {
             stroke='none'
             fill='rgba(0,0,0,0)'
         />
+        {item && children(item)}
     </g>
 }

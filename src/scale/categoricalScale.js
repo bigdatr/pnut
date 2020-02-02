@@ -1,7 +1,6 @@
 // @flow
-import * as d3Scale from 'd3-scale';
-import * as array from 'd3-array';
-import sortBy from 'unmutable/sortBy';
+import {scaleOrdinal, scaleQuantize} from 'd3-scale';
+import baseScale from './baseScale';
 
 type ScaleConfig<Data> = {
     column: string,
@@ -23,25 +22,15 @@ export default function categoricalScale<Data>(config: ScaleConfig<Data>): Categ
 
     const domain = new Set();
     data.forEach(item => domain.add(item[column]));
-    const get = (item) => item[column];
-    const scale = d3Scale.scaleOrdinal().domain([...domain]).range(range);
-    const invertedScale = d3Scale.scaleQuantize().domain(scale.range()).range(scale.domain());
-    scale.invert = invertedScale;
+    const scale = scaleOrdinal().domain([...domain]).range(range);
+    // make sure the inverted base scale is quantized to the original domains
+    scale.invert = scaleQuantize().domain(scale.range()).range(scale.domain());
 
-    return {
+
+    return baseScale({
+        ...config,
         type: 'categorical',
-        column,
-        get,
-        range,
-        invert: (value) => {
-            const inverted = scale.invert(value);
-            const sorted = sortBy(get)(data);
-            const bisect = array.bisector(get);
-            const index = bisect.right(sorted, inverted);
-            return sorted[Math.max(0, index - 1)];
-        },
-        scale,
-        scaleRow: (row) => scale(get(row))
-    };
+        scale
+    });
 
 }

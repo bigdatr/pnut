@@ -10,7 +10,8 @@ type Props = {
     scales: {
         x: ContinuousScale,
         y: ContinuousScale,
-        series: GroupedSeries|SingleSeries
+        series: GroupedSeries|SingleSeries,
+        color: ColorScale
     },
     x: Dimension,
     y: Dimension,
@@ -25,11 +26,7 @@ export default class Line extends React.PureComponent<Props> {
         const {x, y, color, series} = this.props.scales;
         const {area} = this.props;
         const {stack} = series;
-        const {curve = shape => shape.curveLinear} = series;
-        const {column} = series;
-
-        const getY0 = (row) => y.scale(stack ? row[column][0] : y.range[0]);
-        const getY1 = (row) => y.scale(stack ? row[column][1] : row[column]);
+        const {curve = shape => shape.curveLinear} = this.props;
         const isDefined = (value) => typeof value === 'number' && !isNaN(value);
 
 

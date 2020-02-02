@@ -1,21 +1,5 @@
-import {ChartData} from 'pnut';
 
-const columns = [
-    {
-        key: 'supply',
-        label: 'Supply'
-    },
-    {
-        key: 'demand',
-        label: 'Demand'
-    },
-    {
-        key: 'month',
-        label: 'Month'
-    }
-];
-
-const rows = [
+export default [
     {
         month: new Date("2014-01-01"),
         supply: 123605,
@@ -199,4 +183,3 @@ const rows = [
 ];
 
 
-export default new ChartData(rows, columns);
