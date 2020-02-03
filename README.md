@@ -13,7 +13,6 @@ See [Contributing](/CONTRIBUTING.md) for contribution guidelines.
 
 
 ## TODO
-* Tooltip
 * Bar
 * Histogram
 * Binning
