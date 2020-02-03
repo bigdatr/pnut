@@ -91,6 +91,9 @@ export default class AxisRenderable extends React.PureComponent<Props> {
         const {ticks} = this.props;
         const scale = dimension === 'x' ? x.scale : y.scale;
 
+
+        const ii = 1;
+
         const offset = scale.bandwidth ? scale.bandwidth() / 2 : 0;
 
         return ticks(scale)
@@ -101,11 +104,14 @@ export default class AxisRenderable extends React.PureComponent<Props> {
                 const [x1, y1] = this.getPointPosition(position, distance, axisLineWidth / 2);
                 const [x2, y2] = this.getPointPosition(position, distance, axisLineWidth / 2 + tickSize);
 
+
                 const [textX, textY] = this.getPointPosition(
                     position,
                     distance,
                     axisLineWidth / 2 + tickSize + textPadding
                 );
+
+                //console.log({value: scale(tick), tick});
 
                 const tickLineProps = {
                     axisPosition: position,
@@ -146,16 +152,9 @@ export default class AxisRenderable extends React.PureComponent<Props> {
     }
 
     getAlignmentBaselineProp(position: Position): string {
-        switch(position) {
-            case 'left':
-            case 'right':
-                return 'middle';
-            case 'top':
-                return 'auto';
-            case 'bottom':
-            default:
-                return 'hanging';
-        }
+        if(position === 'left' || position === 'right') return 'middle';
+        if(position === 'top') return 'auto';
+        return 'hanging';
     }
 
     getTextAnchorProp(position: Position): string {

@@ -1,14 +1,9 @@
 // @flow
 import type {Node} from 'react';
-import type {ComponentType} from 'react';
-import type {Dimension} from '../../useScales';
 
 import React from 'react';
 import {scaleBand} from 'd3-scale';
 
-function isNumber(value): boolean %checks {
-    return typeof value === 'number' && !isNaN(value);
-}
 
 type Props = {
     scales: {
@@ -34,11 +29,9 @@ export default class Column extends React.PureComponent<Props> {
 
     render(): Node {
         const {x, y, color, series} = this.props.scales;
-        const {padding = 0.1} = this.props;
+        if(!x.scale.bandwidth) throw new Error('x scale must have padding for column charts');
 
         return <g className="Column">{series.items.map((columnSet, index) => {
-            x.scale = scaleBand(x.scale.domain(), x.scale.range()).padding(padding);
-
             return columnSet.map((item, columnIndex) => {
                 const fill = color.scaleRow(item);
                 const xValue = x.scale(x.get(item));
