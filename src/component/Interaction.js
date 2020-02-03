@@ -1,6 +1,7 @@
 // @flow
 import React, {useEffect, useState} from 'react';
 import useMousePosition from '@react-hook/mouse-position';
+import {bisectRight} from 'd3-array';
 
 type Props<A> = {
     scales: {
@@ -40,12 +41,18 @@ export default function Interaction<A>(props: Props<A>) {
         const xValues = x.invert(position.x);
 
         const yValue = y.scale.invert(position.y);
-        const nearestValue = xValues.map(y.get).reduce((prev, curr) => Math.abs(curr - yValue) < Math.abs(prev - yValue) ? curr : prev);
+        const yValues = xValues.map(y.get);
+        const nearestValue = yValues.reduce((prev, curr) => Math.abs(curr - yValue) < Math.abs(prev - yValue) ? curr : prev);
         const nearestRow = xValues.find(row => y.get(row) === nearestValue);
+
+        // use bisect to find the insertion index of the current y value
+        // this gives us the stepped value
+        const nearestRowStepped = xValues[bisectRight(yValues, yValue)];
 
         const nextValue = {
             position,
             nearestRow,
+            nearestRowStepped,
             items: xValues.map(row => ({
                 x: x.scaleRow(row),
                 y: y.scaleRow(row),

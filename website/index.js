@@ -24,11 +24,11 @@ import lineData from '../example/src/data/lineData';
 
 function App() {
 
-    const dd = dimensions({width: 600, height: 400, left: 50, bottom: 50});
+    const dd = dimensions({width: 800, height: 400, left: 50, bottom: 50});
 
     const data = lineData.flatMap(row => [
         {value: row.supply, type: 'supply', date: row.month},
-        {value: row.demand, type: 'demand', date: row.month},
+        {value: row.demand, type: 'demand', date: row.month}
     ]);
     //const columnSeries = groupedSeries({
         //data,
@@ -39,12 +39,14 @@ function App() {
     const series = groupedSeries({
         data,
         groupBy: x => x.type,
-        //process: stack({column: 'value', type: 'outer'})
+        process: stack({column: 'value', type: 'outer'})
+
+        //groupBy: x => x.date,
+        //process: stack({column: 'value', type: 'inner'})
     });
 
-    const x = continuousScale({series, column: 'date', range: [0, dd.width]});
+    const x = categoricalScale({series, column: 'date', padding: 0.1, range: [0, dd.width]});
     const y = continuousScale({series, column: 'value', zero: true, range: [dd.height, 0]});
-    //const xColumns = categoricalScale({series, column: 'date', range: [0, width]});
     const radius = continuousScale({series, column: 'value', range: [2, 10]});
     const color = colorScale({series, column: 'type', range: ['#ff1122aa', '#2211ffaa']});
     //const color = colorScale({series, column: 'type', interpolate: interpolateViridis});
@@ -54,16 +56,15 @@ function App() {
     const scales = {x, y, radius, color, series};
 
     return <Chart {...dd} style={{fontFamily: 'sans-serif'}}>
-        <Axis scales={scales} position="bottom" textFormat={timeFormat('%x')} />
-        <Axis scales={scales} position="left" />
-        <Line scales={scales} />
-        <Scatter scales={scales} />
+        <Axis scales={scales} position="bottom" textFormat={timeFormat('%b')} />
+        <Column scales={scales} />
         <Interaction scales={scales} {...dd} fps={60}>
-            {({items, position, nearestRow}) => {
+            {({items, position, nearestRow, nearestRowStepped}) => {
                 const absX = Math.abs(position.x - x.scaleRow(nearestRow));
                 const absY = Math.abs(position.y - y.scaleRow(nearestRow));
                 //console.log({absX, absY});
-                return absX < 10 & absY < 10 && <text x={position.x} y={position.y}>{nearestRow.type}: {nearestRow.value}</text>;
+                //return absX < 10 & absY < 10 && <text x={position.x} y={position.y}>{nearestRow.type}: {nearestRow.value}</text>;
+                return nearestRowStepped && <text x={position.x} y={position.y}>{nearestRowStepped.type}: {nearestRowStepped.value}</text>;
                 //return items.map(({x, y, row}) => <text key={row.value} x={x + 3} y={y - 3}>{row.type}: {row.value}</text>)
             }}
         </Interaction>
