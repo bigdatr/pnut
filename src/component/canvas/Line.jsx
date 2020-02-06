@@ -25,7 +25,6 @@ export default class Line extends React.PureComponent<Props> {
     render(): Node {
         const {x, y, color, series} = this.props.scales;
         const {area} = this.props;
-        const {stack} = series;
         const {curve = shape => shape.curveLinear} = this.props;
         const isDefined = (value) => typeof value === 'number' && !isNaN(value);
 
@@ -33,9 +32,9 @@ export default class Line extends React.PureComponent<Props> {
         let generator = area
             ? d3Shape.area()
                 .x(x.scaleRow)
-                .y0((_, index, {rowIndex}) => {
-                    if(!stack || seriesIndex === 0) return y.range[0];
-                    return y.scaleRow(series.items[rowIndex - 1][index]);
+                .y0((_, columnIndex, {rowIndex}) => {
+                    if(!series.preprocess.stacked || rowIndex === 0) return y.range[0];
+                    return y.scaleRow(series.get(rowIndex - 1, columnIndex));
                 })
                 .y1(y.scaleRow)
                 .defined(row => isDefined(y.get(row)))

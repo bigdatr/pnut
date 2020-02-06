@@ -38,22 +38,24 @@ function App() {
         ])
     ;
     const series = Series.group('type', 'month', data)
-        //.update(stack({key: 'value', type: 'columns'}))
-        .update(normalizeToPercentage({key: 'value'}))
+        .update(stack({key: 'value', type: 'columns'}))
+        //.update(normalizeToPercentage({key: 'value'}))
 
 
-    const x = categoricalScale({series, column: 'month', range: dd.xRange, padding: 0.1});
+    const x = continuousScale({series, column: 'month', range: dd.xRange});
     const y = continuousScale({series, column: 'value', range: dd.yRange});
-    const color = colorScale({series, column: 'type', range: ['#ff1111aa', '#1111ffaa', '#11ff11aa']});
+    const radius = continuousScale({series, column: 'value', range: [1,4]});
+    const color = colorScale({series, column: 'type', range: ['#ff1111', '#1111ff', '#11ff11']});
 
 
 
-    const scales = {x, y, color, series};
+    const scales = {x, y, radius, color, series};
 
     return <Chart {...dd} style={{fontFamily: 'sans-serif'}}>
         <Axis scales={scales} position="bottom" textFormat={timeFormat('%b')} />
         <Axis scales={scales} position="left" />
-        <Column scales={scales}  />
+        <Line scales={scales}  />
+        <Scatter scales={scales}  />
     </Chart>;
 }
 

@@ -10,6 +10,8 @@ import mapSeries from '../../util/mapSeries';
 const isNumber = (value) => typeof value === 'number' && !isNaN(value);
 
 type Props = {
+    stroke?: string,
+    strokeWidth?: string,
     scales: {
         x: ContinuousScale,
         y: ContinuousScale,
@@ -24,22 +26,24 @@ export default function Scatter(props: Props): Node {
     const {x, y, radius, color, series} = props.scales;
 
     return <g className="Scatter">
-        {mapSeries(series, (item, key) => {
-            const cx = x.scale(x.get(item));
-            const cy = y.scale(y.get(item));
-            const r = radius.scale(radius.get(item));
-            const fill = color.scale(color.get(item));
+        {series.rows.map((row, rowIndex) => {
+            return row.map((column, columnIndex) => {
+                const cx = x.scaleRow(column);
+                const cy = y.scaleRow(column);
+                const r = radius.scaleRow(column);
+                const fill = color.scaleRow(column);
 
-            if(!isNumber(cx) || !isNumber(cy) || !isNumber(r)) return null;
-            return <circle
-                key={key}
-                fill={fill || '#000'}
-                stroke={props.stroke}
-                strokeWidth={props.strokeWidth}
-                r={r}
-                cx={cx}
-                cy={cy}
-            />;
+                if(!isNumber(cx) || !isNumber(cy) || !isNumber(r)) return null;
+                return <circle
+                    key={`${rowIndex}-${columnIndex}`}
+                    fill={fill || '#000'}
+                    stroke={props.stroke}
+                    strokeWidth={props.strokeWidth}
+                    r={r}
+                    cx={cx}
+                    cy={cy}
+                />;
+            });
         })}
     </g>;
 }
