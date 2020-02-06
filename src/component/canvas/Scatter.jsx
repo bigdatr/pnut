@@ -34,6 +34,8 @@ export default function Scatter(props: Props): Node {
             return <circle
                 key={key}
                 fill={fill || '#000'}
+                stroke={props.stroke}
+                strokeWidth={props.strokeWidth}
                 r={r}
                 cx={cx}
                 cy={cy}

@@ -12,6 +12,7 @@ type ScaleConfig<Data> = {
     column: string,
     data: Data,
     zero?: boolean,
+    clamp?: boolean,
     updateScale?: Scale => Scale,
     range: [number, number]
 };
@@ -31,27 +32,31 @@ export default function continuousScale<Data: Data[]>(config: ScaleConfig<Data>)
     const {column} = config;
     const {series} = config;
     const {zero = false} = config;
+    const {clamp = true} = config;
     const {range = []} = config;
 
-    const data = series.items.flat();
+    const data = series.rows.flat();
     const isNumber = data.every(ii => typeof ii[column] === 'number' || ii[column] == null);
-    const isDate = data.every(ii => ChartData.isValueDate(ii[column]));
+    const isDate = data.every(ii => ChartData.isValueDate(ii[column]) || ii[column] == null);
     const get = (row) => row[column];
 
     if(!isNumber && !isDate) throw new Error('Continuous scales must be all numbers or all dates');
 
 
     const scaleName = isDate ? 'scaleTime' : 'scaleLinear';
-    const domainArray = [
+    let domainArray = [
         zero ? 0 : array.min(data, get),
         array.max(data, get)
     ];
 
-    const scale = d3Scale[scaleName]().domain(domainArray).range(range);
+    if(series.preprocess.normalizeToPercentage) domainArray = [0, 1];
+
+    const scale = d3Scale[scaleName]().domain(domainArray).range(range).clamp(clamp);
 
     return baseScale({
         ...config,
         type: 'continuous',
+        domain: domainArray,
         scale,
         zero,
         isNumber,

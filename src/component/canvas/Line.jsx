@@ -33,9 +33,9 @@ export default class Line extends React.PureComponent<Props> {
         let generator = area
             ? d3Shape.area()
                 .x(x.scaleRow)
-                .y0((_, index, {seriesIndex}) => {
+                .y0((_, index, {rowIndex}) => {
                     if(!stack || seriesIndex === 0) return y.range[0];
-                    return y.scaleRow(series.items[seriesIndex - 1][index]);
+                    return y.scaleRow(series.items[rowIndex - 1][index]);
                 })
                 .y1(y.scaleRow)
                 .defined(row => isDefined(y.get(row)))
@@ -49,26 +49,28 @@ export default class Line extends React.PureComponent<Props> {
 
 
         return <g className="Line">
-            {series.items.map((series, key) => {
+            {series.rows.map((row, key) => {
                 // we need to bind the current seriesIndex
                 // to our array for use in y0
-                series.seriesIndex = key;
+                row.rowIndex = key;
                 return this.renderPath({
                     key,
-                    d: generator(series),
+                    d: generator(row),
                     area,
-                    color: color.scaleRow(series[0])
+                    color: color.scaleRow(row[0])
                 });
             })}
         </g>;
     }
 
     renderPath({d, key, area, color}) {
+        const {strokeWidth = 2} = this.props;
         return <path
             key={key}
             d={d}
             fill={area ? color : 'none'}
             stroke={area ? 'none' : color}
+            strokeWidth={strokeWidth}
         />;
     }
 

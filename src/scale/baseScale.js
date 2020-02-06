@@ -8,7 +8,7 @@ export default function BaseScale(config) {
     const get = (row) => row && row[column];
     const scaleRow = (row) => scale(get(row));
     const invert = (value) => {
-        return series.items.map(rows => {
+        return series.rows.map(rows => {
             const inverted = scale.invert(value);
             const sorted = sortBy(get)(rows);
             const bisect = bisector(get);

@@ -34,7 +34,7 @@ export default function colorScale<Data: Data[]>(config: ScaleConfig<Data>): Fun
         scale = d3Scale.scaleSequential(interpolate).domain(baseScale.domain());
     } else {
         const baseScale = categoricalScale(config).scale;
-        scale = baseScale.range(range);
+        scale = baseScale.range(range || baseScale.domain());
     }
 
     const get = (row) => row[column];

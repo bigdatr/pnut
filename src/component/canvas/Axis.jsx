@@ -211,7 +211,7 @@ export default class AxisRenderable extends React.PureComponent<Props> {
     }
 
     render(): Node {
-        return <g>
+        return <g shapeRendering="crispedges">
             <g>{this.drawAxisLine()}</g>
             <g>{this.drawTicks()}</g>
         </g>;

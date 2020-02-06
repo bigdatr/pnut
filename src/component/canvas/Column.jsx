@@ -25,40 +25,51 @@ function safeRect(mm0, mm1) {
 }
 
 
+
 export default class Column extends React.PureComponent<Props> {
 
     render(): Node {
         const {x, y, color, series} = this.props.scales;
         if(!x.scale.bandwidth) throw new Error('x scale must have padding for column charts');
 
-        return <g className="Column">{series.items.map((columnSet, index) => {
-            return columnSet.map((item, columnIndex) => {
-                const fill = color.scaleRow(item);
-                const xValue = x.scale(x.get(item));
+        return <g className="Column">{series.rows.map((row, rowIndex) => {
+            return row.map((column, columnIndex) => {
+                const fill = color.scaleRow(column);
+                const xValue = x.scale(x.get(column));
+                let yValue, height, width, xOffset;
 
-                let yValue, height;
-                if(series.stack) {
-                    const previousSeries = series.items[index - 1];
-                    // @todo this complex series y movement should be put somewhere else
-                    let previousItem = series.stackType === 'outer'
-                        ? previousSeries && previousSeries[columnIndex]
-                        : columnSet[columnIndex - 1];
+                if(series.preprocess.stacked) {
+                    let previousItem = (series.preprocess.stackType === 'columns')
+                        ? series.get(rowIndex - 1, columnIndex)
+                        : series.get(rowIndex, columnIndex - 1)
+                    ;
 
-                    [yValue, height] = safeRect(
-                        previousItem ? y.scaleRow(previousItem) : y.range[0],
-                        y.scaleRow(item)
-                    );
+                    let bottom = (previousItem && y.get(previousItem) && rowIndex !== 0) ? y.scaleRow(previousItem) : y.range[0];
+                    let top = y.scaleRow(column);
+
+                    const rr = safeRect(bottom, top);
+                    width = x.scale.bandwidth();
+                    xOffset = 0;
+                    yValue = rr[0];
+                    height = rr[1];
                 } else {
-                    [yValue, height] = safeRect(y.range[0], y.scaleRow(item));
+                    const rr = safeRect(y.range[0], y.scaleRow(column));
+                    yValue = rr[0];
+                    height = rr[0];
+                    width = x.scale.bandwidth() / series.rows.length;
+                    xOffset = width * rowIndex;
                 }
 
                 return <rect
-                    key={index + '-' + columnIndex}
+                    key={rowIndex + '-' + columnIndex}
                     fill={fill}
-                    x={xValue}
+                    x={xValue + xOffset}
                     y={yValue}
-                    width={x.scale.bandwidth()}
+                    width={width}
                     height={height}
+                    stroke={this.props.stroke}
+                    strokeWidth={this.props.strokeWidth}
+                    shapeRendering="crispedges"
                 />;
             });
         })}</g>;

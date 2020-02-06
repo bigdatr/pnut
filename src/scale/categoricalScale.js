@@ -19,7 +19,7 @@ export default function categoricalScale<Data>(config: ScaleConfig<Data>): Categ
     const {series} = config;
     const {padding} = config;
     const {range = []} = config;
-    const data = series.items.flat();
+    const data = series.rows.flat();
 
     // create the domain from unique values
     const domain = new Set();
