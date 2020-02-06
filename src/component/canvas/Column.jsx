@@ -55,7 +55,7 @@ export default class Column extends React.PureComponent<Props> {
                 } else {
                     const rr = safeRect(y.range[0], y.scaleRow(column));
                     yValue = rr[0];
-                    height = rr[0];
+                    height = rr[1];
                     width = x.scale.bandwidth() / series.rows.length;
                     xOffset = width * rowIndex;
                 }

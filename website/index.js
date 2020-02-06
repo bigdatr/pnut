@@ -16,6 +16,7 @@ import Series from '../src/series/Series';
 import flatSeries from '../src/series/flatSeries';
 import stack from '../src/process/stack';
 import normalizeToPercentage from '../src/process/normalizeToPercentage';
+import binLongTail from '../src/process/binLongTail';
 
 import continuousScale from '../src/scale/continuousScale';
 import categoricalScale from '../src/scale/categoricalScale';
@@ -32,20 +33,37 @@ function App() {
 
     const data = lineData
         .flatMap(row => [
-            {value: row.supply, type: 'supply', month: row.month},
-            {value: row.supply, type: 'other', month: row.month},
-            {value: row.demand, type: 'demand', month: row.month},
+            {value: row.supply, type: 'supply', color: 'blue', month: row.month},
+            {value: row.supply * Math.random(), type: 'thing', color: 'green', month: row.month},
+            {value: row.supply * Math.random(), type: 'thing2', color: 'magenta', month: row.month},
+            {value: row.supply * Math.random(), type: 'thing3', color: 'orange', month: row.month},
+            {value: row.supply * Math.random(), type: 'thing4', color: 'cyan', month: row.month},
+            {value: row.supply * Math.random(), type: 'thing5', color: 'yellow', month: row.month},
+            {value: row.demand, type: 'demand', color: 'red', month: row.month},
         ])
     ;
     const series = Series.group('type', 'month', data)
-        .update(stack({key: 'value', type: 'columns'}))
         //.update(normalizeToPercentage({key: 'value'}))
+        .update(binLongTail({
+            key: 'value',
+            threshold: 0.1,
+            accumulate: (rows) => {
+                let row = Object.assign({}, rows[0]);
+                row.color = '#ccc';
+                row.value = rows.reduce((rr, ii) => rr + ii.value, 0);
+                row.type = 'other';
+                row.binnedRows = rows;
+                //console.log(row);
+                return row;
+            }
+        }))
+        .update(stack({key: 'value', type: 'columns'}))
 
 
-    const x = continuousScale({series, column: 'month', range: dd.xRange});
+    const x = categoricalScale({series, column: 'month', range: dd.xRange, padding: 0.5});
     const y = continuousScale({series, column: 'value', range: dd.yRange});
     const radius = continuousScale({series, column: 'value', range: [1,4]});
-    const color = colorScale({series, column: 'type', range: ['#ff1111', '#1111ff', '#11ff11']});
+    const color = colorScale({series, column: 'color'});
 
 
 
@@ -54,8 +72,7 @@ function App() {
     return <Chart {...dd} style={{fontFamily: 'sans-serif'}}>
         <Axis scales={scales} position="bottom" textFormat={timeFormat('%b')} />
         <Axis scales={scales} position="left" />
-        <Line scales={scales}  />
-        <Scatter scales={scales}  />
+        <Column scales={scales}  />
     </Chart>;
 }
 
