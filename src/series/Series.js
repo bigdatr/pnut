@@ -1,6 +1,5 @@
 // @flow
 import groupBy from 'unmutable/groupBy';
-import sortBy from 'unmutable/sortBy';
 import pipeWith from 'unmutable/pipeWith';
 import map from 'unmutable/map';
 import toArray from 'unmutable/toArray';
@@ -8,21 +7,21 @@ import get from 'unmutable/get';
 import getIn from 'unmutable/getIn';
 
 type SeriesConfig<A> = {
-    rows: Array<Array<A>>,
+    groups: Array<Array<A>>,
     rawData: Array<A>,
     type: string,
-    rowKey: string,
-    columnKey: string,
+    groupKey: string,
+    pointKey: string,
     preprocess: Object
 };
 
 export default class Series<A> {
     constructor(config: SeriesConfig<A>) {
         this.rawData = config.rawData;
-        this.rows = config.rows;
+        this.groups = config.groups;
         this.type = config.type;
-        this.rowKey = config.rowKey;
-        this.columnKey = config.columnKey;
+        this.groupKey = config.groupKey;
+        this.pointKey = config.pointKey;
         this.preprocess = config.preprocess || {};
     }
 
@@ -30,33 +29,33 @@ export default class Series<A> {
         return new Series(config);
     }
 
-    static group(rowKey: string, columnKey: string, rawData: A[][]): Series<A> {
-        const baseRow = new Map();
+    static group(groupKey: string, pointKey: string, rawData: A[][]): Series<A> {
+        const baseGroup = new Map();
 
         rawData.forEach(item => {
-            const columnValue = get(columnKey)(item);
-            baseRow.set(String(columnValue), {[columnKey]: columnValue});
+            const pointValue = get(pointKey)(item);
+            baseGroup.set(String(pointValue), {[pointKey]: pointValue});
         });
 
-        const rows = pipeWith(
+        const groups = pipeWith(
             [...rawData],
-            groupBy(get(rowKey)),
+            groupBy(get(groupKey)),
             toArray(),
-            map(row => {
-                const newRowMap = row.reduce((map, item) => {
-                    return map.set(String(get(columnKey)(item)), item);
-                }, new Map(baseRow));
+            map(group => {
+                const newGroupMap = group.reduce((map, item) => {
+                    return map.set(String(get(pointKey)(item)), item);
+                }, new Map(baseGroup));
 
-                return [...newRowMap.values()];
+                return [...newGroupMap.values()];
             })
         );
 
         return Series.of({
             type: 'grouped',
-            rowKey,
-            columnKey,
+            groupKey,
+            pointKey,
             rawData,
-            rows
+            groups
         });
     }
 
@@ -68,32 +67,32 @@ export default class Series<A> {
         return Series.of(fn(this));
     }
 
-    get(rowIndex: number, columnIndex: number): A {
-        return getIn([rowIndex, columnIndex])(this.rows);
+    get(groupIndex: number, pointIndex: number): A {
+        return getIn([groupIndex, pointIndex])(this.groups);
     }
 
-    mapRows<B>(fn: (A) => B): Series<B> {
-        this.rows = this.rows.map(fn);
+    mapGroups<B>(fn: (A) => B): Series<B> {
+        this.groups = this.groups.map(fn);
         return this.copy();
     }
 
-    getRow(index: number): A[] {
+    getGroup(index: number): A[] {
         return this.data[index];
     }
 
-    mapColumns<B>(fn: (A) => B): Series<B> {
-        for (let c = 0; c < this.rows[0].length; c++) {
-            let column = fn(this.getColumn(c), c);
-            for (let r = 0; r < this.rows.length; r++) {
-                this.rows[r][c] = column[r];
+    mapPoints<B>(fn: (A) => B): Series<B> {
+        for (let c = 0; c < this.groups[0].length; c++) {
+            let point = fn(this.getPoint(c), c);
+            for (let r = 0; r < this.groups.length; r++) {
+                this.groups[r][c] = point[r];
             }
         }
 
         return this.copy();
     }
 
-    getColumn(index: number): A[] {
-        return this.rows.map(row => row[index]);
+    getPoint(index: number): A[] {
+        return this.groups.map(group => group[index]);
     }
 
 }

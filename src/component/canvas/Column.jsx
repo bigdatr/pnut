@@ -1,8 +1,6 @@
 // @flow
 import type {Node} from 'react';
-
 import React from 'react';
-import {scaleBand} from 'd3-scale';
 
 
 type Props = {
@@ -24,28 +22,27 @@ function safeRect(mm0, mm1) {
     return [y, height];
 }
 
-
-
 export default class Column extends React.PureComponent<Props> {
 
     render(): Node {
         const {x, y, color, series} = this.props.scales;
-        if(!x.scale.bandwidth) throw new Error('x scale must have padding for column charts');
+        if(!x.scale.bandwidth) throw new Error('x scale must have padding for point charts');
 
-        return <g className="Column">{series.rows.map((row, rowIndex) => {
-            return row.map((column, columnIndex) => {
-                const fill = color.scaleRow(column);
-                const xValue = x.scale(x.get(column));
+        return <g className="Point">{series.groups.map((group, groupIndex) => {
+            return group.map((point, pointIndex) => {
+                const fill = color.scalePoint(point);
+                const xValue = x.scale(x.get(point));
                 let yValue, height, width, xOffset;
 
+
                 if(series.preprocess.stacked) {
-                    let previousItem = (series.preprocess.stackType === 'columns')
-                        ? series.get(rowIndex - 1, columnIndex)
-                        : series.get(rowIndex, columnIndex - 1)
+                    let previousItem = (series.preprocess.stackType === 'points')
+                        ? series.get(groupIndex - 1, pointIndex)
+                        : series.get(groupIndex, pointIndex - 1)
                     ;
 
-                    let bottom = (previousItem && y.get(previousItem) && rowIndex !== 0) ? y.scaleRow(previousItem) : y.range[0];
-                    let top = y.scaleRow(column);
+                    let bottom = (previousItem && y.get(previousItem) && groupIndex !== 0) ? y.scalePoint(previousItem) : y.range[0];
+                    let top = y.scalePoint(point);
 
                     const rr = safeRect(bottom, top);
                     width = x.scale.bandwidth();
@@ -53,15 +50,15 @@ export default class Column extends React.PureComponent<Props> {
                     yValue = rr[0];
                     height = rr[1];
                 } else {
-                    const rr = safeRect(y.range[0], y.scaleRow(column));
+                    const rr = safeRect(y.range[0], y.scalePoint(point));
                     yValue = rr[0];
                     height = rr[1];
-                    width = x.scale.bandwidth() / series.rows.length;
-                    xOffset = width * rowIndex;
+                    width = x.scale.bandwidth() / series.groups.length;
+                    xOffset = width * groupIndex;
                 }
 
                 return <rect
-                    key={rowIndex + '-' + columnIndex}
+                    key={groupIndex + '-' + pointIndex}
                     fill={fill}
                     x={xValue + xOffset}
                     y={yValue}

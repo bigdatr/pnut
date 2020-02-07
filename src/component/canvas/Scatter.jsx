@@ -26,16 +26,16 @@ export default function Scatter(props: Props): Node {
     const {x, y, radius, color, series} = props.scales;
 
     return <g className="Scatter">
-        {series.rows.map((row, rowIndex) => {
-            return row.map((column, columnIndex) => {
-                const cx = x.scaleRow(column);
-                const cy = y.scaleRow(column);
-                const r = radius.scaleRow(column);
-                const fill = color.scaleRow(column);
+        {series.groups.map((group, groupIndex) => {
+            return group.map((point, pointIndex) => {
+                const cx = x.scalePoint(point);
+                const cy = y.scalePoint(point);
+                const r = radius.scalePoint(point);
+                const fill = color.scalePoint(point);
 
                 if(!isNumber(cx) || !isNumber(cy) || !isNumber(r)) return null;
                 return <circle
-                    key={`${rowIndex}-${columnIndex}`}
+                    key={`${groupIndex}-${pointIndex}`}
                     fill={fill || '#000'}
                     stroke={props.stroke}
                     strokeWidth={props.strokeWidth}

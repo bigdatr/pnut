@@ -1,13 +1,12 @@
 // @flow
 import * as d3Scale from 'd3-scale';
-import * as d3Interpolate from 'd3-interpolate';
 
 import categoricalScale from './categoricalScale';
 import continuousScale from './continuousScale';
 
 
 type ScaleConfig<Data> = {
-    column: string,
+    key: string,
     data: Data,
     zero?: boolean,
     updateScale?: Scale => Scale,
@@ -21,12 +20,12 @@ export type ColorScale = {
     zero: boolean,
     isNumber: boolean,
     isTime: boolean,
-    column: string
+    point: string
 };
 
 
 export default function colorScale<Data: Data[]>(config: ScaleConfig<Data>): Function {
-    const {interpolate, range, column} = config;
+    const {interpolate, range, key} = config;
     let scale;
 
     if(interpolate) {
@@ -37,14 +36,14 @@ export default function colorScale<Data: Data[]>(config: ScaleConfig<Data>): Fun
         scale = baseScale.range(range || baseScale.domain());
     }
 
-    const get = (row) => row[column];
+    const get = (group) => group[key];
 
 
     return {
         type: 'color',
         get,
         scale,
-        scaleRow: (row) => scale(get(row))
+        scalePoint: (group) => scale(get(group))
     };
 
 }

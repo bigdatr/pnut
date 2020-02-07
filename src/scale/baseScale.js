@@ -4,13 +4,13 @@ import {bisector} from 'd3-array';
 
 
 export default function BaseScale(config) {
-    const {column, series, scale} = config;
-    const get = (row) => row && row[column];
-    const scaleRow = (row) => scale(get(row));
+    const {key, series, scale} = config;
+    const get = (point) => point && point[key];
+    const scalePoint = (point) => scale(get(point));
     const invert = (value) => {
-        return series.rows.map(rows => {
+        return series.groups.map(groups => {
             const inverted = scale.invert(value);
-            const sorted = sortBy(get)(rows);
+            const sorted = sortBy(get)(groups);
             const bisect = bisector(get);
             const index = bisect.right(sorted, inverted);
             const d0 = sorted[Math.max(0, index - 1)];
@@ -24,7 +24,7 @@ export default function BaseScale(config) {
     return {
         ...config,
         get,
-        scaleRow,
+        scalePoint,
         invert
     };
 

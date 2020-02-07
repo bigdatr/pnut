@@ -1,19 +1,18 @@
 // @flow
-import get from 'unmutable/get';
 import set from 'unmutable/set';
 
 type Config = {
-    type: 'columns' | 'rows',
+    type: 'points' | 'groups',
     key: string
 };
 export default function stack(config: Config) {
     const {key} = config;
-    const {type = 'columns'} = config;
+    const {type = 'points'} = config;
     return (series) => {
         series.preprocess.stacked = true;
         series.preprocess.stackType = type;
 
-        const next = series[type === 'columns' ? 'mapColumns' : 'mapRows']((direction, directionIndex) => {
+        const next = series[type === 'points' ? 'mapPoints' : 'mapGroups']((direction) => {
             const nextDirection = [];
             let sum = 0;
             direction.map((item, index) => {

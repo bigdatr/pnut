@@ -31,32 +31,32 @@ export default class Line extends React.PureComponent<Props> {
 
         let generator = area
             ? d3Shape.area()
-                .x(x.scaleRow)
-                .y0((_, columnIndex, {rowIndex}) => {
-                    if(!series.preprocess.stacked || rowIndex === 0) return y.range[0];
-                    return y.scaleRow(series.get(rowIndex - 1, columnIndex));
+                .x(x.scalePoint)
+                .y0((_, pointIndex, {groupIndex}) => {
+                    if(!series.preprocess.stacked || groupIndex === 0) return y.range[0];
+                    return y.scalePoint(series.get(groupIndex - 1, pointIndex));
                 })
-                .y1(y.scaleRow)
-                .defined(row => isDefined(y.get(row)))
+                .y1(y.scalePoint)
+                .defined(group => isDefined(y.get(group)))
                 .curve(curve(d3Shape))
             : d3Shape.line()
-                .x(x.scaleRow)
-                .y(y.scaleRow)
-                .defined(row => isDefined(y.get(row)))
+                .x(x.scalePoint)
+                .y(y.scalePoint)
+                .defined(group => isDefined(y.get(group)))
                 .curve(curve(d3Shape))
         ;
 
 
         return <g className="Line">
-            {series.rows.map((row, key) => {
+            {series.groups.map((group, key) => {
                 // we need to bind the current seriesIndex
                 // to our array for use in y0
-                row.rowIndex = key;
+                group.groupIndex = key;
                 return this.renderPath({
                     key,
-                    d: generator(row),
+                    d: generator(group),
                     area,
-                    color: color.scaleRow(row[0])
+                    color: color.scalePoint(group[0])
                 });
             })}
         </g>;

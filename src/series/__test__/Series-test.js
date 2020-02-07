@@ -21,33 +21,33 @@ describe('Series', () => {
         expect(series.get(0, 0)).toBe(1);
     });
 
-    it('can map rows', () => {
+    it('can map groups', () => {
         const series = new Series([
             [1,2,3],
             [4,5,6]
         ]);
-        expect(series.mapRows(row => row.map(ii => ii * 2)).data).toEqual([
+        expect(series.mapGroups(group => group.map(ii => ii * 2)).data).toEqual([
             [2,4,6],
             [8,10,12]
         ])
     });
 
-    it('can get rows', () => {
+    it('can get groups', () => {
         const series = new Series([
             [1,2,3],
             [4,5,6]
         ]);
-        expect(series.getRow(1)).toEqual([4,5,6]);
+        expect(series.getGroup(1)).toEqual([4,5,6]);
     });
 
-    it('can map columns', () => {
+    it('can map points', () => {
         const predicate = jest.fn(() => ['foo', 'bar']);
         const series = new Series([
             [1,2,3],
             [4,5,6]
         ]);
 
-        const nextSeries = series.mapColumns(predicate);
+        const nextSeries = series.mapPoints(predicate);
         expect(predicate).toHaveBeenCalledTimes(3);
         expect(predicate).toHaveBeenNthCalledWith(1, [1,4], 0);
         expect(predicate).toHaveBeenNthCalledWith(2, [2,5], 1);
@@ -60,12 +60,12 @@ describe('Series', () => {
 
     });
 
-    it('can get columns', () => {
+    it('can get points', () => {
         const series = new Series([
             [1,2,3],
             [4,5,6]
         ]);
-        expect(series.getColumn(1)).toEqual([2,5]);
+        expect(series.getPoint(1)).toEqual([2,5]);
     });
 
 });

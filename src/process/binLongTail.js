@@ -18,12 +18,12 @@ export default function binLongTail<Point>(config: Config<Point>) {
         series.preprocess.binned = true;
 
 
-        return series.mapColumns((column) => {
-            const total = column.reduce((rr, row) => rr + row[key], 0);
+        return series.mapPoints((point) => {
+            const total = point.reduce((rr, group) => rr + group[key], 0);
 
             let split = false;
             const [big, small = []] = pipeWith(
-                column,
+                point,
                 sortBy(ii => get(key)(ii) * -1),
                 chunkBy(ii => {
                     const check = ((ii[key] || 0) / total) < threshold;

@@ -3,27 +3,26 @@ import {scaleOrdinal, scaleQuantize, scaleBand} from 'd3-scale';
 import baseScale from './baseScale';
 
 type ScaleConfig<Data> = {
-    column: string,
+    key: string,
     data: Data,
     range: [number, number]
 };
 
 export type CategoricalScale = {
     type: 'categorical',
-    column: string,
     scale: Function
 };
 
 export default function categoricalScale<Data>(config: ScaleConfig<Data>): CategoricalScale {
-    const {column} = config;
+    const {key} = config;
     const {series} = config;
     const {padding} = config;
     const {range = []} = config;
-    const data = series.rows.flat();
+    const data = series.groups.flat();
 
     // create the domain from unique values
     const domain = new Set();
-    data.forEach(item => domain.add(item[column]));
+    data.forEach(item => domain.add(item[key]));
 
     // create a band or ordinal scale if padding is provided
     const scale = padding != null
