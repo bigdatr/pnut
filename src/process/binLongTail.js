@@ -2,7 +2,6 @@
 import sortBy from 'unmutable/sortBy';
 import chunkBy from 'unmutable/chunkBy';
 import pipeWith from 'unmutable/pipeWith';
-import get from 'unmutable/get';
 import set from 'unmutable/set';
 
 type Config<Point> = {
@@ -14,19 +13,20 @@ export default function binLongTail<Point>(config: Config<Point>) {
     const {key} = config;
     const {threshold} = config;
     const {accumulate} = config;
+    const get = (data, key) => data[key] || 0;
+
     return (series) => {
         series.preprocess.binned = true;
 
-
         return series.mapPoints((point) => {
-            const total = point.reduce((rr, group) => rr + group[key], 0);
+            const total = point.reduce((rr, group) => rr + get(group, key), 0);
 
             let split = false;
             const [big, small = []] = pipeWith(
                 point,
-                sortBy(ii => get(key)(ii) * -1),
+                sortBy(ii => get(ii, key) * -1),
                 chunkBy(ii => {
-                    const check = ((ii[key] || 0) / total) < threshold;
+                    const check = get(ii, key) / total < threshold;
                     if(check && !split) {
                         split = true;
                         return check;
@@ -36,6 +36,7 @@ export default function binLongTail<Point>(config: Config<Point>) {
             );
 
             let accumulated = small.length > 0 ? accumulate(small) : [];
+            console.log(accumulated);
 
             let next = big
                 .concat(accumulated)

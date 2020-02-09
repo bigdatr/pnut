@@ -12,7 +12,7 @@ type Props<A> = {
     width: number,
     fps?: number,
     children: ({
-        nearestRow: A,
+        nearestPoint: A,
         position: {
             x: number,
             y: number,
@@ -39,25 +39,25 @@ export default function Interaction<A>(props: Props<A>) {
 
     useEffect(() => {
         const xValues = x.invert(position.x);
-        const yValues = y.invert(position.y);
+        //const yValues = y.invert(position.y);
 
         const yValue = y.scale.invert(position.y);
         const yValueArray = xValues.map(y.get);
         const nearestValue = yValueArray.reduce((prev, curr) => Math.abs(curr - yValue) < Math.abs(prev - yValue) ? curr : prev);
-        const nearestRow = xValues.find(row => y.get(row) === nearestValue);
+        const nearestPoint = xValues.find(point => y.get(point) === nearestValue);
 
         // use bisect to find the insertion index of the current y value
         // this gives us the stepped value
-        const nearestRowStepped = xValues[bisectRight(yValueArray, yValue)];
+        const nearestPointStepped = xValues[bisectRight(yValueArray, yValue)];
 
         const nextValue = {
             position,
-            nearestRow,
-            nearestRowStepped,
-            items: xValues.map(row => ({
-                x: x.scaleRow(row),
-                y: y.scaleRow(row),
-                row
+            nearestPoint,
+            nearestPointStepped,
+            items: xValues.map(point => ({
+                x: x.scalePoint(point),
+                y: y.scalePoint(point),
+                point
             }))
         };
 
