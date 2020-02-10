@@ -1,4 +1,6 @@
 // @flow
+import type Series from '../series/Series';
+
 import sortBy from 'unmutable/sortBy';
 import {bisector} from 'd3-array';
 
@@ -6,10 +8,15 @@ import {bisector} from 'd3-array';
 export type BaseScale = {
     get: Function,
     scalePoint: Function,
-    invert: Function
+    invert: Function,
+    range: [number, number]
 };
 
-export default function baseScale(config) {
+export default function baseScale(config: {
+    series: Series,
+    key: string,
+    scale: Function
+}): Object {
     const {key, series, scale} = config;
     const get = (point) => point && point[key];
     const scalePoint = (point) => scale(get(point));

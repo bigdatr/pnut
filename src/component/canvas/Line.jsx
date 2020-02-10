@@ -1,5 +1,8 @@
 // @flow
 import type {Node} from 'react';
+import type Series from '../../series/Series';
+import type {ContinuousScale} from '../../scale/continuousScale';
+import type {ColorScale} from '../../scale/colorScale';
 
 import React from 'react';
 import * as d3Shape from 'd3-shape';
@@ -9,8 +12,8 @@ type Props = {
     scales: {
         x: ContinuousScale,
         y: ContinuousScale,
-        series: GroupedSeries|SingleSeries,
-        color: ColorScale
+        color: ColorScale,
+        series: Series
     },
     area?: boolean,
     stack?: boolean,
@@ -48,6 +51,7 @@ export default class Line extends React.PureComponent<Props> {
             {series.groups.map((group, key) => {
                 // we need to bind the current seriesIndex
                 // to our array for use in y0
+                // $FlowFixMe - intentional javascript hacks
                 group.groupIndex = key;
                 return this.renderPath({
                     key,
@@ -59,7 +63,7 @@ export default class Line extends React.PureComponent<Props> {
         </g>;
     }
 
-    renderPath({d, key, area, color}) {
+    renderPath({d, key, area, color}: {d: string, key: number, area?: boolean, color: string}) {
         const {strokeWidth = 2} = this.props;
         return <path
             key={key}

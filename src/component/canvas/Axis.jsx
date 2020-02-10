@@ -3,31 +3,33 @@ import type {Node} from 'react';
 import type {ComponentType} from 'react';
 import type {LinePosition} from '../../definitions';
 import type {TextPosition} from '../../definitions';
-import type {Dimension} from '../../useScales';
+import type Series from '../../series/Series';
+import type {ContinuousScale} from '../../scale/continuousScale';
+import type {CategoricalScale} from '../../scale/categoricalScale';
 
 import React from 'react';
 import {max} from 'd3-array';
 
 function DefaultAxisLine(props: {position: LinePosition}): Node {
     return <line
+        {...props.position}
         stroke='currentColor'
         strokeWidth={1}
-        {...props.position}
     />;
 }
 
 function DefaultTick(props: {position: LinePosition}): Node {
     return <line
-        stroke='black'
         {...props.position}
+        stroke='black'
     />;
 }
 
 function DefaultText(props: {position: TextPosition}): Node {
     return <text
+        {...props.position}
         fontSize={10}
         stroke="none"
-        {...props.position}
     />;
 }
 
@@ -38,8 +40,9 @@ type Props = {
     // required
     position: Position,
     scales: {
-        x: Dimension,
-        y: Dimension
+        series: Series,
+        x: ContinuousScale|CategoricalScale,
+        y: ContinuousScale|CategoricalScale
     },
 
     // default

@@ -1,26 +1,20 @@
 // @flow
 import type {Node} from 'react';
-import type {ChartRow} from '../definitions';
-import type {DimensionConfig} from '../useScales';
 
 import React from 'react';
 import Svg from './Svg';
-import ChartData from '../chartdata/ChartData';
 
 
 
-type Props<Data> = {
-    children: Function,
-    data: Data,
-    dimensions: Array<DimensionConfig>,
+type Props = {
+    children: Node,
     height: number,
-    padding: [number, number, number, number],
+    padding?: {top?: number, bottom?: number, left?: number, right?: number},
     width: number,
-
     style?: Object
 };
 
-class Chart<Data: ChartData<ChartRow>> extends React.PureComponent<Props<Data>> {
+class Chart extends React.PureComponent<Props> {
     render(): Node {
         const {width} = this.props;
         const {height} = this.props;

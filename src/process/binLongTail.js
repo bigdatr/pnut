@@ -1,4 +1,6 @@
 // @flow
+import type Series from '../series/Series';
+
 import sortBy from 'unmutable/sortBy';
 import chunkBy from 'unmutable/chunkBy';
 import pipeWith from 'unmutable/pipeWith';
@@ -15,7 +17,7 @@ export default function binLongTail<Point>(config: Config<Point>) {
     const {accumulate} = config;
     const get = (data, key) => data[key] || 0;
 
-    return (series) => {
+    return (series: Series) => {
         series.preprocess.binned = true;
 
         return series.mapPoints((point) => {

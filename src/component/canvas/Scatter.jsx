@@ -1,6 +1,8 @@
 // @flow
 import type {Node} from 'react';
+import type Series from '../../series/Series';
 import type {ContinuousScale} from '../../scale/continuousScale';
+import type {CategoricalScale} from '../../scale/categoricalScale';
 
 import React from 'react';
 
@@ -14,7 +16,7 @@ type Props = {
         y: ContinuousScale,
         radius: ContinuousScale,
         color: CategoricalScale,
-        series: GroupSeries|SingleSeries
+        series: Series
     }
 };
 

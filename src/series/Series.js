@@ -82,7 +82,7 @@ export default class Series {
         return getIn([groupIndex, pointIndex])(this.groups);
     }
 
-    mapGroups(fn: <A,B>(A) => B): Series {
+    mapGroups(fn: Function): Series {
         this.groups = this.groups.map(fn);
         return this.copy();
     }
@@ -91,7 +91,7 @@ export default class Series {
         return this.groups[index];
     }
 
-    mapPoints(fn: <A, B>(point: A, index: number) => B): Series {
+    mapPoints(fn: Function): Series {
         for (let c = 0; c < this.groups[0].length; c++) {
             let point = fn(this.getPoint(c), c);
             for (let r = 0; r < this.groups.length; r++) {

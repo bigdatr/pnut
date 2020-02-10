@@ -1,11 +1,12 @@
 // @flow
+import type Series from '../series/Series';
 
 type Config = {
-    point: string
+    key: string
 };
 export default function normalizeToPercentage(config: Config) {
     const {key} = config;
-    return (series) => {
+    return (series: Series) => {
         series.preprocess.normalizeToPercentage = true;
         series.preprocess.stacked = true;
         series.preprocess.stackType = 'points';

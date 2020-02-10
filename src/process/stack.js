@@ -1,4 +1,5 @@
 // @flow
+import type Series from '../series/Series';
 import set from 'unmutable/set';
 
 type Config = {
@@ -8,11 +9,11 @@ type Config = {
 export default function stack(config: Config) {
     const {key} = config;
     const {type = 'points'} = config;
-    return (series) => {
+    return (series: Series) => {
         series.preprocess.stacked = true;
         series.preprocess.stackType = type;
 
-        const next = series[type === 'points' ? 'mapPoints' : 'mapGroups']((direction) => {
+        const stacker = (direction) => {
             const nextDirection = [];
             let sum = 0;
             direction.map((item, index) => {
@@ -21,9 +22,12 @@ export default function stack(config: Config) {
                 nextDirection[index].originalValue = item[key];
             });
             return nextDirection;
-        });
+        };
 
-        return next;
+        return type === 'points'
+            ? series.mapPoints(stacker)
+            : series.mapGroups(stacker)
+        ;
 
     };
 }

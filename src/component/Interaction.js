@@ -1,10 +1,15 @@
 // @flow
+import type Series from '../series/Series';
+import type {ContinuousScale} from '../scale/continuousScale';
+import type {CategoricalScale} from '../scale/categoricalScale';
+
 import React, {useEffect, useState} from 'react';
 import useMousePosition from '@react-hook/mouse-position';
 import {bisectRight} from 'd3-array';
 
 type Props<A> = {
     scales: {
+        series: Series,
         x: ContinuousScale|CategoricalScale,
         y: ContinuousScale|CategoricalScale
     },
@@ -36,6 +41,8 @@ export default function Interaction<A>(props: Props<A>) {
     const [position, ref] = useMousePosition(0, 0, props.fps || 60);
     const {width, height} = props;
     const {x, y} = props.scales;
+
+    // $FlowFixMe - sucks at defaults
     const {children = () => null} = props;
 
     useEffect(() => {
@@ -66,7 +73,7 @@ export default function Interaction<A>(props: Props<A>) {
         setItem(nextValue);
     }, [position]);
 
-    //const ref = null;
+    // $FlowFixMe - I dont even known
     return <g className="Interaction" ref={ref}>
         <rect
             x={0}

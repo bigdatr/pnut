@@ -17,12 +17,12 @@ type ColorScaleConfig = {
 
 export type ColorScale = BaseScale & {
     type: 'color',
-    scale: Function,
+    scale: Function
 };
 
 
 export default function colorScale(config: ColorScaleConfig): ColorScale {
-    const {interpolate, range = [], key, series} = config;
+    const {interpolate, range, key, series} = config;
     let scale;
 
     if(interpolate) {
