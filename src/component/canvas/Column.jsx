@@ -1,21 +1,23 @@
 // @flow
 import type {Node} from 'react';
-import type {ComponentType} from 'react';
-import type {Dimension} from '../../useScales';
+import type {ContinuousScale} from '../../scale/continuousScale';
+import type {CategoricalScale} from '../../scale/categoricalScale';
+import type {ColorScale} from '../../scale/colorScale';
 
 import React from 'react';
+import Series from '../../series/Series';
 
-function isNumber(value): boolean %checks {
-    return typeof value === 'number' && !isNaN(value);
-}
 
 type Props = {
-    x: Dimension,
-    y: Dimension,
-    color: Array<string>,
-    column?: (line: ComponentType<*>, props: Object) => Node,
-    stack?: boolean,
-    horizontal?: boolean
+    scales: {
+        x: CategoricalScale,
+        y: ContinuousScale,
+        color: ColorScale,
+        series: Series
+    },
+    padding?: number,
+    strokeWidth?: number,
+    stroke?: string
 };
 
 function safeRect(mm0, mm1) {
@@ -25,62 +27,59 @@ function safeRect(mm0, mm1) {
         y = mm0;
         height = mm1 - mm0;
     }
-    return {y, height};
+    return [y, height];
 }
 
-export default class ColumnRenderable extends React.PureComponent<Props> {
+export default class Column extends React.PureComponent<Props> {
 
     render(): Node {
-        const {x} = this.props;
-        const {y} = this.props;
+        const {x, y, color, series} = this.props.scales;
+        if(!x.scale.bandwidth) throw new Error('x scale must have padding for point charts');
 
-        let dimension = x;
-        let metric = y;
-        let column = true;
+        return <g className="Point">{series.groups.map((group, groupIndex) => {
+            return group.map((point, pointIndex) => {
+                const fill = color.scalePoint(point);
+                const xValue = x.scale(x.get(point));
+                let yValue, height, width, xOffset;
 
-        if(y.scale.bandwidth) {
-            column = false;
-            dimension = y;
-            metric = x;
-        }
 
-        return <g>{this.renderColumnSet({
-            dimension,
-            metric,
-            column
+                if(series.preprocess.stacked) {
+                    let previousItem = (series.preprocess.stackType === 'points')
+                        ? series.get(groupIndex - 1, pointIndex)
+                        : series.get(groupIndex, pointIndex - 1)
+                    ;
+
+                    let bottom = (previousItem && y.get(previousItem) && groupIndex !== 0) ? y.scalePoint(previousItem) : y.range[0];
+                    let top = y.scalePoint(point);
+
+                    const rr = safeRect(bottom, top);
+                    width = x.scale.bandwidth();
+                    xOffset = 0;
+                    yValue = rr[0];
+                    height = rr[1];
+                } else {
+                    const rr = safeRect(y.range[0], y.scalePoint(point));
+                    yValue = rr[0];
+                    height = rr[1];
+                    width = x.scale.bandwidth() / series.groups.length;
+                    xOffset = width * groupIndex;
+                }
+
+                return <rect
+                    key={groupIndex + '-' + pointIndex}
+                    fill={fill}
+                    x={xValue + xOffset}
+                    y={yValue}
+                    width={width}
+                    height={height}
+                    stroke={this.props.stroke}
+                    strokeWidth={this.props.strokeWidth}
+                    shapeRendering="crispedges"
+                />;
+            });
         })}</g>;
     }
 
-    renderColumnSet({dimension, metric, column}: Object): Node {
-        const {stack} = metric;
-        const bandwidth = dimension.scale.bandwidth && dimension.scale.bandwidth();
-        const {color} = this.props;
-
-        return dimension.scaledData[0].map((dData, dIndex) => {
-            return metric.scaledData.map((mData, mIndex) => {
-                const pair = mData[dIndex];
-                const mm0 = stack ? pair[0] : metric.range[0];
-                const mm1 = stack ? pair[1] : pair[0];
-                const dd = dData[0];
-                if(!isNumber(mm0) || !isNumber(mm1) || !isNumber(dd)) return null;
-
-                const span = dimension.scaledData.length > 1
-                    ? dimension.scaledData[1][dIndex] - dimension.scaledData[0][dIndex]
-                    : bandwidth;
-                const {y, height} = safeRect(mm0, mm1);
-
-                return <rect
-                    fill={color[mIndex]}
-                    key={`${dIndex}.${mIndex}`}
-                    x={column ? dd : y}
-                    y={column ? y : dd}
-                    height={column ? height : span}
-                    width={column ? span : height}
-                />;
-
-            });
-        });
-    }
 }
 
 

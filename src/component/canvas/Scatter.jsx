@@ -1,45 +1,49 @@
 // @flow
 import type {Node} from 'react';
-import type {Dimension} from '../../useScales';
-import type {ComponentType} from 'react';
+import type Series from '../../series/Series';
+import type {ContinuousScale} from '../../scale/continuousScale';
+import type {CategoricalScale} from '../../scale/categoricalScale';
 
 import React from 'react';
-
-
-
-const defaultDot = (props: Object): Node => {
-    return <circle fill='black' r={3} {...props.position}/>;
-};
 
 const isNumber = (value) => typeof value === 'number' && !isNaN(value);
 
 type Props = {
-    x: Dimension,
-    y: Dimension,
-    color: Array<string>,
-    Dot?: ComponentType<*>
+    stroke?: string,
+    strokeWidth?: string,
+    scales: {
+        x: ContinuousScale,
+        y: ContinuousScale,
+        radius: ContinuousScale,
+        color: CategoricalScale,
+        series: Series
+    }
 };
 
-export default function Scatter(props: Props) {
-    const {y} = props;
-    const {x} = props;
-    const {Dot = defaultDot} = props;
 
+export default function Scatter(props: Props): Node {
+    const {x, y, radius, color, series} = props.scales;
 
-    return <g>
-        {y.scaledData.map((series, seriesIndex) => series.map((row, index) => {
-            const xValue = x.scaledData[0][index][0];
-            const yValue = y.stack ? row[1] : row[0];
+    return <g className="Scatter">
+        {series.groups.map((group, groupIndex) => {
+            return group.map((point, pointIndex) => {
+                const cx = x.scalePoint(point);
+                const cy = y.scalePoint(point);
+                const r = radius.scalePoint(point);
+                const fill = color.scalePoint(point);
 
-            if(!isNumber(yValue) || !isNumber(xValue)) return null;
-            return <Dot
-                key={`${seriesIndex}.${index}`}
-                position={{
-                    cx: x.scaledData[0][index],
-                    cy: yValue
-                }}
-            />;
-        }))}
+                if(!isNumber(cx) || !isNumber(cy) || !isNumber(r)) return null;
+                return <circle
+                    key={`${groupIndex}-${pointIndex}`}
+                    fill={fill || '#000'}
+                    stroke={props.stroke}
+                    strokeWidth={props.strokeWidth}
+                    r={r}
+                    cx={cx}
+                    cy={cy}
+                />;
+            });
+        })}
     </g>;
 }
 

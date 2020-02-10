@@ -3,31 +3,33 @@ import type {Node} from 'react';
 import type {ComponentType} from 'react';
 import type {LinePosition} from '../../definitions';
 import type {TextPosition} from '../../definitions';
-import type {Dimension} from '../../useScales';
+import type Series from '../../series/Series';
+import type {ContinuousScale} from '../../scale/continuousScale';
+import type {CategoricalScale} from '../../scale/categoricalScale';
 
 import React from 'react';
 import {max} from 'd3-array';
 
 function DefaultAxisLine(props: {position: LinePosition}): Node {
     return <line
-        stroke='#ccc'
-        strokeWidth={1}
         {...props.position}
+        stroke='currentColor'
+        strokeWidth={1}
     />;
 }
 
 function DefaultTick(props: {position: LinePosition}): Node {
     return <line
-        stroke='#ccc'
         {...props.position}
+        stroke='black'
     />;
 }
 
 function DefaultText(props: {position: TextPosition}): Node {
     return <text
-        fontSize={12}
-        stroke="none"
         {...props.position}
+        fontSize={10}
+        stroke="none"
     />;
 }
 
@@ -37,8 +39,11 @@ type DimensionKey = 'x' | 'y';
 type Props = {
     // required
     position: Position,
-    x: Dimension,
-    y: Dimension,
+    scales: {
+        series: Series,
+        x: ContinuousScale|CategoricalScale,
+        y: ContinuousScale|CategoricalScale
+    },
 
     // default
     overlap: number,
@@ -72,10 +77,7 @@ export default class AxisRenderable extends React.PureComponent<Props> {
 
     dimension(): DimensionKey {
         const {position} = this.props;
-        return (position === 'top' || position === 'bottom')
-            ? 'x'
-            : 'y'
-        ;
+        return (position === 'top' || position === 'bottom') ? 'x' : 'y';
     }
 
     drawTicks(): Array<Node> {
@@ -90,10 +92,9 @@ export default class AxisRenderable extends React.PureComponent<Props> {
 
         const dimension = this.dimension();
         const {textFormat} = this.props;
-        const {x, y} = this.props;
+        const {x, y} = this.props.scales;
         const {ticks} = this.props;
         const scale = dimension === 'x' ? x.scale : y.scale;
-
         const offset = scale.bandwidth ? scale.bandwidth() / 2 : 0;
 
         return ticks(scale)
@@ -104,11 +105,14 @@ export default class AxisRenderable extends React.PureComponent<Props> {
                 const [x1, y1] = this.getPointPosition(position, distance, axisLineWidth / 2);
                 const [x2, y2] = this.getPointPosition(position, distance, axisLineWidth / 2 + tickSize);
 
+
                 const [textX, textY] = this.getPointPosition(
                     position,
                     distance,
                     axisLineWidth / 2 + tickSize + textPadding
                 );
+
+                //console.log({value: scale(tick), tick});
 
                 const tickLineProps = {
                     axisPosition: position,
@@ -149,16 +153,9 @@ export default class AxisRenderable extends React.PureComponent<Props> {
     }
 
     getAlignmentBaselineProp(position: Position): string {
-        switch(position) {
-            case 'left':
-            case 'right':
-                return 'middle';
-            case 'top':
-                return 'auto';
-            case 'bottom':
-            default:
-                return 'hanging';
-        }
+        if(position === 'left' || position === 'right') return 'middle';
+        if(position === 'top') return 'auto';
+        return 'hanging';
     }
 
     getTextAnchorProp(position: Position): string {
@@ -175,13 +172,13 @@ export default class AxisRenderable extends React.PureComponent<Props> {
     }
 
     getLength(): number {
-        return max(this.props[this.dimension()].range);
+        return max(this.props.scales[this.dimension()].range);
     }
 
     getPointPosition(position: Position, distance: number, offset: number): Array<number> {
         let locationValue = 0;
         let {location} = this.props;
-        const {x, y} = this.props;
+        const {x, y} = this.props.scales;
         const dimension = this.dimension();
         const width = max(x.range);
         const height = max(y.range);
@@ -215,7 +212,7 @@ export default class AxisRenderable extends React.PureComponent<Props> {
     }
 
     render(): Node {
-        return <g>
+        return <g shapeRendering="crispedges">
             <g>{this.drawAxisLine()}</g>
             <g>{this.drawTicks()}</g>
         </g>;

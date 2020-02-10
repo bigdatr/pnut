@@ -1,30 +1,4 @@
-import {ChartData} from 'pnut';
-
-const columns = [
-    {
-        key: 'supply',
-        label: 'Supply',
-        isContinuous: true
-    },
-    {
-        key: 'demand',
-        label: 'Demand',
-        isContinuous: true
-    },
-    {
-        key: 'other',
-        label: 'Other',
-        isContinuous: true
-    },
-
-    {
-        key: 'property_type',
-        label: 'Property Type',
-        isContinuous: false
-    }
-];
-
-const rows = [
+export default [
     {
         demand: 2316,
         property_type: "Townhouse",
@@ -69,5 +43,3 @@ const rows = [
     }
 ];
 
-
-export default new ChartData(rows, columns);
