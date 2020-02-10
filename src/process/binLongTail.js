@@ -36,11 +36,10 @@ export default function binLongTail<Point>(config: Config<Point>) {
             );
 
             let accumulated = small.length > 0 ? accumulate(small) : [];
-            console.log(accumulated);
-
             let next = big
                 .concat(accumulated)
                 .concat(small.map(set(key, null)));
+
             return next;
 
         });

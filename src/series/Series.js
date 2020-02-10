@@ -6,17 +6,28 @@ import toArray from 'unmutable/toArray';
 import get from 'unmutable/get';
 import getIn from 'unmutable/getIn';
 
-type SeriesConfig<A> = {
-    groups: Array<Array<A>>,
-    rawData: Array<A>,
+
+export type Point = {[string]: any};
+
+type SeriesConfig = {
+    groups: Point[][],
+    rawData: Point[],
     type: string,
     groupKey: string,
-    pointKey: string,
-    preprocess: Object
+    pointKey: ?string,
+    preprocess?: Object
 };
 
-export default class Series<A> {
-    constructor(config: SeriesConfig<A>) {
+
+export default class Series {
+    groups: Point[][];
+    rawData: Point[];
+    type: string;
+    groupKey: string;
+    pointKey: ?string;
+    preprocess: Object;
+
+    constructor(config: SeriesConfig) {
         this.rawData = config.rawData;
         this.groups = config.groups;
         this.type = config.type;
@@ -25,11 +36,11 @@ export default class Series<A> {
         this.preprocess = config.preprocess || {};
     }
 
-    static of(config: SeriesConfig<A>): Series<A> {
+    static of(config: SeriesConfig): Series {
         return new Series(config);
     }
 
-    static group(groupKey: string, pointKey: string, rawData: A[][]): Series<A> {
+    static group(groupKey: string, pointKey: string, rawData: Point[]): Series {
         const baseGroup = new Map();
 
         rawData.forEach(item => {
@@ -59,28 +70,28 @@ export default class Series<A> {
         });
     }
 
-    copy() {
+    copy(): Series {
         return new Series({...this});
     }
 
-    update<B>(fn: Function): Series<B> {
+    update(fn: Function): Series {
         return Series.of(fn(this));
     }
 
-    get(groupIndex: number, pointIndex: number): A {
+    get(groupIndex: number, pointIndex: number): Point {
         return getIn([groupIndex, pointIndex])(this.groups);
     }
 
-    mapGroups<B>(fn: (A) => B): Series<B> {
+    mapGroups(fn: <A,B>(A) => B): Series {
         this.groups = this.groups.map(fn);
         return this.copy();
     }
 
-    getGroup(index: number): A[] {
-        return this.data[index];
+    getGroup(index: number): Point[] {
+        return this.groups[index];
     }
 
-    mapPoints<B>(fn: (A) => B): Series<B> {
+    mapPoints(fn: <A, B>(point: A, index: number) => B): Series {
         for (let c = 0; c < this.groups[0].length; c++) {
             let point = fn(this.getPoint(c), c);
             for (let r = 0; r < this.groups.length; r++) {
@@ -91,7 +102,7 @@ export default class Series<A> {
         return this.copy();
     }
 
-    getPoint(index: number): A[] {
+    getPoint(index: number): Point[] {
         return this.groups.map(group => group[index]);
     }
 

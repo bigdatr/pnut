@@ -1,13 +1,14 @@
 // @flow
+import type {Point} from './Series';
 import Series from './Series';
 
-type Config<Item> = {
+type Config = {
     group: string,
-    data: Array<Item>,
-    process?: <A, B>(A) => B
+    data: Point[],
+    process?: <A,B>(A) => B
 };
 
-export default function SingleSeries<A>(config: Config<A>): Series<A> {
+export default function SingleSeries(config: Config): Series {
     const {
         data,
         group,

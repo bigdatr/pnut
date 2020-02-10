@@ -3,9 +3,6 @@ import type {Node} from 'react';
 import type {ContinuousScale} from '../../scale/continuousScale';
 
 import React from 'react';
-import mapSeries from '../../util/mapSeries';
-
-
 
 const isNumber = (value) => typeof value === 'number' && !isNaN(value);
 

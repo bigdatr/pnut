@@ -1,22 +1,23 @@
 // @flow
-import type {Scale} from '../definitions';
+import type Series from '../series/Series';
+import type {BaseScale} from './baseScale';
 
 import ChartData from '../chartdata/ChartData';
 import * as d3Scale from 'd3-scale';
 import * as array from 'd3-array';
 import baseScale from './baseScale';
+import flatten from 'unmutable/flatten';
 
 
-type ScaleConfig<Data> = {
+type ScaleConfig = {
     key: string,
-    data: Data,
+    series: Series,
     zero?: boolean,
     clamp?: boolean,
-    updateScale?: Scale => Scale,
-    range: [number, number]
+    range?: [number, number]
 };
 
-export type ContinuousScale = {
+export type ContinuousScale = BaseScale & {
     type: 'continuous',
     scale: Function,
     range: [number, number],
@@ -27,14 +28,14 @@ export type ContinuousScale = {
 };
 
 
-export default function continuousScale<Data: Data[]>(config: ScaleConfig<Data>): Function {
+export default function continuousScale(config: ScaleConfig): ContinuousScale {
     const {key} = config;
     const {series} = config;
     const {zero = false} = config;
     const {clamp = true} = config;
     const {range = []} = config;
 
-    const data = series.groups.flat();
+    const data = flatten()(series.groups);
     const isNumber = data.every(ii => typeof ii[key] === 'number' || ii[key] == null);
     const isDate = data.every(ii => ChartData.isValueDate(ii[key]) || ii[key] == null);
     const get = (group) => group[key];

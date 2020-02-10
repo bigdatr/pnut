@@ -37,8 +37,10 @@ type DimensionKey = 'x' | 'y';
 type Props = {
     // required
     position: Position,
-    x: Dimension,
-    y: Dimension,
+    scales: {
+        x: Dimension,
+        y: Dimension
+    },
 
     // default
     overlap: number,

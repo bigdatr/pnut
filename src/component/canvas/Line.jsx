@@ -1,6 +1,5 @@
 // @flow
 import type {Node} from 'react';
-import type {Dimension} from '../../useScales';
 
 import React from 'react';
 import * as d3Shape from 'd3-shape';
@@ -13,12 +12,10 @@ type Props = {
         series: GroupedSeries|SingleSeries,
         color: ColorScale
     },
-    x: Dimension,
-    y: Dimension,
-    color: Array<string>,
     area?: boolean,
     stack?: boolean,
-    curve?: Function
+    curve?: Function,
+    strokeWidth?: number
 };
 
 export default class Line extends React.PureComponent<Props> {

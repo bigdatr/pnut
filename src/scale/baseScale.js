@@ -3,7 +3,13 @@ import sortBy from 'unmutable/sortBy';
 import {bisector} from 'd3-array';
 
 
-export default function BaseScale(config) {
+export type BaseScale = {
+    get: Function,
+    scalePoint: Function,
+    invert: Function
+};
+
+export default function baseScale(config) {
     const {key, series, scale} = config;
     const get = (point) => point && point[key];
     const scalePoint = (point) => scale(get(point));

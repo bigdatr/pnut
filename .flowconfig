@@ -8,6 +8,7 @@ node_modules/blueflag-test/flow-typed-shims/jest-enzyme-6.0.x/
 
 [ignore]
 <PROJECT_ROOT>/coverage/.*
+<PROJECT_ROOT>/website/.*
 <PROJECT_ROOT>/.nyc_output/.*
 <PROJECT_ROOT>/scripts/.*
 <PROJECT_ROOT>/example/.*

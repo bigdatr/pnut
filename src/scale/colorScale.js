@@ -1,49 +1,42 @@
 // @flow
-import * as d3Scale from 'd3-scale';
+import type {BaseScale} from './baseScale';
+import type Series from '../series/Series';
 
+import * as d3Scale from 'd3-scale';
 import categoricalScale from './categoricalScale';
 import continuousScale from './continuousScale';
+import baseScale from './baseScale';
 
 
-type ScaleConfig<Data> = {
+type ColorScaleConfig = {
+    series: Series,
     key: string,
-    data: Data,
-    zero?: boolean,
-    updateScale?: Scale => Scale,
-    range: [number, number]
+    interpolate?: Function,
+    range?: [number, number]
 };
 
-export type ColorScale = {
-    type: 'continuous',
+export type ColorScale = BaseScale & {
+    type: 'color',
     scale: Function,
-    range: [number, number],
-    zero: boolean,
-    isNumber: boolean,
-    isTime: boolean,
-    point: string
 };
 
 
-export default function colorScale<Data: Data[]>(config: ScaleConfig<Data>): Function {
-    const {interpolate, range, key} = config;
+export default function colorScale(config: ColorScaleConfig): ColorScale {
+    const {interpolate, range = [], key, series} = config;
     let scale;
 
     if(interpolate) {
-        const baseScale = continuousScale(config).scale;
+        const baseScale = continuousScale({key, series, range}).scale;
         scale = d3Scale.scaleSequential(interpolate).domain(baseScale.domain());
     } else {
-        const baseScale = categoricalScale(config).scale;
+        const baseScale = categoricalScale({key, series}).scale;
         scale = baseScale.range(range || baseScale.domain());
     }
 
-    const get = (group) => group[key];
-
-
-    return {
+    return baseScale({
+        ...config,
         type: 'color',
-        get,
-        scale,
-        scalePoint: (group) => scale(get(group))
-    };
+        scale
+    });
 
 }

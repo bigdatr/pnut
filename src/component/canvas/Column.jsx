@@ -1,15 +1,19 @@
 // @flow
 import type {Node} from 'react';
 import React from 'react';
+import Series from '../../series/Series';
 
 
 type Props = {
     scales: {
         x: CategoricalScale,
         y: ContinuousScale,
-        color: ColorScale
+        color: ColorScale,
+        series: Series
     },
-    padding?: number
+    padding?: number,
+    strokeWidth?: number,
+    stroke?: string
 };
 
 function safeRect(mm0, mm1) {

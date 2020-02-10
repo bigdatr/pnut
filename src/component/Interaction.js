@@ -11,6 +11,7 @@ type Props<A> = {
     height: number,
     width: number,
     fps?: number,
+    onChange: Function,
     children: ({
         nearestPoint: A,
         position: {
@@ -76,5 +77,5 @@ export default function Interaction<A>(props: Props<A>) {
             fill='rgba(0,0,0,0)'
         />
         {item && children(item)}
-    </g>
+    </g>;
 }
