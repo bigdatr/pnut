@@ -22,7 +22,7 @@ export default function categoricalScale(config: CategoricalScaleConfig): Catego
     const {series} = config;
     const {padding} = config;
     const {range = []} = config;
-    const data = flatten()(series.groups);
+    const data = flatten(1)(series.groups);
 
     // create the domain from unique values
     const domain = new Set();

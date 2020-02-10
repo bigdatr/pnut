@@ -35,7 +35,7 @@ export default function continuousScale(config: ScaleConfig): ContinuousScale {
     const {clamp = true} = config;
     const {range = []} = config;
 
-    const data = flatten()(series.groups);
+    const data = flatten(1)(series.groups);
     const isNumber = data.every(ii => typeof ii[key] === 'number' || ii[key] == null);
     const isDate = data.every(ii => ChartData.isValueDate(ii[key]) || ii[key] == null);
     const get = (group) => group[key];
