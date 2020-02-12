@@ -13,7 +13,7 @@ type SeriesConfig = {
     groups: Point[][],
     rawData: Point[],
     type: string,
-    groupKey: string,
+    groupKey: [string],
     pointKey: ?string,
     preprocess?: Object
 };
@@ -23,7 +23,7 @@ export default class Series {
     groups: Point[][];
     rawData: Point[];
     type: string;
-    groupKey: string;
+    groupKey: [string];
     pointKey: ?string;
     preprocess: Object;
 
@@ -40,7 +40,10 @@ export default class Series {
         return new Series(config);
     }
 
-    static group(groupKey: string, pointKey: string, rawData: Point[]): Series {
+    static group(groupKey: [string], pointKey: string, rawData: Point[]): Series {
+        if(groupKey.includes(pointKey))
+            throw "Point key cannot be used as a grouping key.";
+
         const baseGroup = new Map();
 
         rawData.forEach(item => {
@@ -50,15 +53,14 @@ export default class Series {
 
         const groups = pipeWith(
             [...rawData],
-            groupBy(get(groupKey)),
+            groupBy(item => groupKey.reduce((acc, key) => acc + item[key], "")),
             toArray(),
             map(group => {
                 const newGroupMap = group.reduce((map, item) => {
                     return map.set(String(get(pointKey)(item)), item);
                 }, new Map(baseGroup));
-
                 return [...newGroupMap.values()];
-            })
+            }),
         );
 
         return Series.of({
