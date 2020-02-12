@@ -17,7 +17,8 @@ type Props = {
     },
     padding?: number,
     strokeWidth?: number,
-    stroke?: string
+    stroke?: string,
+    updateRectProps?: Function
 };
 
 function safeRect(mm0, mm1) {
@@ -33,13 +34,14 @@ function safeRect(mm0, mm1) {
 export default class Column extends React.PureComponent<Props> {
 
     render(): Node {
+        const {updateRectProps} = this.props;
         const {x, y, color, series} = this.props.scales;
         if(!x.scale.bandwidth) throw new Error('x scale must have padding for point charts');
 
         return <g className="Point">{series.groups.map((group, groupIndex) => {
             return group.map((point, pointIndex) => {
                 const fill = color.scalePoint(point);
-                const xValue = x.scale(x.get(point));
+                const xValue = x.scalePoint(point);
                 let yValue, height, width, xOffset;
 
 
@@ -65,17 +67,19 @@ export default class Column extends React.PureComponent<Props> {
                     xOffset = width * groupIndex;
                 }
 
-                return <rect
-                    key={groupIndex + '-' + pointIndex}
-                    fill={fill}
-                    x={xValue + xOffset}
-                    y={yValue}
-                    width={width}
-                    height={height}
-                    stroke={this.props.stroke}
-                    strokeWidth={this.props.strokeWidth}
-                    shapeRendering="crispedges"
-                />;
+                const rectProps = {
+                    key: groupIndex + '-' + pointIndex,
+                    fill: fill,
+                    x: xValue + xOffset,
+                    y: yValue,
+                    width: width,
+                    height: height,
+                    stroke: this.props.stroke,
+                    strokeWidth: this.props.strokeWidth,
+                    shapeRendering: "crispedges"
+                };
+
+                <rect {...(updateRectProps ? updateRectProps(rectProps, point, pointIndex) : rectProps)} />;
             });
         })}</g>;
     }
