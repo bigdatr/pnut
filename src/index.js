@@ -2,13 +2,6 @@
 
 // Children
 
-
-
-
-// Series
-export {default as GroupedSeries} from './series/groupedSeries';
-export {default as SingleSeries} from './series/singleSeries';
-
 // Process
 export {default as stack} from './process/stack';
 export {default as normalizeToPercentage} from './process/normalizeToPercentage';

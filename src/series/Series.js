@@ -42,7 +42,7 @@ export default class Series {
 
     static group(groupKey: [string], pointKey: string, rawData: Point[]): Series {
         if(groupKey.includes(pointKey))
-            throw "Point key cannot be used as a grouping key."
+            throw "Point key cannot be used as a grouping key.";
 
         const baseGroup = new Map();
 
