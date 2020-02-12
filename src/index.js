@@ -1,6 +1,7 @@
 // @flow
 
-// Children
+// Series
+export {default as Series} from './series/Series';
 
 // Process
 export {default as stack} from './process/stack';

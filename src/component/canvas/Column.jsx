@@ -79,7 +79,7 @@ export default class Column extends React.PureComponent<Props> {
                     shapeRendering: "crispedges"
                 };
 
-                <rect {...(updateRectProps ? updateRectProps(rectProps, point, pointIndex) : rectProps)} />;
+                return <rect {...(updateRectProps ? updateRectProps(rectProps, point, pointIndex) : rectProps)} />;
             });
         })}</g>;
     }
