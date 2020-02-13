@@ -5,7 +5,6 @@ import map from 'unmutable/map';
 import toArray from 'unmutable/toArray';
 import get from 'unmutable/get';
 import getIn from 'unmutable/getIn';
-import {arraySet} from 'unmutable/lib/set';
 
 
 export type Point = {[string]: any};
