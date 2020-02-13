@@ -17,6 +17,7 @@ export default function normalizeToPercentage(config: Config) {
             const nextPoints = point.map(point => {
                 let next = Object.assign({}, point);
                 next.originalValue = next[key];
+                next.percentValue = ((next[key] || 0) / total);
                 sum += (next[key] || 0);
                 next[key] = sum / total;
                 return next;
