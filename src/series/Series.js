@@ -5,6 +5,7 @@ import map from 'unmutable/map';
 import toArray from 'unmutable/toArray';
 import get from 'unmutable/get';
 import getIn from 'unmutable/getIn';
+import {arraySet} from 'unmutable/lib/set';
 
 
 export type Point = {[string]: any};
@@ -40,7 +41,9 @@ export default class Series {
         return new Series(config);
     }
 
-    static group(groupKey: string[], pointKey: string, rawData: Point[]): Series {
+    static group(group: string | Array<string>, pointKey: string, rawData: Point[]): Series {
+        // Backwards compatibility;
+        const groupKey = typeof group === "string" ? [group] : group;
         if(groupKey.includes(pointKey))
             throw "Point key cannot be used as a grouping key.";
 
@@ -106,6 +109,18 @@ export default class Series {
 
     getPoint(index: number): Point[] {
         return this.groups.map(group => group[index]);
+    }
+
+    sumRow(key: string, index: number){
+        return this.getGroup(index).reduce((acc, row) => acc + (row[key] || 0), 0);
+    }
+    
+    sumColumn(key: string, index: number){
+        return this.groups.reduce((acc, group) => acc + (group[index][key] || 0), 0);
+    }
+
+    sum(key: string): number{
+        return this.rawData.reduce((acc, point) => acc + (point[key] || 0), 0);
     }
 
 }

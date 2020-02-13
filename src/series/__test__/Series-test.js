@@ -1,5 +1,16 @@
 import Series from '../Series';
 
+const rawData = [
+    {a: 1, b: 1, c: 1},
+    {a: 2, b: 8, c: 10},
+    {a: 5, b: 5, c: 6},
+]
+const newData = rawData.flatMap((row, index) => [
+    {row: "a", col: index, value: row.a},
+    {row: "b", col: index, value: row.b},
+    {row: "c", col: index, value: row.c}
+])
+
 describe('Series', () => {
 
     it('can contruct a series', () => {
@@ -67,6 +78,21 @@ describe('Series', () => {
         ]);
         expect(series.getPoint(1)).toEqual([2,5]);
     });
+
+    it('can sum rows', () => {
+        const series = Series.group('row', 'col', newData);
+        expect(series.sumRow('value', 0)).toEqual(3);
+    })
+
+    it('can sum columns', () => {
+        const series = Series.group('row', 'col', newData);
+        expect(series.sumColumn('value', 0)).toEqual(8);
+    })
+
+    it('can sum all', () => {
+        const series = Series.group('row', 'col', newData);
+        expect(series.sum('value', 0)).toEqual(39);
+    })
 
 });
 
