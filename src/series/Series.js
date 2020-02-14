@@ -40,6 +40,11 @@ export default class Series {
         return new Series(config);
     }
 
+
+    static single(pointKey: string, rawData: Point[]): Series {
+        return Series.group(['NOT_A_GROUPING'], pointKey, rawData);
+    }
+
     static group(group: string | Array<string>, pointKey: string, rawData: Point[]): Series {
         // Backwards compatibility;
         const groupKey = typeof group === "string" ? [group] : group;
@@ -113,7 +118,7 @@ export default class Series {
     sumRow(key: string, index: number){
         return this.getGroup(index).reduce((acc, row) => acc + (row[key] || 0), 0);
     }
-    
+
     sumColumn(key: string, index: number){
         return this.groups.reduce((acc, group) => acc + (group[index][key] || 0), 0);
     }
