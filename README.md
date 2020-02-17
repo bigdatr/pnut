@@ -4,33 +4,59 @@
 
 React charts.
 
-- [API Documentation](https://bigdatr.github.io/pnut/docs)
-- [Examples](https://bigdatr.github.io/pnut/example)
-
-## Contributing
-
-See [Contributing](/CONTRIBUTING.md) for contribution guidelines.
-
-
-## TODO
-* Bar
-* Histogram
-* Binning
-* series y movement
-
-
-## Scales
 
 
 
-### bubble chart 
+# Basics
+1. Series
+2. Scales
+3. Render
+
+
+# API
+
+## Series
+### Grouped
+### Single
+
+## Continuous Scale
+## Categorical Scale
+
+## Color Scale
+Color scales let you change the colors of your charts based on different attributes of your data.
+There are four types:
+
+### Key
+Grab the color directly from a data point based on a key.
+```js
+const color = ColorScale({series, key: 'myColor'});
 ```
-x = continuousScale({columns: 'date'});
-y = continuousScale({columns: ['count']});
-radius = continuousScale({columns: ['spend']});
-color = colorScale({colors: ['#fff', #000'], range: radius.range});
+
+### Set (Categorical)
+Assign a specific color palette to each distinct item in the data. This should pair with a CategoricalScale.
+```js
+const color = ColorScale({series, key: 'type', set: ['red', 'green', 'blue']});
 ```
-### multi line
+
+### Range (Continuous)
+Assign a range of colors and interpolate between them based on a continuous metric. This should pair with a ContinuousScale.
+```js
+const color = ColorScale({series, key: 'age', range: ['#ccc', 'red']});
+```
+
+### Interpolated (Continuous)
+Take control of the colors by providing your own interpolator. `interpolate` is given a scaled value from 0 to 1.
+```js
+const color = ColorScale({series, key: 'type', interpolate: type => {
+	return type >= 0.5 ? 'red' : '#ccc';
+});
+```
+
+
+# Examples
+
+
+## Line
 ```
 x = continuousScale({columns: 'date'});
 y = continuousScale({columns: ['spot_spend']});
@@ -40,9 +66,26 @@ data = groupedSeries({
 
 });
 ```
+## Multi Line
+```
+x = continuousScale({columns: 'date'});
+y = continuousScale({columns: ['spot_spend']});
+data = groupedSeries({
+	data, 
+	groupBy: get('type'),
 
+});
+```
+## Stacked Area
 
-### stacked bar
+## Column
+```
+x = categoricalScale({columns: 'date'});
+y = continuousScale({columns: ['spot_spend']});
+data = plainSeries(data);
+```
+
+## Stacked Column
 ```
 x = categoricalScale({columns: 'date'});
 y = continuousScale({columns: ['spot_spend']});
@@ -53,23 +96,30 @@ data = groupedSeries({
 	process: normalize()
 });
 ```
-
-### bar chart
-```
-x = categoricalScale({columns: 'date'});
-y = continuousScale({columns: ['spot_spend']});
-data = plainSeries(data);
-```
-
-### grouped column
+## Grouped Column
 ```
 x = categoricalScale({columns: 'date'});
 y = continuousScale({columns: ['spot_spend']});
 data = groupedSeries(data, get('category'));
 ```
 
+## Scatter
+```
+x = continuousScale({columns: 'date'});
+y = continuousScale({columns: ['count']});
+radius = continuousScale({columns: ['spend']});
+color = colorScale({colors: ['#fff', #000'], range: radius.range});
+```
+## Bubble
+```
+x = continuousScale({columns: 'date'});
+y = continuousScale({columns: ['count']});
+radius = continuousScale({columns: ['spend']});
+color = colorScale({colors: ['#fff', #000'], range: radius.range});
+```
 
-### ### histogram 
+
+### histogram @todo
 ```
 x = continuousScale({columns: 'date'});
 y = continuousScale({columns: ['spot_spend']});
@@ -81,13 +131,17 @@ data = binnedSeries({
 });
 ```
 
-### pie 
+### pie @todo
 ```
 radius = continousScale({columns: ['foo']});
 data = plainSeries(data);
 ```
 
 
+## TODO
+* Bar
+* Histogram
+* Series.bin();
 
 
 
