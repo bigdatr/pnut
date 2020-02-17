@@ -42,7 +42,7 @@ export default class Series {
 
 
     static single(pointKey: string, rawData: Point[]): Series {
-        return Series.group(['NOT_A_GROUPING'], pointKey, rawData);
+        return Series.of({type: 'single', groupKey: [], pointKey, rawData, groups: [rawData]});
     }
 
     static group(group: string | Array<string>, pointKey: string, rawData: Point[]): Series {
