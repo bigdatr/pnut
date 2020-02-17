@@ -19,8 +19,15 @@ React charts.
 ### Grouped
 ### Single
 
+---
+
 ## Continuous Scale
+
+---
+
 ## Categorical Scale
+
+---
 
 ## Color Scale
 Color scales let you change the colors of your charts based on different attributes of your data.
@@ -29,24 +36,28 @@ There are four types:
 ### Key
 Grab the color directly from a data point based on a key.
 ```js
+// Get the color from `point.myColor`
 const color = ColorScale({series, key: 'myColor'});
 ```
 
 ### Set (Categorical)
 Assign a specific color palette to each distinct item in the data. This should pair with a CategoricalScale.
 ```js
+// Assign either red, green or blue based on `point.type`
 const color = ColorScale({series, key: 'type', set: ['red', 'green', 'blue']});
 ```
 
 ### Range (Continuous)
 Assign a range of colors and interpolate between them based on a continuous metric. This should pair with a ContinuousScale.
 ```js
+// Blend age values from grey to red as they get older
 const color = ColorScale({series, key: 'age', range: ['#ccc', 'red']});
 ```
 
 ### Interpolated (Continuous)
 Take control of the colors by providing your own interpolator. `interpolate` is given a scaled value from 0 to 1.
 ```js
+// Make the top half of values red
 const color = ColorScale({series, key: 'type', interpolate: type => {
 	return type >= 0.5 ? 'red' : '#ccc';
 });
