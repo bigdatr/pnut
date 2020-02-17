@@ -3,9 +3,28 @@ import type Series from '../series/Series';
 import type {ContinuousScale} from '../scale/continuousScale';
 import type {CategoricalScale} from '../scale/categoricalScale';
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import useMousePosition from '@react-hook/mouse-position';
 import {bisectRight} from 'd3-array';
+
+type ChildProps<A> = {
+    nearestPoint: A,
+    position: {
+        x: number,
+        y: number,
+        pageX: number,
+        pageY: number,
+        clientX: number,
+        clientY: number,
+        screenX: number,
+        screenY: number,
+        elementWidth: number,
+        elementHeight: number,
+        isOver: boolean,
+        isDown: boolean
+    },
+    items: Array<A>
+};
 
 type Props<A> = {
     scales: {
@@ -16,25 +35,9 @@ type Props<A> = {
     height: number,
     width: number,
     fps?: number,
-    onChange: Function,
-    children: ({
-        nearestPoint: A,
-        position: {
-            x: number,
-            y: number,
-            pageX: number,
-            pageY: number,
-            clientX: number,
-            clientY: number,
-            screenX: number,
-            screenY: number,
-            elementWidth: number,
-            elementHeight: number,
-            isOver: boolean,
-            isDown: boolean
-        },
-        items: Array<A>
-    }) => Node
+    onClick?: (ChildProps<A>) => void,
+    onChange?: (ChildProps<A>) => void,
+    children: (ChildProps<A>) => Node
 };
 export default function Interaction<A>(props: Props<A>) {
     const [item, setItem] = useState(null);
@@ -73,8 +76,12 @@ export default function Interaction<A>(props: Props<A>) {
         setItem(nextValue);
     }, [position]);
 
+    const onClick = useCallback(() => {
+        props.onClick && item && props.onClick(item);
+    }, [item]);
+
     // $FlowFixMe - I dont even known
-    return <g className="Interaction" ref={ref}>
+    return <g className="Interaction" ref={ref} onClick={onClick}>
         <rect
             x={0}
             y={0}
