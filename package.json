@@ -30,6 +30,7 @@
     "babel-runtime": "^6.5.0",
     "blueflag-test": "^0.22.0",
     "flow-bin": "^0.118.0",
+    "poi": "^12.7.5",
     "react": "^16.12.0",
     "react-dom": "^16.12.0"
   },
