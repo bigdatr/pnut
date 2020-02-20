@@ -14,7 +14,7 @@ To render a chart you need three parts:
 
 
 ```jsx
-import {Series, ContinuousScale, ColorScale, Axis, Line, dimensions} from 'pnut';
+import {Series, ContinuousScale, ColorScale, Axis, Line, layout} from 'pnut';
 
 function SavingsOverTime() {
 	const {data} = props;
@@ -23,7 +23,7 @@ function SavingsOverTime() {
 	const series = Series.single('day', data);
 
 	// calculate chart width, height and padding
-	const dd = dimension({width: 400, height: 400, left: 32, bottom: 32});
+	const dd = layout({width: 400, height: 400, left: 32, bottom: 32});
 
 	// Set up scales to define our x,y and color
 	const x = ContinuousScale({series, key: 'day', range: dd.xRange});
@@ -126,7 +126,7 @@ function SavingsOverTime() {
 	const series = Series.single('day', data);
 
 	// calculate chart width, height and padding
-	const dd = dimension({width: 400, height: 400, left: 32, bottom: 32});
+	const dd = layout({width: 400, height: 400, left: 32, bottom: 32});
 
 	// Set up scales to define our x,y and color
 	const x = ContinuousScale({series, key: 'day', range: dd.xRange});
@@ -156,7 +156,7 @@ function MultiLine() {
 	const series = Series.group('type', 'day', data);
 
 	// calculate chart width, height and padding
-	const dd = dimension({width: 400, height: 400, left: 32, bottom: 32});
+	const dd = layout({width: 400, height: 400, left: 32, bottom: 32});
 
 	// Set up scales to define our x,y and color
 	const x = ContinuousScale({series, key: 'day', range: dd.xRange});
@@ -185,7 +185,7 @@ function StackedArea() {
 	const series = Series.group('type', 'day', data);
 
 	// calculate chart width, height and padding
-	const dd = dimension({width: 400, height: 400, left: 32, bottom: 32});
+	const dd = layout({width: 400, height: 400, left: 32, bottom: 32});
 
 	// Set up scales to define our x,y and color
 	const x = ContinuousScale({series, key: 'day', range: dd.xRange})
@@ -221,7 +221,7 @@ function Column() {
 	const series = Series.single('fruit', data);
 
 	// calculate chart width, height and padding
-	const dd = dimensions({width: 400, height: 400, left: 32, bottom: 32});
+	const dd = layout({width: 400, height: 400, left: 32, bottom: 32});
 
 	// Set up scales to define our x,y and color
     const x = categoricalScale({series, key: 'fruit', range: dd.xRange, padding: 0});

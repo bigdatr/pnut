@@ -25,7 +25,7 @@ export {default as Interaction} from './component/Interaction';
 
 
 // Other
-export {default as dimensions} from './util/dimensions';
+export {default as layout} from './util/layout';
 
 
 // Deprecated
