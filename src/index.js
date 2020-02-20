@@ -27,6 +27,3 @@ export {default as Interaction} from './component/Interaction';
 // Other
 export {default as layout} from './util/layout';
 
-
-// Deprecated
-export {default as ChartData} from './chartdata/ChartData';
