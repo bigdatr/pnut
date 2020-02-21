@@ -244,54 +244,205 @@ function StackedArea() {
 
 ## Column
 ```jsx
-function Column() {
-	const data = [
+import {Chart, Column, Series, CategoricalScale, ContinuousScale, ColorScale, Axis, layout} from './src/index';
+
+function ColumnChart() {
+    const data = [
         {fruit: 'apple', count: 20},
         {fruit: 'pears', count: 10},
         {fruit: 'strawberry', count: 30}
     ];
 
-	// Define our series with day as the primary dimension
-	const series = Series.single('fruit', data);
+    // Define our series with day as the primary dimension
+    const series = Series.single('fruit', data);
 
-	// calculate chart width, height and palling
-	const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
+    // calculate chart width, height and palling
+    const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
 
-	// Set up scales to define our x,y and color
-    const x = categoricalScale({series, key: 'fruit', range: ll.xRange, palling: 0});
-    const y = continuousScale({series, key: 'count', range: ll.yRange, zero: true});
-	const color = colorScale({series, key: 'fruit', set: ['red', 'green', 'blue']});
+    // Set up scales to define our x,y and color
+    const x = CategoricalScale({series, key: 'fruit', range: ll.xRange, padding: 0.1});
+    const y = ContinuousScale({series, key: 'count', range: ll.yRange, zero: true});
+    const color = ColorScale({series, key: 'fruit', set: ['red', 'green', 'blue']});
 
 
-	// create a scales object for each of our renderable components
-	const scales = {series, x, y, color};
+    // create a scales object for each of our renderable components
+    const scales = {series, x, y, color};
 
-	// render a chart with two axis and a line
-	return <Chart {...ll}>
-		<Axis scales={scales} position="left" />
-		<Axis scales={scales} position="bottom" />
-		<Column scales={scales} />
-	</Chart>;
+    // render a chart with two axis and a line
+    return <Chart {...ll}>
+        <Axis scales={scales} position="left" />
+        <Axis scales={scales} position="bottom" />
+        <Column scales={scales} />
+    </Chart>;
 }
 ```
 
 
 ## Stacked Column
 ```
-@todo
+import {Chart, Column, Series, CategoricalScale, ContinuousScale, ColorScale, Axis, layout, stack} from './src/index';
+
+function StackedColumn() {
+    const data = [
+        {day: 1, type: 'apples', value: 10},
+        {day: 2, type: 'apples', value: 10},
+        {day: 3, type: 'apples', value: 20},
+        {day: 4, type: 'apples', value: 15},
+        {day: 5, type: 'apples', value: 200},
+        {day: 1, type: 'oranges', value: 200},
+        {day: 2, type: 'oranges', value: 50},
+        {day: 3, type: 'oranges', value: 30},
+        {day: 4, type: 'oranges', value: 24},
+        {day: 5, type: 'oranges', value: 150}
+    ];
+
+    // Define our series with day as the primary dimension
+    const series = Series.group('type', 'day', data)
+		.update(stack({key: 'value'})); // stack savings metric
+
+    // calculate chart width, height and palling
+    const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
+
+    // Set up scales to define our x,y and color
+    const x = CategoricalScale({series, key: 'day', range: ll.xRange, padding: 0.1});
+    const y = ContinuousScale({series, key: 'value', range: ll.yRange, zero: true});
+    const color = ColorScale({series, key: 'type', set: ['red', 'green']});
+
+
+    // create a scales object for each of our renderable components
+    const scales = {series, x, y, color};
+
+    // render a chart with two axis and a line
+    return <Chart {...ll}>
+        <Axis scales={scales} position="left" />
+        <Axis scales={scales} position="bottom" />
+        <Column scales={scales} />
+    </Chart>;
+}
 ```
 ## Grouped Column
 ```
-@todo
+import {Chart, Column, Series, CategoricalScale, ContinuousScale, ColorScale, Axis, layout} from './src/index';
+
+function GroupedColumn() {
+    const data = [
+        {day: 1, type: 'apples', value: 10},
+        {day: 2, type: 'apples', value: 10},
+        {day: 3, type: 'apples', value: 20},
+        {day: 4, type: 'apples', value: 15},
+        {day: 5, type: 'apples', value: 200},
+        {day: 1, type: 'oranges', value: 200},
+        {day: 2, type: 'oranges', value: 50},
+        {day: 3, type: 'oranges', value: 30},
+        {day: 4, type: 'oranges', value: 24},
+        {day: 5, type: 'oranges', value: 150}
+    ];
+
+    // Define our series with day as the primary dimension
+    const series = Series.group('type', 'day', data);
+
+    // calculate chart width, height and palling
+    const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
+
+    // Set up scales to define our x,y and color
+    const x = CategoricalScale({series, key: 'day', range: ll.xRange, padding: 0.1});
+    const y = ContinuousScale({series, key: 'value', range: ll.yRange, zero: true});
+    const color = ColorScale({series, key: 'type', set: ['red', 'green']});
+
+
+    // create a scales object for each of our renderable components
+    const scales = {series, x, y, color};
+
+    // render a chart with two axis and a line
+    return <Chart {...ll}>
+        <Axis scales={scales} position="left" />
+        <Axis scales={scales} position="bottom" />
+        <Column scales={scales} />
+    </Chart>;
+}
 ```
 
 ## Scatter
 ```
-@todo
+import {Chart, Scatter, Series, ContinuousScale, ColorScale, Axis, layout} from './src/index';
+
+function ScatterChart() {
+    const data = [
+        {day: 1, type: 'apples', value: 0},
+        {day: 2, type: 'apples', value: 10},
+        {day: 3, type: 'apples', value: 20},
+        {day: 4, type: 'apples', value: 15},
+        {day: 5, type: 'apples', value: 200},
+        {day: 1, type: 'oranges', value: 200},
+        {day: 2, type: 'oranges', value: 50},
+        {day: 3, type: 'oranges', value: 30},
+        {day: 4, type: 'oranges', value: 24},
+        {day: 5, type: 'oranges', value: 150}
+    ];
+
+    // Define our series with day as the primary dimension
+    const series = Series.group('type', 'day', data);
+
+    // calculate chart width, height and palling
+    const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
+
+    // Set up scales to define our x, y and color
+    const x = ContinuousScale({series, key: 'day', range: ll.xRange});
+    const y = ContinuousScale({series, key: 'value', range: ll.yRange});
+    const radius = ContinuousScale({series, key: 'value', range: [2, 2]});
+    const color = ColorScale({series, key: 'type', set: ['red', 'orange']});
+
+
+    // create a scales object for each of our renderable components
+    const scales = {series, x, y, radius, color};
+
+    // render a chart with two axis and a line
+    return <Chart {...ll}>
+        <Axis scales={scales} position="left" />
+        <Axis scales={scales} position="bottom" />
+        <Scatter scales={scales} strokeWidth="2" />
+    </Chart>;
+}
+
 ```
 ## Bubble
 ```
-@todo
+import {Chart, Scatter, Series, ContinuousScale, ColorScale, Axis, layout} from './src/index';
+
+function BubbleChart() {
+    const data = [
+        {day: 1, size: 200, value: 0},
+        {day: 2, size: 800, value: 10},
+        {day: 3, size: 900, value: 20},
+        {day: 4, size: 200, value: 15},
+        {day: 5, size: 300, value: 200},
+        {day: 6, size: 400, value: 100},
+        {day: 7, size: 300, value: 20}
+    ];
+
+    // Define our series with day as the primary dimension
+    const series = Series.group('type', 'day', data);
+
+    // calculate chart width, height and palling
+    const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
+
+    // Set up scales to define our x, y and color
+    const x = ContinuousScale({series, key: 'day', range: ll.xRange});
+    const y = ContinuousScale({series, key: 'value', range: ll.yRange});
+    const radius = ContinuousScale({series, key: 'size', range: [2, 10]});
+    const color = ColorScale({series, key: 'type', set: ['orange']});
+
+
+    // create a scales object for each of our renderable components
+    const scales = {series, x, y, radius, color};
+
+    // render a chart with two axis and a line
+    return <Chart {...ll}>
+        <Axis scales={scales} position="left" />
+        <Axis scales={scales} position="bottom" />
+        <Scatter scales={scales} strokeWidth="2" />
+    </Chart>;
+}
 ```
 
 
