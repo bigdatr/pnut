@@ -14,32 +14,38 @@ To render a chart you need three parts:
 
 
 ```jsx
-import {Series, ContinuousScale, ColorScale, Axis, Line, layout} from 'pnut';
+import {Chart, Line, Series, ContinuousScale, ColorScale, Axis, layout} from './src/index';
 
 function SavingsOverTime() {
-	const {data} = props;
-		
-	// Define our series with day as the primary dimension
-	const series = Series.single('day', data);
+    const data = [
+        {day: 1, savings: 0},
+        {day: 2, savings: 10},
+        {day: 3, savings: 20},
+        {day: 4, savings: 15},
+        {day: 5, savings: 200}
+    ];
 
-	// calculate chart width, height and padding
-	const dd = layout({width: 400, height: 400, left: 32, bottom: 32});
+    // Define our series with day as the primary dimension
+    const series = Series.single('day', data);
 
-	// Set up scales to define our x,y and color
-	const x = ContinuousScale({series, key: 'day', range: dd.xRange});
-	const y = ContinuousScale({series, key: 'savings', range: dd.yRange, zero: true});
-	const color = ColorScale({series, key: 'savings', set: ['red']});
+    // calculate chart width, height and palling
+    const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
+
+    // Set up scales to define our x, y and color
+    const x = ContinuousScale({series, key: 'day', range: ll.xRange});
+    const y = ContinuousScale({series, key: 'savings', range: ll.yRange, zero: true});
+    const color = ColorScale({series, key: 'savings', set: ['#ee4400']});
 
 
-	// create a scales object for each of our renderable components
-	const scales = {series, x, y, color};
+    // create a scales object for each of our renderable components
+    const scales = {series, x, y, color};
 
-	// render a chart with two axis and a line
-	return <Chart {...dd}>
-		<Axis scales={scales} position="left" />
-		<Axis scales={scales} position="bottom" />
-		<Line scales={scales} strokeWidth="2" />
-	</Chart>;
+    // render a chart with two axis and a line
+    return <Chart {...ll}>
+        <Axis scales={scales} position="left" />
+        <Axis scales={scales} position="bottom" />
+        <Line scales={scales} strokeWidth="2" />
+    </Chart>;
 }
 ```
 
@@ -119,18 +125,20 @@ const color = ColorScale({series, key: 'type', interpolate: type => {
 
 ## Line
 ```jsx
+import {Series, ContinuousScale, ColorScale, Axis, Line, layout} from 'pnut';
+
 function SavingsOverTime() {
 	const {data} = props;
 		
 	// Define our series with day as the primary dimension
 	const series = Series.single('day', data);
 
-	// calculate chart width, height and padding
-	const dd = layout({width: 400, height: 400, left: 32, bottom: 32});
+	// calculate chart width, height and palling
+	const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
 
-	// Set up scales to define our x,y and color
-	const x = ContinuousScale({series, key: 'day', range: dd.xRange});
-	const y = ContinuousScale({series, key: 'savings', range: dd.yRange, zero: true});
+	// Set up scales to define our x, y and color
+	const x = ContinuousScale({series, key: 'day', range: ll.xRange});
+	const y = ContinuousScale({series, key: 'savings', range: ll.yRange, zero: true});
 	const color = ColorScale({series, key: 'savings', set: ['red']});
 
 
@@ -138,7 +146,7 @@ function SavingsOverTime() {
 	const scales = {series, x, y, color};
 
 	// render a chart with two axis and a line
-	return <Chart {...dd}>
+	return <Chart {...ll}>
 		<Axis scales={scales} position="left" />
 		<Axis scales={scales} position="bottom" />
 		<Line scales={scales} strokeWidth="2" />
@@ -149,61 +157,87 @@ function SavingsOverTime() {
 
 ## Multi Line
 ```jsx
+import {Chart, Line, Series, ContinuousScale, ColorScale, Axis, layout} from './src/index';
+
 function MultiLine() {
-	const {data} = props;
-		
-	// Define our series with type as the group and day as the point
-	const series = Series.group('type', 'day', data);
+    const data = [
+        {day: 1, type: 'apples', value: 0},
+        {day: 2, type: 'apples', value: 10},
+        {day: 3, type: 'apples', value: 20},
+        {day: 4, type: 'apples', value: 15},
+        {day: 5, type: 'apples', value: 200},
+        {day: 1, type: 'oranges', value: 200},
+        {day: 2, type: 'oranges', value: 50},
+        {day: 3, type: 'oranges', value: 30},
+        {day: 4, type: 'oranges', value: 24},
+        {day: 5, type: 'oranges', value: 150}
+    ];
 
-	// calculate chart width, height and padding
-	const dd = layout({width: 400, height: 400, left: 32, bottom: 32});
+    // Define our series with day as the primary dimension
+    const series = Series.group('type', 'day', data);
 
-	// Set up scales to define our x,y and color
-	const x = ContinuousScale({series, key: 'day', range: dd.xRange});
-	const y = ContinuousScale({series, key: 'savings', range: dd.yRange, zero: true});
-	const color = ColorScale({series, key: 'type', set: ['red', 'green', 'blue']});
+    // calculate chart width, height and palling
+    const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
 
-	// create a scales object for each of our renderable components
-	const scales = {series, x, y, color};
+    // Set up scales to define our x, y and color
+    const x = ContinuousScale({series, key: 'day', range: ll.xRange});
+    const y = ContinuousScale({series, key: 'value', range: ll.yRange, zero: true});
+    const color = ColorScale({series, key: 'type', set: ['red', 'orange']});
 
-	// render a chart with two axis and a line
-	return <Chart {...dd}>
-		<Axis scales={scales} position="left" />
-		<Axis scales={scales} position="bottom" />
-		<Line scales={scales} strokeWidth="2" />
-	</Chart>;
+
+    // create a scales object for each of our renderable components
+    const scales = {series, x, y, color};
+
+    // render a chart with two axis and a line
+    return <Chart {...ll}>
+        <Axis scales={scales} position="left" />
+        <Axis scales={scales} position="bottom" />
+        <Line scales={scales} strokeWidth="2" />
+    </Chart>;
 }
 ```
 
 
 ## Stacked Area
 ```jsx
+import {Chart, Line, Series, ContinuousScale, ColorScale, Axis, layout, stack} from './src/index';
+
 function StackedArea() {
-	const {data} = props;
-		
-	// Define our series with type as the group and day as the point
-	const series = Series.group('type', 'day', data);
+    const data = [
+        {day: 1, type: 'apples', value: 0},
+        {day: 2, type: 'apples', value: 10},
+        {day: 3, type: 'apples', value: 20},
+        {day: 4, type: 'apples', value: 15},
+        {day: 5, type: 'apples', value: 200},
+        {day: 1, type: 'oranges', value: 200},
+        {day: 2, type: 'oranges', value: 50},
+        {day: 3, type: 'oranges', value: 30},
+        {day: 4, type: 'oranges', value: 24},
+        {day: 5, type: 'oranges', value: 150}
+    ];
 
-	// calculate chart width, height and padding
-	const dd = layout({width: 400, height: 400, left: 32, bottom: 32});
+    // Define our series with day as the primary dimension
+    const series = Series.group('type', 'day', data)
+		.update(stack({key: 'value'})); // stack savings metric
 
-	// Set up scales to define our x,y and color
-	const x = ContinuousScale({series, key: 'day', range: dd.xRange})
-		.update(stack({key: 'savings'}); // stack savings metric
+    // calculate chart width, height and palling
+    const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
 
-	const y = ContinuousScale({series, key: 'savings', range: dd.yRange, zero: true});
-	const color = ColorScale({series, key: 'type', set: ['red', 'green', 'blue']});
+    // Set up scales to define our x, y and color
+    const x = ContinuousScale({series, key: 'day', range: ll.xRange});
+    const y = ContinuousScale({series, key: 'value', range: ll.yRange, zero: true});
+    const color = ColorScale({series, key: 'type', set: ['red', 'orange']});
 
 
-	// create a scales object for each of our renderable components
-	const scales = {series, x, y, color};
+    // create a scales object for each of our renderable components
+    const scales = {series, x, y, color};
 
-	// render a chart with two axis and a line
-	return <Chart {...dd}>
-		<Axis scales={scales} position="left" />
-		<Axis scales={scales} position="bottom" />
-		<Line area={true} scales={scales} strokeWidth="2" />
-	</Chart>;
+    // render a chart with two axis and a line
+    return <Chart {...ll}>
+        <Axis scales={scales} position="left" />
+        <Axis scales={scales} position="bottom" />
+        <Line area={true} scales={scales} strokeWidth="2" />
+    </Chart>;
 }
 ```
 
@@ -220,12 +254,12 @@ function Column() {
 	// Define our series with day as the primary dimension
 	const series = Series.single('fruit', data);
 
-	// calculate chart width, height and padding
-	const dd = layout({width: 400, height: 400, left: 32, bottom: 32});
+	// calculate chart width, height and palling
+	const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
 
 	// Set up scales to define our x,y and color
-    const x = categoricalScale({series, key: 'fruit', range: dd.xRange, padding: 0});
-    const y = continuousScale({series, key: 'count', range: dd.yRange, zero: true});
+    const x = categoricalScale({series, key: 'fruit', range: ll.xRange, palling: 0});
+    const y = continuousScale({series, key: 'count', range: ll.yRange, zero: true});
 	const color = colorScale({series, key: 'fruit', set: ['red', 'green', 'blue']});
 
 
@@ -233,7 +267,7 @@ function Column() {
 	const scales = {series, x, y, color};
 
 	// render a chart with two axis and a line
-	return <Chart {...dd}>
+	return <Chart {...ll}>
 		<Axis scales={scales} position="left" />
 		<Axis scales={scales} position="bottom" />
 		<Column scales={scales} />

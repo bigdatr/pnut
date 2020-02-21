@@ -6,7 +6,7 @@ import * as d3Scale from 'd3-scale';
 import * as array from 'd3-array';
 import baseScale from './baseScale';
 import flatten from 'unmutable/flatten';
-import isDate from '../util/isDate';
+import isValueDate from '../util/isDate';
 
 
 type ScaleConfig = {
@@ -38,7 +38,7 @@ export default function continuousScale(config: ScaleConfig): ContinuousScale {
 
     const data = flatten(1)(series.groups);
     const isNumber = data.every(ii => typeof ii[key] === 'number' || ii[key] == null);
-    const isDate = data.every(ii => isDate(ii[key]) || ii[key] == null);
+    const isDate = data.every(ii => isValueDate(ii[key]) || ii[key] == null);
     const get = (group) => group[key];
 
     if(!isNumber && !isDate) throw new Error('Continuous scales must be all numbers or all dates');
