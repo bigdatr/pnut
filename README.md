@@ -10,13 +10,11 @@ Flexible chart building blocks for React. _(Somewhere between d3 and a charting 
 	* [Series](#series)
 		* [Grouped](#grouped)
 		* [Single](#single)
-	* [Continuous Scale](#continuous-scale)
-	* [Categorical Scale](#categorical-scale)
-	* [Color Scale](#color-scale)
-		* [Key](#key)
-		* [Set (Categorical)](#set-categorical)
-		* [Range (Continuous)](#range-continuous)
-		* [Interpolated (Continuous)](#interpolated-continuous)
+	* [Scales](#scales)
+		* [Continuous Scale](#continuous-scale)
+		* [Categorical Scale](#categorical-scale)
+		* [Color Scale](#color-scale)
+	* [Layout](#layout)
 * [Examples](#examples)
 	* [Line](#line)
 	* [Multi Line](#multi-line)
@@ -26,9 +24,9 @@ Flexible chart building blocks for React. _(Somewhere between d3 and a charting 
 	* [Grouped Column](#grouped-column)
 	* [Scatter](#scatter)
 	* [Bubble](#bubble)
-	* [Histogram](#histogram)
-	* [Pie](#pie)
-	* [TODO](#todo)
+	* [Histogram - TODO](#histogram---todo)
+	* [Pie - TODO](#pie---todo)
+	* [Todo](#todo)
 
 <!-- vim-markdown-toc -->
 
@@ -98,52 +96,123 @@ Pnut chooses to require data that would match rows from an SQL query. If you hav
 # API
 
 ## Series
+The first step in building a chart with pnut is to build a series object. The series defines how to group your data ready for rendering in an x/y plane. Under the hood it holds your data a two dimensional array of groups and points.
+
 ### Grouped
+Grouped series are used for things like multi line charts and stacked areas. One group per line and one point to match each x axis item.
+
+```
+// Series.group(groupKey: string, pointKey: string, data: Array<Point>);
+
+const data = [
+	{day: 1, type: 'apples', value: 0},
+	{day: 2, type: 'apples', value: 10},
+	{day: 3, type: 'apples', value: 20},
+	{day: 4, type: 'apples', value: 15},
+	{day: 5, type: 'apples', value: 200},
+	{day: 1, type: 'oranges', value: 200},
+	{day: 2, type: 'oranges', value: 50},
+	{day: 3, type: 'oranges', value: 30},
+	{day: 4, type: 'oranges', value: 24},
+	{day: 5, type: 'oranges', value: 150}
+];
+
+const series = Series.group('type', 'day', data);
+```
+
 ### Single
+A single series is just like group but there is only one group.
 
----
+```
+Series.single(pointKey: string, data: Array<Point>);
 
-## Continuous Scale
+const data = [
+	{day: 1, type: 'apples', value: 0},
+	{day: 2, type: 'apples', value: 10},
+	{day: 3, type: 'apples', value: 20},
+	{day: 4, type: 'apples', value: 15},
+	{day: 5, type: 'apples', value: 200}
+];
 
----
+const series = Series.single('day', data);
+```
 
-## Categorical Scale
+## Scales
+Scales take your series and create functions that convert your data points to something that can be rendered.
+A classic example of this is converting your data points to a set of x/y coordinates. Each chart renderable will require specific set of scales in order to render. Each scale can be continuous, categorical or color.p
+For example:
 
----
+* A line chart needs a continuous x scale, a continuous y scale, and a color scale.
+* A column chart needs a categorical x scale, a continuous y scale, and a color scale.
+* A bubble chart needs a continuous scale for x,y and radius, and a color scale.
 
-## Color Scale
+### Continuous Scale
+Continuous scales are for dimensions like numbers and dates, where the value is infinitely divideable.
+
+```flow
+type ContinuousScaleConfig = {
+    series: Series, // A series object
+    key: string, // Which key on your data points
+    range: [number, number] // The min and max this scale should map to. (Often layout.yRange)
+    zero?: boolean, // Force the scale to start at zero
+    clamp?: boolean // Clamp values outside the series to min and max
+};
+
+// Examples
+const y = ContinuousScale({series, key: 'value', range: layout.yRange, zero: true});
+const x = ContinuousScale({series, key: 'date', range: layout.xRange});
+```
+
+
+### Categorical Scale
+Categorical scales are for string type dimensions, dimension where the values cannot be divided. Things like name, type, favourite color.
+_Dates can also be categorical but usually require some formatting to render properly._
+
+
+```flow
+type CategoricalScaleConfig = {
+    series: Series, // A series object
+    key: string, // Which key on your data points
+    padding?: number, // How much space to place between categories (Only needs for column charts)
+    range: [number, number] // The min and max this scale should map to. (Often layout.xRange)
+};
+
+// Examples
+const x = ContinuousScale({series, key: 'favouriteColor', range: layout.xRange, padding: 0.1});
+```
+
+### Color Scale
 Color scales let you change the colors of your charts based on different attributes of your data.
-There are four types:
 
-### Key
-Grab the color directly from a data point based on a key.
+There are four types:
+* Key - _Use the color from a data point_
+* Set - _Assign a specific color palette to each distinct item in the data. This should pair with a CategoricalScale._
+* Range - _Assign a range of colors and interpolate between them based on a continuous metric. This should pair with a ContinuousScale._
+* Interpolated - _Take control of the colors by providing your own interpolator. `interpolate` is given a scaled value from 0 to 1._
+
+
 ```js
 // Get the color from `point.myColor`
-const color = ColorScale({series, key: 'myColor'});
-```
+const key = ColorScale({series, key: 'myColor'});
 
-### Set (Categorical)
-Assign a specific color palette to each distinct item in the data. This should pair with a CategoricalScale.
-```js
+
 // Assign either red, green or blue based on `point.type`
-const color = ColorScale({series, key: 'type', set: ['red', 'green', 'blue']});
-```
+const set = ColorScale({series, key: 'type', set: ['red', 'green', 'blue']});
 
-### Range (Continuous)
-Assign a range of colors and interpolate between them based on a continuous metric. This should pair with a ContinuousScale.
-```js
 // Blend age values from grey to red as they get older
-const color = ColorScale({series, key: 'age', range: ['#ccc', 'red']});
-```
+const range = ColorScale({series, key: 'age', range: ['#ccc', 'red']});
 
-### Interpolated (Continuous)
-Take control of the colors by providing your own interpolator. `interpolate` is given a scaled value from 0 to 1.
-```js
-// Make the top half of values red
-const color = ColorScale({series, key: 'type', interpolate: type => {
+
+// Apply custom interpolation to make the top half of values red
+const interpolated = ColorScale({series, key: 'type', interpolate: type => {
 	return type >= 0.5 ? 'red' : '#ccc';
 });
+
 ```
+
+
+## Layout
+
 
 
 
@@ -475,18 +544,11 @@ function BubbleChart() {
 ```
 
 
-## Histogram
-```
-@todo
-```
-
-## Pie
-```
-@todo
-```
+## Histogram - TODO
+## Pie - TODO
 
 
-## TODO
+## Todo
 * Bar
 * Histogram
 * Series.bin();
