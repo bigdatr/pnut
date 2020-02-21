@@ -1,8 +1,37 @@
 # pnut
-[![pnut npm](https://img.shields.io/npm/v/pnut.svg?style=flat-square)](https://www.npmjs.com/package/pnut)
-[![pnut circle](https://img.shields.io/circleci/project/github/bigdatr/pnut.svg?style=flat-square)](https://circleci.com/gh/bigdatr/pnut)
 
 Flexible chart building blocks for React. _(Somewhere between d3 and a charting library)_
+
+<!-- vim-markdown-toc GFM -->
+
+* [Basics](#basics)
+* [API Choices](#api-choices)
+* [API](#api)
+	* [Series](#series)
+		* [Grouped](#grouped)
+		* [Single](#single)
+	* [Continuous Scale](#continuous-scale)
+	* [Categorical Scale](#categorical-scale)
+	* [Color Scale](#color-scale)
+		* [Key](#key)
+		* [Set (Categorical)](#set-categorical)
+		* [Range (Continuous)](#range-continuous)
+		* [Interpolated (Continuous)](#interpolated-continuous)
+* [Examples](#examples)
+	* [Line](#line)
+	* [Multi Line](#multi-line)
+	* [Stacked Area](#stacked-area)
+	* [Column](#column)
+	* [Stacked Column](#stacked-column)
+	* [Grouped Column](#grouped-column)
+	* [Scatter](#scatter)
+	* [Bubble](#bubble)
+	* [Histogram](#histogram)
+	* [Pie](#pie)
+	* [TODO](#todo)
+
+<!-- vim-markdown-toc -->
+
 
 
 # Basics
