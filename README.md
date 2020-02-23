@@ -5,7 +5,7 @@ Flexible chart building blocks for React. _(Somewhere between d3 and a charting 
 <!-- vim-markdown-toc GFM -->
 
 * [Basics](#basics)
-* [API Choices](#api-choices)
+* [Design Choices](#design-choices)
 * [API](#api)
     * [Series](#series)
         * [Grouped](#grouped)
@@ -77,9 +77,10 @@ function SavingsOverTime() {
 ```
 
 
-# API Choices
+# Design Choices
 Pnut chooses to require data that would match rows from an SQL query. If you have pivoted data you will need to flatten it.
-```
+
+```js
 // good
 [
     {value: 10, type: 'apples'},
