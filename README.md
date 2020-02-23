@@ -101,7 +101,7 @@ The first step in building a chart with pnut is to build a series object. The se
 ### Grouped
 Grouped series are used for things like multi line charts and stacked areas. One group per line and one point to match each x axis item.
 
-```
+```jsx
 // Series.group(groupKey: string, pointKey: string, data: Array<Point>);
 
 const data = [
@@ -123,7 +123,7 @@ const series = Series.group('type', 'day', data);
 ### Single
 A single series is just like group but there is only one group.
 
-```
+```jsx
 Series.single(pointKey: string, data: Array<Point>);
 
 const data = [
@@ -165,11 +165,11 @@ const x = ContinuousScale({series, key: 'date', range: layout.xRange});
 
 
 ### Categorical Scale
-Categorical scales are for string type dimensions, dimension where the values cannot be divided. Things like name, type, favourite color.
+Categorical scales are for dimension where the values cannot be divided. Things like name, type, or favourite color.
 _Dates can also be categorical but usually require some formatting to render properly._
 
 
-```flow
+```js
 type CategoricalScaleConfig = {
     series: Series, // A series object
     key: string, // Which key on your data points
@@ -210,13 +210,34 @@ const interpolated = ColorScale({series, key: 'type', interpolate: type => {
 
 ```
 
-
 ## Layout
+Because SVG uses a coordinate system originating from the top left the layout function is used to calculate the required widths, padding and flip the y axis.
 
+```js
+type layout = (LayoutInput) => LayoutOutput;
 
+type LayoutInput = {
+	width: number,
+	height: number,
+	top?: number,
+	bottom?: number,
+	left?: number,
+	right?: number
+};
 
-
-
+type LayoutOutput = {
+	width: number, // Original width - left and right
+	height: number, // Original height - top and bottom
+	padding: {
+		top: number,
+		bottom: number,
+		left: number,
+		right: number
+	},
+	xRange: [number, number], // tuple from 0 to processed width
+	yRange: [number, number], // flipped tuple from processed height to zero
+};
+```
 
 # Examples
 
