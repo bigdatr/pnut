@@ -7,26 +7,26 @@ Flexible chart building blocks for React. _(Somewhere between d3 and a charting 
 * [Basics](#basics)
 * [API Choices](#api-choices)
 * [API](#api)
-	* [Series](#series)
-		* [Grouped](#grouped)
-		* [Single](#single)
-	* [Scales](#scales)
-		* [Continuous Scale](#continuous-scale)
-		* [Categorical Scale](#categorical-scale)
-		* [Color Scale](#color-scale)
-	* [Layout](#layout)
+    * [Series](#series)
+        * [Grouped](#grouped)
+        * [Single](#single)
+    * [Scales](#scales)
+        * [Continuous Scale](#continuous-scale)
+        * [Categorical Scale](#categorical-scale)
+        * [Color Scale](#color-scale)
+    * [Layout](#layout)
 * [Examples](#examples)
-	* [Line](#line)
-	* [Multi Line](#multi-line)
-	* [Stacked Area](#stacked-area)
-	* [Column](#column)
-	* [Stacked Column](#stacked-column)
-	* [Grouped Column](#grouped-column)
-	* [Scatter](#scatter)
-	* [Bubble](#bubble)
-	* [Histogram - TODO](#histogram---todo)
-	* [Pie - TODO](#pie---todo)
-	* [Todo](#todo)
+    * [Line](#line)
+    * [Multi Line](#multi-line)
+    * [Stacked Area](#stacked-area)
+    * [Column](#column)
+    * [Stacked Column](#stacked-column)
+    * [Grouped Column](#grouped-column)
+    * [Scatter](#scatter)
+    * [Bubble](#bubble)
+    * [Histogram - TODO](#histogram---todo)
+    * [Pie - TODO](#pie---todo)
+    * [Todo](#todo)
 
 <!-- vim-markdown-toc -->
 
@@ -82,12 +82,12 @@ Pnut chooses to require data that would match rows from an SQL query. If you hav
 ```
 // good
 [
-	{value: 10, type: 'apples'},
-	{value: 20, type: 'oranges'},
+    {value: 10, type: 'apples'},
+    {value: 20, type: 'oranges'},
 ]
 // bad
 [
-	{apples: 10, oranges: 20}
+    {apples: 10, oranges: 20}
 ]
 ```
 
@@ -105,16 +105,16 @@ Grouped series are used for things like multi line charts and stacked areas. One
 // Series.group(groupKey: string, pointKey: string, data: Array<Point>);
 
 const data = [
-	{day: 1, type: 'apples', value: 0},
-	{day: 2, type: 'apples', value: 10},
-	{day: 3, type: 'apples', value: 20},
-	{day: 4, type: 'apples', value: 15},
-	{day: 5, type: 'apples', value: 200},
-	{day: 1, type: 'oranges', value: 200},
-	{day: 2, type: 'oranges', value: 50},
-	{day: 3, type: 'oranges', value: 30},
-	{day: 4, type: 'oranges', value: 24},
-	{day: 5, type: 'oranges', value: 150}
+    {day: 1, type: 'apples', value: 0},
+    {day: 2, type: 'apples', value: 10},
+    {day: 3, type: 'apples', value: 20},
+    {day: 4, type: 'apples', value: 15},
+    {day: 5, type: 'apples', value: 200},
+    {day: 1, type: 'oranges', value: 200},
+    {day: 2, type: 'oranges', value: 50},
+    {day: 3, type: 'oranges', value: 30},
+    {day: 4, type: 'oranges', value: 24},
+    {day: 5, type: 'oranges', value: 150}
 ];
 
 const series = Series.group('type', 'day', data);
@@ -127,11 +127,11 @@ A single series is just like group but there is only one group.
 Series.single(pointKey: string, data: Array<Point>);
 
 const data = [
-	{day: 1, type: 'apples', value: 0},
-	{day: 2, type: 'apples', value: 10},
-	{day: 3, type: 'apples', value: 20},
-	{day: 4, type: 'apples', value: 15},
-	{day: 5, type: 'apples', value: 200}
+    {day: 1, type: 'apples', value: 0},
+    {day: 2, type: 'apples', value: 10},
+    {day: 3, type: 'apples', value: 20},
+    {day: 4, type: 'apples', value: 15},
+    {day: 5, type: 'apples', value: 200}
 ];
 
 const series = Series.single('day', data);
@@ -165,7 +165,7 @@ const x = ContinuousScale({series, key: 'date', range: layout.xRange});
 
 
 ### Categorical Scale
-Categorical scales are for dimension where the values cannot be divided. Things like name, type, or favourite color.
+Categorical scales are for dimensions where the values cannot be infinitely divided. Things like name, type, or favourite color.
 _Dates can also be categorical but usually require some formatting to render properly._
 
 
@@ -205,7 +205,7 @@ const range = ColorScale({series, key: 'age', range: ['#ccc', 'red']});
 
 // Apply custom interpolation to make the top half of values red
 const interpolated = ColorScale({series, key: 'type', interpolate: type => {
-	return type >= 0.5 ? 'red' : '#ccc';
+    return type >= 0.5 ? 'red' : '#ccc';
 });
 
 ```
@@ -217,25 +217,25 @@ Because SVG uses a coordinate system originating from the top left the layout fu
 type layout = (LayoutInput) => LayoutOutput;
 
 type LayoutInput = {
-	width: number,
-	height: number,
-	top?: number,
-	bottom?: number,
-	left?: number,
-	right?: number
+    width: number,
+    height: number,
+    top?: number,
+    bottom?: number,
+    left?: number,
+    right?: number
 };
 
 type LayoutOutput = {
-	width: number, // Original width - left and right
-	height: number, // Original height - top and bottom
-	padding: {
-		top: number,
-		bottom: number,
-		left: number,
-		right: number
-	},
-	xRange: [number, number], // tuple from 0 to processed width
-	yRange: [number, number], // flipped tuple from processed height to zero
+    width: number, // Original width - left and right
+    height: number, // Original height - top and bottom
+    padding: {
+        top: number,
+        bottom: number,
+        left: number,
+        right: number
+    },
+    xRange: [number, number], // tuple from 0 to processed width
+    yRange: [number, number], // flipped tuple from processed height to zero
 };
 ```
 
@@ -247,29 +247,29 @@ type LayoutOutput = {
 import {Series, ContinuousScale, ColorScale, Axis, Line, layout} from 'pnut';
 
 function SavingsOverTime() {
-	const {data} = props;
-		
-	// Define our series with day as the primary dimension
-	const series = Series.single('day', data);
+    const {data} = props;
+        
+    // Define our series with day as the primary dimension
+    const series = Series.single('day', data);
 
-	// calculate chart width, height and palling
-	const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
+    // calculate chart width, height and palling
+    const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
 
-	// Set up scales to define our x, y and color
-	const x = ContinuousScale({series, key: 'day', range: ll.xRange});
-	const y = ContinuousScale({series, key: 'savings', range: ll.yRange, zero: true});
-	const color = ColorScale({series, key: 'savings', set: ['red']});
+    // Set up scales to define our x, y and color
+    const x = ContinuousScale({series, key: 'day', range: ll.xRange});
+    const y = ContinuousScale({series, key: 'savings', range: ll.yRange, zero: true});
+    const color = ColorScale({series, key: 'savings', set: ['red']});
 
 
-	// create a scales object for each of our renderable components
-	const scales = {series, x, y, color};
+    // create a scales object for each of our renderable components
+    const scales = {series, x, y, color};
 
-	// render a chart with two axis and a line
-	return <Chart {...ll}>
-		<Axis scales={scales} position="left" />
-		<Axis scales={scales} position="bottom" />
-		<Line scales={scales} strokeWidth="2" />
-	</Chart>;
+    // render a chart with two axis and a line
+    return <Chart {...ll}>
+        <Axis scales={scales} position="left" />
+        <Axis scales={scales} position="bottom" />
+        <Line scales={scales} strokeWidth="2" />
+    </Chart>;
 }
 ```
 
@@ -337,7 +337,7 @@ function StackedArea() {
 
     // Define our series with day as the primary dimension
     const series = Series.group('type', 'day', data)
-		.update(stack({key: 'value'})); // stack savings metric
+        .update(stack({key: 'value'})); // stack savings metric
 
     // calculate chart width, height and palling
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
@@ -417,7 +417,7 @@ function StackedColumn() {
 
     // Define our series with day as the primary dimension
     const series = Series.group('type', 'day', data)
-		.update(stack({key: 'value'})); // stack savings metric
+        .update(stack({key: 'value'})); // stack savings metric
 
     // calculate chart width, height and palling
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
