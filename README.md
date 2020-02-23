@@ -149,7 +149,7 @@ For example:
 ### Continuous Scale
 Continuous scales are for dimensions like numbers and dates, where the value is infinitely divideable.
 
-```flow
+```ts
 type ContinuousScaleConfig = {
     series: Series, // A series object
     key: string, // Which key on your data points
@@ -169,7 +169,7 @@ Categorical scales are for dimension where the values cannot be divided. Things 
 _Dates can also be categorical but usually require some formatting to render properly._
 
 
-```js
+```ts
 type CategoricalScaleConfig = {
     series: Series, // A series object
     key: string, // Which key on your data points
@@ -191,7 +191,7 @@ There are four types:
 * Interpolated - _Take control of the colors by providing your own interpolator. `interpolate` is given a scaled value from 0 to 1._
 
 
-```js
+```ts
 // Get the color from `point.myColor`
 const key = ColorScale({series, key: 'myColor'});
 
@@ -213,7 +213,7 @@ const interpolated = ColorScale({series, key: 'type', interpolate: type => {
 ## Layout
 Because SVG uses a coordinate system originating from the top left the layout function is used to calculate the required widths, padding and flip the y axis.
 
-```js
+```ts
 type layout = (LayoutInput) => LayoutOutput;
 
 type LayoutInput = {
