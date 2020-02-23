@@ -213,10 +213,10 @@ const interpolated = ColorScale({series, key: 'type', interpolate: type => {
 ## Layout
 Because SVG uses a coordinate system originating from the top left the layout function is used to calculate the required widths, padding and flip the y axis.
 
-```ts
-type layout = (LayoutInput) => LayoutOutput;
+```tsx
+type layout = (LayoutConfig) => LayoutReturn;
 
-type LayoutInput = {
+type LayoutConfig = {
     width: number,
     height: number,
     top?: number,
@@ -225,7 +225,7 @@ type LayoutInput = {
     right?: number
 };
 
-type LayoutOutput = {
+type LayoutReturn = {
     width: number, // Original width - left and right
     height: number, // Original height - top and bottom
     padding: {
@@ -237,6 +237,20 @@ type LayoutOutput = {
     xRange: [number, number], // tuple from 0 to processed width
     yRange: [number, number], // flipped tuple from processed height to zero
 };
+
+// example
+import {layout} from 'pnut';
+
+const ll = layout({width: 1280, height: 720, top: 32, bottom: 32, left: 32, right: 32});
+
+const x = ContinuousScale({series, key: 'day', range: ll.xRange});
+const y = ContinuousScale({series, key: 'savings', range: ll.yRange, zero: true});
+
+return <Chart {...ll}>
+    <Axis scales={scales} position="left" />
+    <Axis scales={scales} position="bottom" />
+    <Line scales={scales} strokeWidth="2" />
+</Chart>;
 ```
 
 # Examples
