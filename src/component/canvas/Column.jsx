@@ -15,7 +15,6 @@ type Props = {
         color: ColorScale,
         series: Series
     },
-    padding?: number,
     strokeWidth?: number,
     stroke?: string,
     updateRectProps?: Function
@@ -36,7 +35,7 @@ export default class Column extends React.PureComponent<Props> {
     render(): Node {
         const {updateRectProps} = this.props;
         const {x, y, color, series} = this.props.scales;
-        if(!x.scale.bandwidth) throw new Error('x scale must have padding for point charts');
+        if(!x.scale.bandwidth) throw new Error('x scale must have padding for column charts');
 
         return <g className="Point">{series.groups.map((group, groupIndex) => {
             return group.map((point, pointIndex) => {

@@ -16,7 +16,6 @@ type Props = {
         series: Series
     },
     area?: boolean,
-    stack?: boolean,
     curve?: Function,
     strokeWidth?: number
 };
@@ -57,7 +56,7 @@ export default class Line extends React.PureComponent<Props> {
                     key,
                     d: generator(group),
                     area,
-                    color: color.scalePoint(group[0])
+                    color: color.scalePoint(group.find(color.get))
                 });
             })}
         </g>;

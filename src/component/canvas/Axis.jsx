@@ -112,8 +112,6 @@ export default class AxisRenderable extends React.PureComponent<Props> {
                     axisLineWidth / 2 + tickSize + textPadding
                 );
 
-                //console.log({value: scale(tick), tick});
-
                 const tickLineProps = {
                     axisPosition: position,
                     index,
