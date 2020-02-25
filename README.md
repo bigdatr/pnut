@@ -63,7 +63,7 @@ function SavingsOverTime() {
     // Define our series with day as the primary dimension
     const series = Series.single('day', data);
 
-    // calculate chart width, height and palling
+    // calculate chart width, height and padding
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
 
     // Set up scales to define our x, y and color
@@ -439,7 +439,7 @@ function SavingsOverTime() {
     // Define our series with day as the primary dimension
     const series = Series.single('day', data);
 
-    // calculate chart width, height and palling
+    // calculate chart width, height and padding
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
 
     // Set up scales to define our x, y and color
@@ -479,10 +479,10 @@ function MultiLine() {
         {day: 5, type: 'oranges', value: 150}
     ];
 
-    // Define our series with day as the primary dimension
+    // Define our series with type as the grouping and day as the primary dimension
     const series = Series.group('type', 'day', data);
 
-    // calculate chart width, height and palling
+    // calculate chart width, height and padding
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
 
     // Set up scales to define our x, y and color
@@ -522,11 +522,11 @@ function StackedArea() {
         {day: 5, type: 'oranges', value: 150}
     ];
 
-    // Define our series with day as the primary dimension
+    // Define our series with type as the grouping and day as the primary dimension
     const series = Series.group('type', 'day', data)
         .update(stack({key: 'value'})); // stack savings metric
 
-    // calculate chart width, height and palling
+    // calculate chart width, height and padding
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
 
     // Set up scales to define our x, y and color
@@ -559,10 +559,10 @@ function ColumnChart() {
         {fruit: 'strawberry', count: 30}
     ];
 
-    // Define our series with day as the primary dimension
+    // Define our series with fruit as the primary dimension
     const series = Series.single('fruit', data);
 
-    // calculate chart width, height and palling
+    // calculate chart width, height and padding
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
 
     // Set up scales to define our x,y and color
@@ -585,7 +585,7 @@ function ColumnChart() {
 
 
 ## Stacked Column
-```
+```jsx
 import {Chart, Column, Series, CategoricalScale, ContinuousScale, ColorScale, Axis, layout, stack} from './src/index';
 
 function StackedColumn() {
@@ -606,7 +606,7 @@ function StackedColumn() {
     const series = Series.group('type', 'day', data)
         .update(stack({key: 'value'})); // stack savings metric
 
-    // calculate chart width, height and palling
+    // calculate chart width, height and padding
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
 
     // Set up scales to define our x,y and color
@@ -627,7 +627,7 @@ function StackedColumn() {
 }
 ```
 ## Grouped Column
-```
+```jsx
 import {Chart, Column, Series, CategoricalScale, ContinuousScale, ColorScale, Axis, layout} from './src/index';
 
 function GroupedColumn() {
@@ -647,7 +647,7 @@ function GroupedColumn() {
     // Define our series with day as the primary dimension
     const series = Series.group('type', 'day', data);
 
-    // calculate chart width, height and palling
+    // calculate chart width, height and padding
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
 
     // Set up scales to define our x,y and color
@@ -669,7 +669,7 @@ function GroupedColumn() {
 ```
 
 ## Scatter
-```
+```jsx
 import {Chart, Scatter, Series, ContinuousScale, ColorScale, Axis, layout} from './src/index';
 
 function ScatterChart() {
@@ -689,7 +689,7 @@ function ScatterChart() {
     // Define our series with day as the primary dimension
     const series = Series.group('type', 'day', data);
 
-    // calculate chart width, height and palling
+    // calculate chart width, height and padding
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
 
     // Set up scales to define our x, y and color
@@ -712,7 +712,7 @@ function ScatterChart() {
 
 ```
 ## Bubble
-```
+```jsx
 import {Chart, Scatter, Series, ContinuousScale, ColorScale, Axis, layout} from './src/index';
 
 function BubbleChart() {
@@ -726,10 +726,10 @@ function BubbleChart() {
         {day: 7, size: 300, value: 20}
     ];
 
-    // Define our series with day as the primary dimension
+    // Define our series with type as the grouping and day as the primary dimension
     const series = Series.group('type', 'day', data);
 
-    // calculate chart width, height and palling
+    // calculate chart width, height and padding
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
 
     // Set up scales to define our x, y and color
