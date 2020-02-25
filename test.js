@@ -2,17 +2,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import {Chart, Scatter, Series, ContinuousScale, ColorScale, Axis, layout} from './src/index';
+import {Chart, Line, Series, ContinuousScale, ColorScale, Axis, layout} from './src/index';
 
 function BubbleChart() {
     const data = [
-        {day: 1, size: 200, value: 0},
-        {day: 2, size: 800, value: 10},
-        {day: 3, size: 900, value: 20},
-        {day: 4, size: 200, value: 15},
-        {day: 5, size: 300, value: 200},
-        {day: 6, size: 400, value: 100},
-        {day: 7, size: 300, value: 20}
+        {day: -1, size: 200, value: 0},
+        {day: -2, size: 800, value: 10},
+        {day: -3, size: 900, value: 20},
+        {day: 0, size: 200, value: -15},
+        {day: 1, size: 300, value: 200},
+        {day: 2, size: 400, value: 100},
+        {day: 3, size: 300, value: -200}
     ];
 
     // Define our series with day as the primary dimension
@@ -33,9 +33,9 @@ function BubbleChart() {
 
     // render a chart with two axis and a line
     return <Chart {...ll}>
-        <Axis scales={scales} position="left" />
-        <Axis scales={scales} position="bottom" />
-        <Scatter scales={scales} strokeWidth="2" />
+        <Axis scales={scales} position="left" location={0} />
+        <Axis scales={scales} position="bottom" location={0} />
+        <Line scales={scales} strokeWidth="2" />
     </Chart>;
 }
 

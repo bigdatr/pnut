@@ -15,17 +15,25 @@ Flexible chart building blocks for React. _(Somewhere between d3 and a charting 
         * [Categorical Scale](#categorical-scale)
         * [Color Scale](#color-scale)
     * [Layout](#layout)
+    * [Renderables](#renderables)
+        * [Axis](#axis)
+        * [Chart](#chart)
+        * [Column](#column)
+        * [Interaction](#interaction)
+        * [Line](#line)
+        * [Scatter](#scatter)
 * [Examples](#examples)
-    * [Line](#line)
+    * [Line](#line-1)
     * [Multi Line](#multi-line)
     * [Stacked Area](#stacked-area)
-    * [Column](#column)
+    * [Column](#column-1)
     * [Stacked Column](#stacked-column)
     * [Grouped Column](#grouped-column)
-    * [Scatter](#scatter)
+    * [Scatter](#scatter-1)
     * [Bubble](#bubble)
     * [Histogram - TODO](#histogram---todo)
     * [Pie - TODO](#pie---todo)
+    * [Must do](#must-do)
     * [Todo](#todo)
 
 <!-- vim-markdown-toc -->
@@ -253,6 +261,170 @@ return <Chart {...ll}>
     <Line scales={scales} strokeWidth="2" />
 </Chart>;
 ```
+
+## Renderables
+
+### Axis
+Render axis based on your series
+```ts
+type Props = {
+    // required
+    position: 'top' | 'right' | 'bottom' | 'left',
+    scales: {
+        series: Series,
+        x: ContinuousScale|CategoricalScale,
+        y: ContinuousScale|CategoricalScale
+    },
+
+    // default
+    overlap: number,
+    ticks: Function,
+    textFormat: Function,
+    axisLine: ComponentType<*>,
+    axisLineWidth: number,
+    text: ComponentType<*>,
+    textPadding: number,
+    tickLine: ComponentType<*>,
+    tickSize: number,
+
+    // optional
+    location?: number | string | Date
+};
+```
+
+
+### Chart
+Chart wraps your renderables in an svg tag and applies widths and padding.
+
+```ts
+type Props = {
+    children: Node,
+    height: number,
+    padding?: {top?: number, bottom?: number, left?: number, right?: number},
+    style?: Object,
+    width: number
+};
+```
+
+### Column
+Render a column for each point in your series
+
+```ts
+type Props = {
+    // Required scales. Must have a categorical x and a continuous y
+    scales: {
+        x: CategoricalScale,
+        y: ContinuousScale,
+        color: ColorScale,
+        series: Series
+    },
+    // Called with the calculated props for each rect before rendering.
+    updateRectProps?: Function
+    strokeWidth?: number,
+    stroke?: string,
+};
+```
+
+### Interaction
+Get information about the closest data points relative to the mouse position. 
+```ts
+type Props = {
+    scales: {
+        series: Series,
+        x: ContinuousScale|CategoricalScale,
+        y: ContinuousScale|CategoricalScale
+    },
+
+    // The height and width from your layout
+    height: number,
+    width: number,
+
+    // How many times per second to update changes and call props.children or props.onChange
+    fps?: number,
+
+    // A render function that is given the current InteractionData.
+    children: (InteractionData<A>) => Node
+
+    // A callback fired when the user clicks on the chart somewhere.
+    onClick?: (InteractionData<A>) => void,
+
+    // A callback that is fired when the user moves their mouse.
+    onChange?: (InteractionData<A>) => void,
+};
+
+type InteractionData<A> = {
+    // The nearest point in the series to the mouse
+    nearestPoint: A,
+    
+    // For instances like area or column charts the nearest point is not always 
+    // the point your mouse is over. Nearest point stepped has a larger threshold 
+    // before changing to the next point.
+    nearestPointStepped: A,
+
+    // An array of points that are close on the x axis to the mouse.
+    // Useful for stacked charts to show all values in a tooltip.
+    items: Array<A>,
+
+    // Details on the current mouse position
+    position: {
+        x: number,
+        y: number,
+        pageX: number,
+        pageY: number,
+        clientX: number,
+        clientY: number,
+        screenX: number,
+        screenY: number,
+        elementWidth: number,
+        elementHeight: number,
+        isOver: boolean,
+        isDown: boolean
+    },
+};
+```
+
+### Line
+Render a set of lines for each group in your series
+```ts
+type Props = {
+    scales: {
+        x: ContinuousScale,
+        y: ContinuousScale,
+        color: ColorScale,
+        series: Series
+    },
+
+    // Render line as an area chart
+    area?: boolean,
+
+    // A function that returns the chosen d3 curve generator
+    curve?: Function,
+
+    // Set the width of the line that is drawn
+    strokeWidth?: number
+};
+```
+
+### Scatter
+Render a series of circles at each data point in your series
+```ts
+type Props = {
+    scales: {
+        x: ContinuousScale,
+        y: ContinuousScale,
+        radius: ContinuousScale,
+        color: CategoricalScale,
+        series: Series
+    },
+
+    // Set the stroke color of each circle
+    stroke?: string,
+
+    // Set the stroke width of each circle
+    strokeWidth?: string
+};
+```
+
 
 # Examples
 
@@ -584,10 +756,16 @@ function BubbleChart() {
 ## Pie - TODO
 
 
+## Must do
+* Interaction - change items to xPoints, add yPoints
+* Consistent styling 
+
 ## Todo
 * Bar
+* Pie
 * Histogram
 * Series.bin();
+
 
 
 

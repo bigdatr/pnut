@@ -16,7 +16,6 @@ type Props = {
         series: Series
     },
     area?: boolean,
-    stack?: boolean,
     curve?: Function,
     strokeWidth?: number
 };
