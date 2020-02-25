@@ -10,3 +10,4 @@ coverage
 yarn-error.log
 website/build
 *.orig
+test.js
