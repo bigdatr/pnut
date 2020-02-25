@@ -35,7 +35,7 @@ function BubbleChart() {
     return <Chart {...ll}>
         <Axis scales={scales} position="left" location={0} />
         <Axis scales={scales} position="bottom" location={0} />
-        <Line scales={scales} strokeWidth="2" />
+        <Line scales={scales} strokeWidth={2} />
     </Chart>;
 }
 
