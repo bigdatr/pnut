@@ -18,7 +18,7 @@ export default class CategoricalScale extends Scale {
 
         // create the domain from unique values
         const domain = new Set();
-        data.forEach(item => domain.add(item[key]));
+        data.forEach(item => item[key] != null && domain.add(item[key]));
 
         // create a band or ordinal scale if padding is provided
         const scale = padding != null

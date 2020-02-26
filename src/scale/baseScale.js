@@ -19,7 +19,7 @@ export default class Scale {
         this.key = config.key;
         this.scale = config.scale;
         this.series = config.series;
-        this.range = config.scale.range();
+        this.range = config.scale.range ? config.scale.range() : [0, 1];
         this.domain = config.scale.domain();
     }
     get = (point: Object) => {

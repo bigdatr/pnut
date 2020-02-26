@@ -2,6 +2,8 @@
 
 // Series
 export {default as Series} from './series/Series';
+export {default as GroupedSeries} from './series/GroupedSeries';
+export {default as SingleSeries} from './series/SingleSeries';
 
 // Process
 export {default as stack} from './process/stack';
