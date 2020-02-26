@@ -1,8 +1,8 @@
 // @flow
 import type {Node} from 'react';
-import type Series from '../../series/Series';
-import type {ContinuousScale} from '../../scale/continuousScale';
-import type {ColorScale} from '../../scale/colorScale';
+import Series from '../../series/Series';
+import ContinuousScale from '../../scale/continuousScale';
+import ColorScale from '../../scale/colorScale';
 
 import React from 'react';
 import * as d3Shape from 'd3-shape';

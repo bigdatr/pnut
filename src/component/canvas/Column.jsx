@@ -1,8 +1,8 @@
 // @flow
 import type {Node} from 'react';
-import type {ContinuousScale} from '../../scale/continuousScale';
-import type {CategoricalScale} from '../../scale/categoricalScale';
-import type {ColorScale} from '../../scale/colorScale';
+import ContinuousScale from '../../scale/continuousScale';
+import CategoricalScale from '../../scale/categoricalScale';
+import ColorScale from '../../scale/colorScale';
 
 import React from 'react';
 import Series from '../../series/Series';

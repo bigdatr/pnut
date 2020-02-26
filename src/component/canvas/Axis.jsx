@@ -1,14 +1,15 @@
 // @flow
 import type {Node} from 'react';
 import type {ComponentType} from 'react';
-import type {LinePosition} from '../../definitions';
-import type {TextPosition} from '../../definitions';
-import type Series from '../../series/Series';
-import type {ContinuousScale} from '../../scale/continuousScale';
-import type {CategoricalScale} from '../../scale/categoricalScale';
+import Series from '../../series/Series';
+import ContinuousScale from '../../scale/continuousScale';
+import CategoricalScale from '../../scale/categoricalScale';
 
 import React from 'react';
 import {max} from 'd3-array';
+
+export type LinePosition = {x1: number, x2: number, y1: number, y2: number};
+export type TextPosition = {x: number, y: number, children: Node};
 
 function DefaultAxisLine(props: {position: LinePosition}): Node {
     return <line
