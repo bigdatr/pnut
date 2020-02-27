@@ -1,14 +1,14 @@
 // @flow
-import type Series from '../series/Series';
-import type {ContinuousScale} from '../scale/continuousScale';
-import type {CategoricalScale} from '../scale/categoricalScale';
+import Series from '../series/Series';
+import ContinuousScale from '../scale/continuousScale';
+import CategoricalScale from '../scale/categoricalScale';
 
 import React, {useEffect, useState, useCallback} from 'react';
 import useMousePosition from '@react-hook/mouse-position';
 import {bisectRight} from 'd3-array';
 
 type ChildProps<A> = {
-    nearestPoint: A,
+    nearestPoint: ?A,
     position: {
         x: number,
         y: number,
@@ -23,7 +23,7 @@ type ChildProps<A> = {
         isOver: boolean,
         isDown: boolean
     },
-    items: Array<A>
+    items: Array<Object>
 };
 
 type Props<A> = {
@@ -61,7 +61,7 @@ export default function Interaction<A>(props: Props<A>) {
         // this gives us the stepped value
         const nearestPointStepped = xValues[bisectRight(yValueArray, yValue)];
 
-        const nextValue = {
+        const nextValue: ChildProps<A> = {
             position,
             nearestPoint,
             nearestPointStepped,

@@ -1,28 +1,20 @@
 // @flow
-import groupBy from 'unmutable/groupBy';
-import pipeWith from 'unmutable/pipeWith';
-import map from 'unmutable/map';
-import toArray from 'unmutable/toArray';
-import get from 'unmutable/get';
 import getIn from 'unmutable/getIn';
 
 
 export type Point = {[string]: any};
 
-type SeriesConfig = {
-    groups: Point[][],
-    rawData: Point[],
-    type: string,
-    groupKey: string[],
-    pointKey: ?string,
+export type SeriesConfig = {
+    groups: Array<Array<Point>>,
+    rawData: Array<Point>,
+    groupKey: Array<string>,
+    pointKey?: ?string,
     preprocess?: Object
 };
-
 
 export default class Series {
     groups: Point[][];
     rawData: Point[];
-    type: string;
     groupKey: string[];
     pointKey: ?string;
     preprocess: Object;
@@ -30,53 +22,9 @@ export default class Series {
     constructor(config: SeriesConfig) {
         this.rawData = config.rawData;
         this.groups = config.groups;
-        this.type = config.type;
         this.groupKey = config.groupKey;
         this.pointKey = config.pointKey;
         this.preprocess = config.preprocess || {};
-    }
-
-    static of(config: SeriesConfig): Series {
-        return new Series(config);
-    }
-
-
-    static single(pointKey: string, rawData: Point[]): Series {
-        return Series.of({type: 'single', groupKey: [], pointKey, rawData, groups: [rawData]});
-    }
-
-    static group(group: string | Array<string>, pointKey: string, rawData: Point[]): Series {
-        // Backwards compatibility;
-        const groupKey = typeof group === "string" ? [group] : group;
-        if(groupKey.includes(pointKey))
-            throw "Point key cannot be used as a grouping key.";
-
-        const baseGroup = new Map();
-
-        rawData.forEach(item => {
-            const pointValue = get(pointKey)(item);
-            baseGroup.set(String(pointValue), {[pointKey]: pointValue});
-        });
-
-        const groups = pipeWith(
-            [...rawData],
-            groupBy(item => groupKey.reduce((acc, key) => acc + item[key], "")),
-            toArray(),
-            map(group => {
-                const newGroupMap = group.reduce((map, item) => {
-                    return map.set(String(get(pointKey)(item)), item);
-                }, new Map(baseGroup));
-                return [...newGroupMap.values()];
-            }),
-        );
-
-        return Series.of({
-            type: 'grouped',
-            groupKey,
-            pointKey,
-            rawData,
-            groups
-        });
     }
 
     copy(): Series {
@@ -84,7 +32,7 @@ export default class Series {
     }
 
     update(fn: Function): Series {
-        return Series.of(fn(this));
+        return new Series(fn(this));
     }
 
     get(groupIndex: number, pointIndex: number): Point {

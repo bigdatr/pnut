@@ -1,8 +1,8 @@
 // @flow
 import type {Node} from 'react';
-import type {ContinuousScale} from '../../scale/continuousScale';
-import type {CategoricalScale} from '../../scale/categoricalScale';
-import type {ColorScale} from '../../scale/colorScale';
+import ContinuousScale from '../../scale/continuousScale';
+import CategoricalScale from '../../scale/categoricalScale';
+import ColorScale from '../../scale/colorScale';
 
 import React from 'react';
 import Series from '../../series/Series';
@@ -37,8 +37,11 @@ export default class Column extends React.PureComponent<Props> {
         const {x, y, color, series} = this.props.scales;
         if(!x.scale.bandwidth) throw new Error('x scale must have padding for column charts');
 
+
         return <g className="Point">{series.groups.map((group, groupIndex) => {
             return group.map((point, pointIndex) => {
+                if(y.get(point) == null) return null;
+
                 const fill = color.scalePoint(point);
                 const xValue = x.scalePoint(point);
                 let yValue, height, width, xOffset;

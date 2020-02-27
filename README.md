@@ -8,8 +8,8 @@ Flexible chart building blocks for React. _(Somewhere between d3 and a charting 
 * [Design Choices](#design-choices)
 * [API](#api)
     * [Series](#series)
-        * [Grouped](#grouped)
-        * [Single](#single)
+        * [Grouped Series](#grouped-series)
+        * [Single Series](#single-series)
     * [Scales](#scales)
         * [Continuous Scale](#continuous-scale)
         * [Categorical Scale](#categorical-scale)
@@ -49,7 +49,7 @@ To render a chart you need three parts:
 
 
 ```jsx
-import {Chart, Line, Series, ContinuousScale, ColorScale, Axis, layout} from './src/index';
+import {Chart, Line, SingleSeries, ContinuousScale, ColorScale, Axis, layout} from './src/index';
 
 function SavingsOverTime() {
     const data = [
@@ -61,7 +61,7 @@ function SavingsOverTime() {
     ];
 
     // Define our series with day as the primary dimension
-    const series = Series.single('day', data);
+    const series = SingleSeries({data});
 
     // calculate chart width, height and padding
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
@@ -107,12 +107,10 @@ Pnut chooses to require data that would match rows from an SQL query. If you hav
 ## Series
 The first step in building a chart with pnut is to build a series object. The series defines how to group your data ready for rendering in an x/y plane. Under the hood it holds your data a two dimensional array of groups and points.
 
-### Grouped
+### Grouped Series
 Grouped series are used for things like multi line charts and stacked areas. One group per line and one point to match each x axis item.
 
 ```jsx
-// Series.group(groupKey: string, pointKey: string, data: Array<Point>);
-
 const data = [
     {day: 1, type: 'apples', value: 0},
     {day: 2, type: 'apples', value: 10},
@@ -126,14 +124,13 @@ const data = [
     {day: 5, type: 'oranges', value: 150}
 ];
 
-const series = Series.group('type', 'day', data);
+const series = new GroupedSeries({groupKey: 'type', pointKey: 'day', data});
 ```
 
-### Single
+### Single Series
 A single series is just like group but there is only one group.
 
 ```jsx
-Series.single(pointKey: string, data: Array<Point>);
 
 const data = [
     {day: 1, type: 'apples', value: 0},
@@ -143,7 +140,7 @@ const data = [
     {day: 5, type: 'apples', value: 200}
 ];
 
-const series = Series.single('day', data);
+const series = new SingleSeries({data});
 ```
 
 ## Scales
@@ -156,7 +153,7 @@ For example:
 * A bubble chart needs a continuous scale for x,y and radius, and a color scale.
 
 ### Continuous Scale
-Continuous scales are for dimensions like numbers and dates, where the value is infinitely divideable.
+Continuous scales are for dimensions like numbers and dates, where the value is infinitely dividable.
 
 ```ts
 type ContinuousScaleConfig = {
@@ -431,13 +428,13 @@ type Props = {
 
 ## Line
 ```jsx
-import {Series, ContinuousScale, ColorScale, Axis, Line, layout} from 'pnut';
+import {SingleSeries, ContinuousScale, ColorScale, Axis, Line, layout} from 'pnut';
 
 function SavingsOverTime() {
     const {data} = props;
         
     // Define our series with day as the primary dimension
-    const series = Series.single('day', data);
+    const series = new SingleSeries({data});
 
     // calculate chart width, height and padding
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
@@ -480,7 +477,7 @@ function MultiLine() {
     ];
 
     // Define our series with type as the grouping and day as the primary dimension
-    const series = Series.group('type', 'day', data);
+    const series = new GroupedSeries({groupKey: 'type', pointKey: 'day', data});
 
     // calculate chart width, height and padding
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
@@ -523,7 +520,7 @@ function StackedArea() {
     ];
 
     // Define our series with type as the grouping and day as the primary dimension
-    const series = Series.group('type', 'day', data)
+    const series = new GroupedSeries({groupKey: 'type', pointKey: 'day', data});
         .update(stack({key: 'value'})); // stack savings metric
 
     // calculate chart width, height and padding
@@ -550,7 +547,7 @@ function StackedArea() {
 
 ## Column
 ```jsx
-import {Chart, Column, Series, CategoricalScale, ContinuousScale, ColorScale, Axis, layout} from './src/index';
+import {Chart, Column, SingleSeries, CategoricalScale, ContinuousScale, ColorScale, Axis, layout} from './src/index';
 
 function ColumnChart() {
     const data = [
@@ -560,7 +557,7 @@ function ColumnChart() {
     ];
 
     // Define our series with fruit as the primary dimension
-    const series = Series.single('fruit', data);
+    const series = new SingleSeries({data});
 
     // calculate chart width, height and padding
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
@@ -603,7 +600,7 @@ function StackedColumn() {
     ];
 
     // Define our series with day as the primary dimension
-    const series = Series.group('type', 'day', data)
+    const series = new GroupedSeries({groupKey: 'type', pointKey: 'day', data});
         .update(stack({key: 'value'})); // stack savings metric
 
     // calculate chart width, height and padding
@@ -645,7 +642,7 @@ function GroupedColumn() {
     ];
 
     // Define our series with day as the primary dimension
-    const series = Series.group('type', 'day', data);
+    const series = new GroupedSeries({groupKey: 'type', pointKey: 'day', data});
 
     // calculate chart width, height and padding
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
@@ -687,7 +684,7 @@ function ScatterChart() {
     ];
 
     // Define our series with day as the primary dimension
-    const series = Series.group('type', 'day', data);
+    const series = new GroupedSeries({groupKey: 'type', pointKey: 'day', data});
 
     // calculate chart width, height and padding
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
@@ -727,7 +724,7 @@ function BubbleChart() {
     ];
 
     // Define our series with type as the grouping and day as the primary dimension
-    const series = Series.group('type', 'day', data);
+    const series = new GroupedSeries({groupKey: 'type', pointKey: 'day', data});
 
     // calculate chart width, height and padding
     const ll = layout({width: 400, height: 400, left: 32, bottom: 32});
