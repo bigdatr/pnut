@@ -23,7 +23,7 @@ type ChildProps<A> = {
         isOver: boolean,
         isDown: boolean
     },
-    items: Array<Object>
+    xPoints: Array<{x: number, y: number, point: A}>
 };
 
 type Props<A> = {
@@ -65,7 +65,7 @@ export default function Interaction<A>(props: Props<A>) {
             position,
             nearestPoint,
             nearestPointStepped,
-            items: xValues.map(point => ({
+            xPoints: xValues.map(point => ({
                 x: x.scalePoint(point),
                 y: y.scalePoint(point),
                 point

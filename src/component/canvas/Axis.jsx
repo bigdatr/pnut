@@ -11,29 +11,6 @@ import {max} from 'd3-array';
 export type LinePosition = {x1: number, x2: number, y1: number, y2: number};
 export type TextPosition = {x: number, y: number, children: Node};
 
-function DefaultAxisLine(props: {position: LinePosition}): Node {
-    return <line
-        {...props.position}
-        stroke='currentColor'
-        strokeWidth={1}
-    />;
-}
-
-function DefaultTick(props: {position: LinePosition}): Node {
-    return <line
-        {...props.position}
-        stroke='black'
-    />;
-}
-
-function DefaultText(props: {position: TextPosition}): Node {
-    return <text
-        {...props.position}
-        fontSize={10}
-        stroke="none"
-    />;
-}
-
 type Position = 'top' | 'right' | 'bottom' | 'left';
 type DimensionKey = 'x' | 'y';
 
@@ -46,34 +23,45 @@ type Props = {
         y: ContinuousScale|CategoricalScale
     },
 
-    // default
-    overlap: number,
-    ticks: Function,
-    textFormat: Function,
-    axisLine: ComponentType<*>,
-    axisLineWidth: number,
-    text: ComponentType<*>,
-    textPadding: number,
-    tickLine: ComponentType<*>,
-    tickSize: number,
-
     // optional
-    location?: number | string | Date
+    location?: number | string | Date,
+
+    // style
+    strokeWidth: number,
+    strokeColor: string,
+    textColor: string,
+    textSize: number,
+    textOffset: number,
+    textFormat: (mixed) => string,
+    ticks: Function,
+    tickLength: number,
+
+    // component
+    Text: ComponentType<any>,
+    AxisLine: ComponentType<any>,
+    TickLine: ComponentType<any>
 };
 
 
 export default class AxisRenderable extends React.PureComponent<Props> {
 
     static defaultProps = {
-        axisLine: DefaultAxisLine,
-        axisLineWidth: 1,
-        overlap: 0,
-        text: DefaultText,
-        textFormat: (text: mixed) => text,
-        textPadding: 6,
-        tickLine: DefaultTick,
+        // Styles
+        strokeWidth: 1,
+        strokeColor: '#222',
+        textColor: '#222',
+        textSize: 10,
+        textOffset: 6,
+        textFormat: (text: mixed) => String(text),
+
         ticks: (scale: {ticks: () => Array<mixed>, domain: () => Array<mixed>}) => scale.ticks ? scale.ticks() : scale.domain(),
-        tickSize: 6
+        tickLength: 6,
+
+        // Components
+        AxisLine: 'line',
+        TickLine: 'line',
+        Text: 'text'
+
     };
 
     dimension(): DimensionKey {
@@ -83,12 +71,15 @@ export default class AxisRenderable extends React.PureComponent<Props> {
 
     drawTicks(): Array<Node> {
         const {
-            axisLineWidth,
-            text: Text,
-            tickLine: TickLine,
-            tickSize,
-            textPadding,
-            position
+            Text,
+            TickLine,
+            strokeColor,
+            strokeWidth,
+            position,
+            textOffset,
+            textSize,
+            textColor,
+            tickLength
         } = this.props;
 
         const dimension = this.dimension();
@@ -99,36 +90,37 @@ export default class AxisRenderable extends React.PureComponent<Props> {
         const offset = scale.bandwidth ? scale.bandwidth() / 2 : 0;
 
         return ticks(scale)
-            .map((tick: any, index: number): Node => {
+            .map((tick: any): Node => {
                 const distance = scale(tick) + offset;
                 const formattedTick = textFormat(tick);
 
-                const [x1, y1] = this.getPointPosition(position, distance, axisLineWidth / 2);
-                const [x2, y2] = this.getPointPosition(position, distance, axisLineWidth / 2 + tickSize);
+                const [x1, y1] = this.getPointPosition(position, distance, strokeWidth / 2);
+                const [x2, y2] = this.getPointPosition(position, distance, strokeWidth / 2 + tickLength);
 
 
                 const [textX, textY] = this.getPointPosition(
                     position,
                     distance,
-                    axisLineWidth / 2 + tickSize + textPadding
+                    strokeWidth / 2 + tickLength + textOffset
                 );
 
                 const tickLineProps = {
-                    axisPosition: position,
-                    index,
-                    size: this.props.tickSize,
-                    position: {x1, y1, x2, y2}
+                    x1,
+                    y1,
+                    x2,
+                    y2,
+                    strokeWidth: strokeWidth,
+                    stroke: strokeColor
                 };
 
                 const textProps = {
-                    index,
-                    position: {
-                        children: formattedTick,
-                        x: textX,
-                        y: textY,
-                        textAnchor: this.getTextAnchorProp(position),
-                        dominantBaseline: this.getAlignmentBaselineProp(position)
-                    }
+                    children: formattedTick,
+                    fontSize: textSize,
+                    fill: textColor,
+                    x: textX,
+                    y: textY,
+                    textAnchor: this.getTextAnchorProp(position),
+                    dominantBaseline: this.getAlignmentBaselineProp(position)
                 };
 
                 return <g key={tick}>
@@ -140,15 +132,25 @@ export default class AxisRenderable extends React.PureComponent<Props> {
 
     drawAxisLine(): Node {
         const {
-            axisLine: AxisLine,
-            overlap,
-            position
+            AxisLine,
+            position,
+            strokeColor,
+            strokeWidth
         } = this.props;
 
-        const [x1, y1] = this.getPointPosition(position, overlap * -1, 0);
-        const [x2, y2] = this.getPointPosition(position, this.getLength() + overlap, 0);
+        const [x1, y1] = this.getPointPosition(position, 0, 0);
+        const [x2, y2] = this.getPointPosition(position, this.getLength(), 0);
 
-        return <AxisLine position={{x1, y1, x2, y2}} />;
+        const axisProps = {
+            x1,
+            y1,
+            x2,
+            y2,
+            strokeWidth: strokeWidth,
+            stroke: strokeColor
+        };
+
+        return <AxisLine {...axisProps} />;
     }
 
     getAlignmentBaselineProp(position: Position): string {

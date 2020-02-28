@@ -1,5 +1,6 @@
 // @flow
 import type {Node} from 'react';
+import type {ComponentType} from 'react';
 import Series from '../../series/Series';
 import ContinuousScale from '../../scale/continuousScale';
 import ColorScale from '../../scale/colorScale';
@@ -17,7 +18,8 @@ type Props = {
     },
     area?: boolean,
     curve?: Function,
-    strokeWidth?: number
+    strokeWidth?: number,
+    Path?: ComponentType<any>
 };
 
 export default class Line extends React.PureComponent<Props> {
@@ -64,7 +66,8 @@ export default class Line extends React.PureComponent<Props> {
 
     renderPath({d, key, area, color}: {d: string, key: number, area?: boolean, color: string}) {
         const {strokeWidth = 2} = this.props;
-        return <path
+        const {Path = 'path'} = this.props;
+        return <Path
             key={key}
             d={d}
             fill={area ? color : 'none'}

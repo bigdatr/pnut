@@ -39,7 +39,6 @@ Flexible chart building blocks for React. _(Somewhere between d3 and a charting 
 <!-- vim-markdown-toc -->
 
 
-
 # Basics
 To render a chart you need three parts:
 
@@ -266,26 +265,30 @@ Render axis based on your series
 ```ts
 type Props = {
     // required
-    position: 'top' | 'right' | 'bottom' | 'left',
+    position: Position,
     scales: {
         series: Series,
         x: ContinuousScale|CategoricalScale,
         y: ContinuousScale|CategoricalScale
     },
 
-    // default
-    overlap: number,
-    ticks: Function,
-    textFormat: Function,
-    axisLine: ComponentType<*>,
-    axisLineWidth: number,
-    text: ComponentType<*>,
-    textPadding: number,
-    tickLine: ComponentType<*>,
-    tickSize: number,
-
     // optional
-    location?: number | string | Date
+    location?: number | string | Date,
+
+    // style
+    strokeWidth: number,
+    strokeColor: string,
+    textColor: string,
+    textSize: number,
+    textOffset: number,
+    textFormat: (mixed) => string,
+    ticks: Function,
+    tickLength: number,
+
+    // component
+    Text: ComponentType<any>,
+    AxisLine: ComponentType<any>,
+    TickLine: ComponentType<any>
 };
 ```
 
@@ -315,10 +318,9 @@ type Props = {
         color: ColorScale,
         series: Series
     },
-    // Called with the calculated props for each rect before rendering.
-    updateRectProps?: Function
     strokeWidth?: number,
     stroke?: string,
+    Rect: ComponentType<any>
 };
 ```
 
@@ -360,7 +362,7 @@ type InteractionData<A> = {
 
     // An array of points that are close on the x axis to the mouse.
     // Useful for stacked charts to show all values in a tooltip.
-    items: Array<A>,
+    xPoints: Array<A>,
 
     // Details on the current mouse position
     position: {
@@ -398,7 +400,9 @@ type Props = {
     curve?: Function,
 
     // Set the width of the line that is drawn
-    strokeWidth?: number
+    strokeWidth?: number,
+
+    Path: React.component<any>
 };
 ```
 
@@ -414,11 +418,11 @@ type Props = {
         series: Series
     },
 
-    // Set the stroke color of each circle
-    stroke?: string,
+    // Set the outline width and color of each circle
+    strokeColor?: string,
+    strokeWidth?: string,
 
-    // Set the stroke width of each circle
-    strokeWidth?: string
+    Circle: ComponentType<any>
 };
 ```
 

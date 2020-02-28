@@ -1,5 +1,6 @@
 // @flow
 import type {Node} from 'react';
+import type {ComponentType} from 'react';
 import ContinuousScale from '../../scale/continuousScale';
 import CategoricalScale from '../../scale/categoricalScale';
 import ColorScale from '../../scale/colorScale';
@@ -17,7 +18,7 @@ type Props = {
     },
     strokeWidth?: number,
     stroke?: string,
-    updateRectProps?: Function
+    Rect: ComponentType<any>
 };
 
 function safeRect(mm0, mm1) {
@@ -33,7 +34,7 @@ function safeRect(mm0, mm1) {
 export default class Column extends React.PureComponent<Props> {
 
     render(): Node {
-        const {updateRectProps} = this.props;
+        const {Rect = 'rect'} = this.props;
         const {x, y, color, series} = this.props.scales;
         if(!x.scale.bandwidth) throw new Error('x scale must have padding for column charts');
 
@@ -69,19 +70,17 @@ export default class Column extends React.PureComponent<Props> {
                     xOffset = width * groupIndex;
                 }
 
-                const rectProps = {
-                    key: groupIndex + '-' + pointIndex,
-                    fill: fill,
-                    x: xValue + xOffset,
-                    y: yValue,
-                    width: width,
-                    height: height,
-                    stroke: this.props.stroke,
-                    strokeWidth: this.props.strokeWidth,
-                    shapeRendering: "crispedges"
-                };
-
-                return <rect {...(updateRectProps ? updateRectProps(rectProps, point, pointIndex) : rectProps)} />;
+                return <Rect
+                    key={groupIndex + '-' + pointIndex}
+                    fill={fill}
+                    x={xValue + xOffset}
+                    y={yValue}
+                    width={width}
+                    height={height}
+                    stroke={this.props.stroke}
+                    strokeWidth={this.props.strokeWidth}
+                    shapeRendering="crispedges"
+                />;
             });
         })}</g>;
     }
