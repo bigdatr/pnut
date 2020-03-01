@@ -1,6 +1,6 @@
 {
   "name": "pnut",
-  "version": "1.0.0-alpha.7",
+  "version": "1.0.0",
   "description": "The new and improved pnut",
   "files": [
     "lib"
