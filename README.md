@@ -286,9 +286,9 @@ type Props = {
     tickLength: number,
 
     // component
-    Text: ComponentType<any>,
-    AxisLine: ComponentType<any>,
-    TickLine: ComponentType<any>
+    renderText?: Function,
+    renderAxisLine?: Function,
+    renderTickLine?: Function
 };
 ```
 
@@ -318,9 +318,9 @@ type Props = {
         color: ColorScale,
         series: Series
     },
-    strokeWidth?: number,
+    strokeWidth?: string,
     stroke?: string,
-    Rect: ComponentType<any>
+    renderPoint?: Function
 };
 ```
 
@@ -400,9 +400,9 @@ type Props = {
     curve?: Function,
 
     // Set the width of the line that is drawn
-    strokeWidth?: number,
+    strokeWidth?: string,
 
-    Path: React.component<any>
+    renderGroup?: Function
 };
 ```
 
@@ -422,7 +422,7 @@ type Props = {
     strokeColor?: string,
     strokeWidth?: string,
 
-    Circle: ComponentType<any>
+    renderPoint?: Function
 };
 ```
 

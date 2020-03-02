@@ -1,9 +1,9 @@
 // @flow
 import type {Node} from 'react';
-import type {ComponentType} from 'react';
 import Series from '../../series/Series';
 import ContinuousScale from '../../scale/continuousScale';
 import CategoricalScale from '../../scale/categoricalScale';
+import {renderCircle} from '../../util/defaultRenderFunctions';
 
 import React from 'react';
 
@@ -19,12 +19,12 @@ type Props = {
     },
     stroke?: string,
     strokeWidth?: string,
-    Circle: ComponentType<any>
+    renderPoint?: Function
 };
 
 
 export default function Scatter(props: Props): Node {
-    const {Circle = 'circle'} = props;
+    const {renderPoint = renderCircle} = props;
     const {x, y, radius, color, series} = props.scales;
 
     return <g className="Scatter">
@@ -36,15 +36,21 @@ export default function Scatter(props: Props): Node {
                 const fill = color.scalePoint(point);
 
                 if(!isNumber(cx) || !isNumber(cy) || !isNumber(r)) return null;
-                return <Circle
-                    key={`${groupIndex}-${pointIndex}`}
-                    fill={fill}
-                    stroke={props.stroke}
-                    strokeWidth={props.strokeWidth}
-                    r={r}
-                    cx={cx}
-                    cy={cy}
-                />;
+                return renderPoint({
+                    group,
+                    groupIndex,
+                    point,
+                    pointIndex,
+                    position: {
+                        key: `${groupIndex}-${pointIndex}`,
+                        fill,
+                        stroke: props.stroke,
+                        strokeWidth: props.strokeWidth,
+                        r,
+                        cx,
+                        cy
+                    }
+                });
             });
         })}
     </g>;
