@@ -60,7 +60,7 @@ export default class Column extends React.PureComponent<Props> {
 
                     const rr = safeRect(bottom, top);
                     width = x.scale.bandwidth();
-                    xOffset = 0;
+                    xOffset = -(x.scale.bandwidth() / 2);
                     yValue = rr[0];
                     height = rr[1];
                 } else {
@@ -68,7 +68,7 @@ export default class Column extends React.PureComponent<Props> {
                     yValue = rr[0];
                     height = rr[1];
                     width = x.scale.bandwidth() / series.groups.length;
-                    xOffset = width * groupIndex;
+                    xOffset = (width * groupIndex) - x.scale.bandwidth() / 2;
                 }
 
                 return renderPoint({

@@ -84,7 +84,7 @@ export default class AxisRenderable extends React.PureComponent<Props> {
         const {x, y} = this.props.scales;
         const {ticks} = this.props;
         const scale = dimension === 'x' ? x.scale : y.scale;
-        const offset = scale.bandwidth ? scale.bandwidth() / 2 : 0;
+        const offset = 0;
         const strokeWidth = parseInt(this.props.strokeWidth, 10);
 
         return ticks(scale)
