@@ -31,9 +31,6 @@ Flexible chart building blocks for React. _(Somewhere between d3 and a charting 
     * [Grouped Column](#grouped-column)
     * [Scatter](#scatter-1)
     * [Bubble](#bubble)
-    * [Histogram - TODO](#histogram---todo)
-    * [Pie - TODO](#pie---todo)
-    * [Must do](#must-do)
     * [Todo](#todo)
 
 <!-- vim-markdown-toc -->
@@ -753,19 +750,11 @@ function BubbleChart() {
 ```
 
 
-## Histogram - TODO
-## Pie - TODO
-
-
-## Must do
-* Interaction - change items to xPoints, add yPoints
-* Consistent styling 
-
 ## Todo
 * Bar
 * Pie
 * Histogram
-* Series.bin();
+* BinnedSeries
 
 
 
