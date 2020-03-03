@@ -31,9 +31,6 @@ Flexible chart building blocks for React. _(Somewhere between d3 and a charting 
     * [Grouped Column](#grouped-column)
     * [Scatter](#scatter-1)
     * [Bubble](#bubble)
-    * [Histogram - TODO](#histogram---todo)
-    * [Pie - TODO](#pie---todo)
-    * [Must do](#must-do)
     * [Todo](#todo)
 
 <!-- vim-markdown-toc -->
@@ -286,9 +283,9 @@ type Props = {
     tickLength: number,
 
     // component
-    Text: ComponentType<any>,
-    AxisLine: ComponentType<any>,
-    TickLine: ComponentType<any>
+    renderText?: Function,
+    renderAxisLine?: Function,
+    renderTickLine?: Function
 };
 ```
 
@@ -318,9 +315,9 @@ type Props = {
         color: ColorScale,
         series: Series
     },
-    strokeWidth?: number,
+    strokeWidth?: string,
     stroke?: string,
-    Rect: ComponentType<any>
+    renderPoint?: Function
 };
 ```
 
@@ -400,9 +397,9 @@ type Props = {
     curve?: Function,
 
     // Set the width of the line that is drawn
-    strokeWidth?: number,
+    strokeWidth?: string,
 
-    Path: React.component<any>
+    renderGroup?: Function
 };
 ```
 
@@ -422,7 +419,7 @@ type Props = {
     strokeColor?: string,
     strokeWidth?: string,
 
-    Circle: ComponentType<any>
+    renderPoint?: Function
 };
 ```
 
@@ -753,19 +750,11 @@ function BubbleChart() {
 ```
 
 
-## Histogram - TODO
-## Pie - TODO
-
-
-## Must do
-* Interaction - change items to xPoints, add yPoints
-* Consistent styling 
-
 ## Todo
 * Bar
 * Pie
 * Histogram
-* Series.bin();
+* BinnedSeries
 
 
 
