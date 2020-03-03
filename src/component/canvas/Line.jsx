@@ -1,9 +1,9 @@
 // @flow
 import type {Node} from 'react';
-import type {ComponentType} from 'react';
 import Series from '../../series/Series';
 import ContinuousScale from '../../scale/continuousScale';
 import ColorScale from '../../scale/colorScale';
+import {renderPath} from '../../util/defaultRenderFunctions';
 
 import React from 'react';
 import * as d3Shape from 'd3-shape';
@@ -18,14 +18,16 @@ type Props = {
     },
     area?: boolean,
     curve?: Function,
-    strokeWidth?: number,
-    Path?: ComponentType<any>
+    strokeWidth?: string,
+    renderGroup?: Function
 };
 
 export default class Line extends React.PureComponent<Props> {
     render(): Node {
         const {x, y, color, series} = this.props.scales;
         const {area} = this.props;
+        const {renderGroup = renderPath} = this.props;
+        const {strokeWidth = '2px'} = this.props;
         const {curve = shape => shape.curveLinear} = this.props;
         const isDefined = (value) => typeof value === 'number' && !isNaN(value);
 
@@ -49,31 +51,28 @@ export default class Line extends React.PureComponent<Props> {
 
 
         return <g className="Line">
-            {series.groups.map((group, key) => {
+            {series.groups.map((group, groupIndex) => {
                 // we need to bind the current seriesIndex
                 // to our array for use in y0
                 // $FlowFixMe - intentional javascript hacks
-                group.groupIndex = key;
-                return this.renderPath({
-                    key,
-                    d: generator(group),
-                    area,
-                    color: color.scalePoint(group.find(color.get))
+                group.groupIndex = groupIndex;
+
+                const fill = color.scalePoint(group.find(color.get));
+
+                return renderGroup({
+                    group,
+                    groupIndex,
+                    position: {
+                        key: groupIndex,
+                        d: generator(group),
+                        fill: area ? fill : 'none',
+                        stroke: area ? 'none' : fill,
+                        strokeWidth
+                    }
                 });
+
             })}
         </g>;
-    }
-
-    renderPath({d, key, area, color}: {d: string, key: number, area?: boolean, color: string}) {
-        const {strokeWidth = 2} = this.props;
-        const {Path = 'path'} = this.props;
-        return <Path
-            key={key}
-            d={d}
-            fill={area ? color : 'none'}
-            stroke={area ? 'none' : color}
-            strokeWidth={strokeWidth}
-        />;
     }
 
 }

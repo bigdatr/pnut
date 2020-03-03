@@ -21,14 +21,23 @@ export default class CategoricalScale extends Scale {
         data.forEach(item => item[key] != null && domain.add(item[key]));
 
         // create a band or ordinal scale if padding is provided
-        const scale = padding != null
-            ? scaleBand()
+        let scale;
+
+        if(padding != null) {
+            let d3Scale = scaleBand()
                 .domain([...domain])
                 .range(range)
-                .padding(padding)
-            : scaleOrdinal()
+                .padding(padding);
+            scale = (value) => d3Scale(value) + d3Scale.bandwidth() / 2;
+            scale.range = d3Scale.range;
+            scale.domain = d3Scale.domain;
+            scale.bandwidth = d3Scale.bandwidth;
+
+        } else {
+            scale = scaleOrdinal()
                 .domain([...domain])
                 .range(range);
+        }
 
         // make sure the inverted base scale is quantized to the original domain items
         scale.invert = scaleQuantize().domain(scale.range()).range(scale.domain());

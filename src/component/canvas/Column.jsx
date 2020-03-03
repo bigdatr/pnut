@@ -1,12 +1,13 @@
 // @flow
 import type {Node} from 'react';
-import type {ComponentType} from 'react';
 import ContinuousScale from '../../scale/continuousScale';
 import CategoricalScale from '../../scale/categoricalScale';
 import ColorScale from '../../scale/colorScale';
 
 import React from 'react';
 import Series from '../../series/Series';
+
+import {renderRect} from '../../util/defaultRenderFunctions';
 
 
 type Props = {
@@ -16,9 +17,9 @@ type Props = {
         color: ColorScale,
         series: Series
     },
-    strokeWidth?: number,
+    strokeWidth?: string,
     stroke?: string,
-    Rect: ComponentType<any>
+    renderPoint?: Function
 };
 
 function safeRect(mm0, mm1) {
@@ -34,12 +35,12 @@ function safeRect(mm0, mm1) {
 export default class Column extends React.PureComponent<Props> {
 
     render(): Node {
-        const {Rect = 'rect'} = this.props;
+        const {renderPoint = renderRect} = this.props;
         const {x, y, color, series} = this.props.scales;
         if(!x.scale.bandwidth) throw new Error('x scale must have padding for column charts');
 
 
-        return <g className="Point">{series.groups.map((group, groupIndex) => {
+        return <g>{series.groups.map((group, groupIndex) => {
             return group.map((point, pointIndex) => {
                 if(y.get(point) == null) return null;
 
@@ -59,7 +60,7 @@ export default class Column extends React.PureComponent<Props> {
 
                     const rr = safeRect(bottom, top);
                     width = x.scale.bandwidth();
-                    xOffset = 0;
+                    xOffset = -(x.scale.bandwidth() / 2);
                     yValue = rr[0];
                     height = rr[1];
                 } else {
@@ -67,20 +68,27 @@ export default class Column extends React.PureComponent<Props> {
                     yValue = rr[0];
                     height = rr[1];
                     width = x.scale.bandwidth() / series.groups.length;
-                    xOffset = width * groupIndex;
+                    xOffset = (width * groupIndex) - x.scale.bandwidth() / 2;
                 }
 
-                return <Rect
-                    key={groupIndex + '-' + pointIndex}
-                    fill={fill}
-                    x={xValue + xOffset}
-                    y={yValue}
-                    width={width}
-                    height={height}
-                    stroke={this.props.stroke}
-                    strokeWidth={this.props.strokeWidth}
-                    shapeRendering="crispedges"
-                />;
+                return renderPoint({
+                    group,
+                    groupIndex,
+                    point,
+                    pointIndex,
+                    position: {
+                        key: `${groupIndex}-${pointIndex}`,
+                        fill,
+                        x: xValue + xOffset,
+                        y: yValue,
+                        width,
+                        height,
+                        stroke: this.props.stroke,
+                        strokeWidth: this.props.strokeWidth,
+                        shapeRendering: 'crispedges'
+                    }
+                });
+
             });
         })}</g>;
     }
