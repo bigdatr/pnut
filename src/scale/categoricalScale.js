@@ -2,7 +2,7 @@
 import type Series from '../series/Series';
 import {scaleOrdinal, scaleQuantize, scaleBand} from 'd3-scale';
 import Scale from './baseScale';
-import flatten from 'unmutable/flatten';
+import flattenArray from '../util/flattenArray';
 
 type CategoricalScaleConfig = {
     key: string,
@@ -14,7 +14,8 @@ type CategoricalScaleConfig = {
 export default class CategoricalScale extends Scale {
     constructor(config: CategoricalScaleConfig) {
         const {key, series, padding, range = []} = config;
-        const data = flatten(1)(series.groups);
+        const data = flattenArray(series.groups);
+
 
         // create the domain from unique values
         const domain = new Set();

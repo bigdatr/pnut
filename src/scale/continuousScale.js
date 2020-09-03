@@ -4,7 +4,7 @@ import type Series from '../series/Series';
 import * as d3Scale from 'd3-scale';
 import * as array from 'd3-array';
 import Scale from './baseScale';
-import flatten from 'unmutable/flatten';
+import flattenArray from '../util/flattenArray';
 import isValueDate from '../util/isDate';
 
 
@@ -27,7 +27,7 @@ export default class ContinuousScale extends Scale {
         const {zero = false} = config;
         const {clamp = true} = config;
 
-        const data = flatten(1)(series.groups);
+        const data = flattenArray(series.groups);
         const isNumber = data.every(ii => typeof ii[key] === 'number' || ii[key] == null);
         const isDate = data.every(ii => isValueDate(ii[key]) || ii[key] == null);
         const get = (group) => group[key];

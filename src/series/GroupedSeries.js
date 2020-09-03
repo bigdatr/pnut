@@ -5,7 +5,6 @@ import groupBy from 'unmutable/groupBy';
 import pipeWith from 'unmutable/pipeWith';
 import map from 'unmutable/map';
 import toArray from 'unmutable/toArray';
-import get from 'unmutable/get';
 
 
 type GroupedSeriesConfig = {
@@ -23,7 +22,7 @@ export default class GroupedSeries extends Series {
         if(groupKey.includes(pointKey)) throw "pointKey cannot be used as a groupKey.";
 
         data.forEach(item => {
-            const pointValue = get(pointKey)(item);
+            const pointValue = item[pointKey];
             baseGroup.set(String(pointValue), {[pointKey]: pointValue});
         });
 
@@ -33,7 +32,7 @@ export default class GroupedSeries extends Series {
             toArray(),
             map(group => {
                 const newGroupMap = group.reduce((map, item) => {
-                    return map.set(String(get(pointKey)(item)), item);
+                    return map.set(String(item[pointKey]), item);
                 }, new Map(baseGroup));
                 return [...newGroupMap.values()];
             }),
